@@ -1,0 +1,59 @@
+API: ENDPOINTS PRINCIPALES (REST)
+Base URL: /api/v1
+Módulo: Autenticación & Usuario
+1. POST /auth/register (Usuario final)
+o Request: {email, password, name, phone?}
+o Response: {user: {id, name, email}, token}
+2. POST /auth/register-business (Negocio)
+o Request: {business_name, tax_id, owner_email, owner_name, phone, ...}
+o Response: {message: "Pending approval", business_id}
+3. POST /auth/login (Todos)
+o Request: {email, password, guard: 'user'|'business'|'admin'}
+o Response: {user, token}
+4. POST /auth/logout (Todos) [Token required]
+5. POST /auth/forgot-password (Todos)
+6. GET /user/profile [Token required]
+o Response: {id, name, email, phone, avatar_url, appointments_count}
+
+MÓDULO: NEGOCIO PÚBLICO (APP)
+7. GET /businesses (Listado con filtros)
+• Query Params: ?category=hair&near=lat,lng&search=Barber
+• Response: {data: [{id, name, category, avg_rating, logo_url, ...}]}
+8. GET /businesses/{id} (Detalle)
+• Response: {id, name, description, locations: [...], services: [...], ...}
+9. GET /businesses/{id}/services (Servicios de un negocio)
+MÓDULO: DISPONIBILIDAD Y RESERVAS (APP)
+10. GET /availability/slots (Genera slots)
+• Query Params: ?business_id=X&service_id=Y&location_id=Z&date=2023-10-
+27&employee_id?=A
+• Response: {slots: [{start_time, end_time, employee_id, employee_name}]}
+11. POST /appointments (Crear cita) [Token user required]
+• Request: {business_id, service_id, location_id, employee_id?, datetime, client_notes?}
+• Response: {appointment: {id, code, datetime, status}}
+12. GET /user/appointments (Mis citas) [Token user required]
+• Response: {upcoming: [...], past: [...]}
+13. PATCH /appointments/{id}/cancel (Cancelar cita) [Token user required]
+
+MÓDULO: PANEL DE NEGOCIO (GESTIÓN)
+14. GET /business/dashboard (Métricas) [Token business required, Scope: admin/manager]
+• Response: {today_appointments, revenue, occupancy_rate}
+15. GET /business/locations (Listar sucursales) [Token business required]
+16. POST /business/locations (Crear sucursal) [Token business required, Permission:
+manage_locations]
+17. GET /business/services (Listar servicios) [Token business required]
+18. POST /business/services (Crear servicio) [Token business required, Permission:
+manage_services]
+19. GET /business/employees (Listar empleados) [Token business required]
+20. POST /business/employees (Crear empleado) [Token business required, Permission:
+manage_employees]
+21. GET /business/appointments (Listar citas del negocio) [Token business required]
+• Query Params: ?location_id=X&date=2023-10-27&status=confirmed
+22. PATCH /business/appointments/{id} (Actualizar cita - estado) [Token business required,
+Permission: manage_appointments]
+• Request: {status: "completed"}
+
+Módulo: Administración de Plataforma
+23. GET /admin/businesses/pending [Token admin required]
+24. POST /admin/businesses/{id}/approve [Token admin required]
+25. GET /admin/platform-metrics [Token admin required]}
+

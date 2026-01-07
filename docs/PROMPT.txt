@@ -1,0 +1,42 @@
+Actúa como arquitecto de software + analista de producto senior. Diseña una plataforma SaaS multi-tenant de citas para negocios, con app móvil para usuarios y panel web para negocios y administradores. El objetivo es que se puedan agregar y configurar nuevos negocios sin escribir código, únicamente desde interfaces web (wizards, formularios, catálogos y plantillas).
+
+Contexto:
+- Hay 3 tipos de cuentas: Usuario final, Negocio, Admin plataforma.
+- Usuarios deben registrarse para reservar citas.
+- Negocios deben registrarse y configurar su negocio (servicios, horarios, empleados, recursos, políticas) desde un panel web.
+- La app debe permitir agregar ilimitados negocios con “auto-configuración” y personalización sin desarrollo.
+- Debe soportar múltiples sucursales por negocio.
+- El sistema debe evitar choques de agenda por empleado/recurso/cupo y manejar duraciones y buffers.
+- Considera notificaciones por email y WhatsApp (puede ser fase 2).
+
+Entrega requerida (en este orden y con mucho detalle):
+1) Visión del producto: propuesta de valor, flujo general y alcance MVP vs fases.
+2) Definición de roles y permisos (RBAC) con tabla de permisos por rol.
+3) Historias de usuario + criterios de aceptación (mínimo 25).
+4) Modelado del dominio: entidades principales y relaciones (ERD descrito en texto).
+5) Motor de disponibilidad: reglas, pseudocódigo para generar slots disponibles y validar reserva.
+6) Arquitectura recomendada:
+   - Frontend web (panel) y app móvil (elige stack: React/Next + React Native o Flutter).
+   - Backend (elige stack: Laravel + MySQL/Postgres o Node/Nest + Postgres).
+   - Multi-tenant: explica estrategia (tenant_id, esquema por tenant o base por tenant) y pros/contras.
+   - Autenticación (JWT/Session), recuperación de cuenta y verificación.
+7) API: lista de endpoints REST (o GraphQL) por módulo con request/response de ejemplo (mínimo 20 endpoints).
+8) Base de datos: esquema con campos clave, índices y constraints para evitar doble reserva.
+9) Panel “no-code” para negocios:
+   - Wizard de alta del negocio (pasos)
+   - UI para crear servicios, horarios, empleados y recursos
+   - Campos personalizados por negocio (custom fields) y cómo se guardan
+   - Plantillas de mensajes para recordatorios
+10) Diseño de pantallas:
+   - App Usuario: mínimo 10 pantallas con descripción de componentes.
+   - Panel Negocio: mínimo 12 pantallas.
+   - Admin plataforma: mínimo 6 pantallas.
+11) Seguridad y cumplimiento: protección de datos, rate limiting, auditoría, logs, permisos, y recomendaciones básicas (sin asesoría legal).
+12) Métricas y analítica: KPIs para usuario y negocio.
+13) Plan de desarrollo en 4 sprints (2 semanas c/u) con entregables.
+14) Riesgos técnicos y decisiones: lo más probable que falle y cómo mitigarlo.
+
+Condiciones:
+- Escribe en español, en formato estructurado con encabezados.
+- Incluye diagramas en texto usando listas/indentación (no imágenes).
+- Propón un diseño realista para México (teléfono/WhatsApp comunes), sin depender de servicios “mágicos”.
