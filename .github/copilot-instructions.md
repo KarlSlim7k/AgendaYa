@@ -7,7 +7,7 @@
 ### Stack Tecnológico
 - **Backend API**: Laravel 10+ + PostgreSQL 14+ + Laravel Sanctum
 - **Frontend Web (Panel Admin/Negocios)**: Next.js + React + TypeScript + ShadCN/UI
-- **App Móvil (Usuarios Finales)**: React Native + Expo + TypeScript
+- **App Móvil (Usuarios Finales)**: Flutter 3.x + Dart
 - **Multi-Tenancy**: Single Database con segregación por columna `business_id`
 - **Autenticación**: REST API con Bearer tokens (Laravel Sanctum)
 
@@ -43,7 +43,7 @@ Sistema **"no-code"** donde negocios pueden auto-configurarse sin desarrollo:
 - ✅ Reserva de citas con validación en tiempo real
 - ✅ Notificaciones email básicas
 - ✅ Panel web Next.js para administración
-- ✅ App móvil Expo para usuarios finales
+- ✅ App móvil Flutter para usuarios finales
 
 **Post-MVP (Fases 6+):**
 - ⏳ Recursos compartidos (salas, equipos) con capacidad limitada
@@ -412,28 +412,49 @@ useAvailability()     // Motor de disponibilidad
 <SlotPicker />
 ```
 
-### App Móvil (React Native + Expo)
+### App Móvil (Flutter)
 
-```typescript
-// Estructura de navegación
-src/
-├── navigation/
-│   ├── AppNavigator.tsx      // Stack principal
-│   ├── AuthNavigator.tsx     // Stack de autenticación
-│   └── TabNavigator.tsx      // Tabs principales
-├── screens/
-│   ├── HomeScreen.tsx
-│   ├── BusinessDetailScreen.tsx
-│   ├── BookingScreen.tsx
-│   └── ProfileScreen.tsx
-├── components/
-├── hooks/
-├── services/
-└── stores/                   // Zustand o similar
+```dart
+// Estructura de proyecto Flutter
+lib/
+├── main.dart                 // Entry point
+├── app.dart                  // MaterialApp root
+├── core/
+│   ├── routes/
+│   │   ├── app_routes.dart   // Definición de rutas
+│   │   └── route_generator.dart
+│   ├── constants/
+│   ├── utils/
+│   └── theme/
+├── data/
+│   ├── models/               // Modelos de datos
+│   ├── repositories/         // Repositorios
+│   └── providers/            // API providers (dio/http)
+├── features/
+│   ├── auth/
+│   │   ├── screens/
+│   │   ├── widgets/
+│   │   └── providers/        // State management (Riverpod/Provider)
+│   ├── home/
+│   ├── business/
+│   ├── booking/
+│   └── profile/
+└── shared/
+    ├── widgets/              // Widgets reutilizables
+    └── services/
 
 // Almacenamiento seguro para tokens
-import * as SecureStore from 'expo-secure-store';
-await SecureStore.setItemAsync('auth_token', token);
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final storage = FlutterSecureStorage();
+await storage.write(key: 'auth_token', value: token);
+String? token = await storage.read(key: 'auth_token');
+
+// Navegación con GoRouter o Navigator 2.0
+import 'package:go_router/go_router.dart';
+
+context.go('/home');
+context.push('/business/detail', extra: businessId);
 ```
 
 ### Multi-Tenant Code Patterns
@@ -694,10 +715,14 @@ npm install
 cp .env.example .env.local
 npm run dev
 
-# Mobile (React Native + Expo)
+# Mobile (Flutter)
 cd mobile
-npm install
-npx expo start
+flutter pub get
+cp .env.example .env
+flutter run             # Emulador/dispositivo conectado
+flutter run -d chrome   # Para web (opcional)
+flutter run -d android  # Para Android específicamente
+flutter run -d ios      # Para iOS específicamente
 ```
 
 ### Database Commands

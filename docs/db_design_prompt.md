@@ -4,7 +4,7 @@
 
 Estoy desarrollando una **plataforma SaaS multi-tenant para gestión de citas empresariales** (peluquerías, clínicas, talleres, etc.). El proyecto utiliza arquitectura multi-tenant con estrategia de **Tenant ID en tablas** (single database con `business_id` para segregación).
 
-**Stack Backend**: Laravel + PostgreSQL
+**Stack Backend**: Laravel + MySQL / MariaDB / PostegreSQL
 
 **Documento de arquitectura**: He adjuntado el documento completo de arquitectura del sistema que contiene:
 - Modelado del dominio (Sección 4)
