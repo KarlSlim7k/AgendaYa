@@ -6,6 +6,20 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# ============================================
+# DOCKER - SOLO DESARROLLO LOCAL
+# ============================================
+# Archivos de Docker que NO deben ir a producción
+docker/.env.docker
+docker/init-scripts/*.local.sql
+docker-compose.override.yml
+
+# Volúmenes de Docker (datos persistentes locales)
+# NO eliminar docker/ completo porque contiene configs necesarias
+# Solo ignorar datos generados
+
+# ============================================
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

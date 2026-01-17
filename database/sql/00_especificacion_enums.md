@@ -1,15 +1,17 @@
-# Especificación de Tipos ENUM - PostgreSQL 14+
+# Especificación de Tipos ENUM - MariaDB 11.4.9+
 
-**Versión**: 1.0  
-**Fecha**: 01 de enero de 2026  
-**Ambiente**: Producción (PostgreSQL 14+)  
+**Versión**: 2.0  
+**Fecha**: 16 de enero de 2026  
+**Ambiente**: Producción (MariaDB 11.4.9+)  
 **Estado**: Aprobado para implementación
 
 ---
 
 ## Introducción
 
-Este documento especifica todos los tipos enumerados (ENUM) que serán utilizados en la plataforma. Los ENUM types en PostgreSQL proporcionan validación a nivel de base de datos, mejorando integridad de datos y performance en comparación con VARCHAR con CHECK constraints.
+Este documento especifica todos los tipos enumerados (ENUM) que serán utilizados en la plataforma. Los ENUM types en MariaDB se definen inline directamente en las columnas, proporcionando validación a nivel de base de datos y mejorando la integridad de datos.
+
+**Cambio importante**: A diferencia de PostgreSQL que usa `CREATE TYPE`, en MariaDB los ENUMs se definen directamente en la definición de columna usando la sintaxis `ENUM('valor1', 'valor2', ...)`.
 
 ---
 
@@ -31,15 +33,24 @@ Este documento especifica todos los tipos enumerados (ENUM) que serán utilizado
 
 **Justificación**: Estados discretos que representan el ciclo completo de una cita. Todas las transiciones se validan a nivel de API.
 
-**SQL**:
+**SQL (MariaDB)**:
 ```sql
-CREATE TYPE appointment_status AS ENUM (
-    'pending',      -- Cita pendiente de confirmación
-    'confirmed',    -- Cita confirmada
-    'completed',    -- Cita completada exitosamente
-    'cancelled',    -- Cita cancelada
-    'no_show'       -- Usuario no asistió
-);
+-- Definición inline en columna de tabla appointments
+CREATE TABLE appointments (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- ... otros campos
+    estado ENUM('pending', 'confirmed', 'completed', 'cancelled', 'no_show') 
+        NOT NULL DEFAULT 'pending' 
+        COMMENT 'Estado actual de la cita',
+    -- ... otros campos
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Laravel Migration**:
+```php
+$table->enum('estado', ['pending', 'confirmed', 'completed', 'cancelled', 'no_show'])
+      ->default('pending')
+      ->comment('Estado actual de la cita');
 ```
 
 ---
@@ -60,13 +71,23 @@ CREATE TYPE appointment_status AS ENUM (
 
 **Justificación**: Diferencia el tipo de excepción para reportes y filtros específicos.
 
-**SQL**:
+**SQL (MariaDB)**:
 ```sql
-CREATE TYPE schedule_exception_type AS ENUM (
-    'feriado',      -- Día feriado nacional
-    'vacaciones',   -- Período de vacaciones
-    'cierre'        -- Cierre temporal
-);
+-- Definición inline en columna de tabla schedule_exceptions
+CREATE TABLE schedule_exceptions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- ... otros campos
+    tipo ENUM('feriado', 'vacaciones', 'cierre') 
+        NOT NULL 
+        COMMENT 'Tipo de excepción de horario',
+    -- ... otros campos
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Laravel Migration**:
+```php
+$table->enum('tipo', ['feriado', 'vacaciones', 'cierre'])
+      ->comment('Tipo de excepción de horario');
 ```
 
 ---
@@ -86,12 +107,23 @@ CREATE TYPE schedule_exception_type AS ENUM (
 
 **Justificación**: Diferencia el tipo de recurso para validaciones específicas de capacidad y disponibilidad.
 
-**SQL**:
+**SQL (MariaDB)**:
 ```sql
-CREATE TYPE resource_type AS ENUM (
-    'fisico',       -- Recurso físico
-    'virtual'       -- Recurso virtual
-);
+-- Definición inline en columna de tabla resources
+CREATE TABLE resources (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- ... otros campos
+    tipo ENUM('fisico', 'virtual') 
+        NOT NULL 
+        COMMENT 'Tipo de recurso (físico o virtual)',
+    -- ... otros campos
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Laravel Migration**:
+```php
+$table->enum('tipo', ['fisico', 'virtual'])
+      ->comment('Tipo de recurso (físico o virtual)');
 ```
 
 ---
@@ -113,14 +145,24 @@ CREATE TYPE resource_type AS ENUM (
 
 **Justificación**: Control granular del ciclo de vida del negocio en la plataforma.
 
-**SQL**:
+**SQL (MariaDB)**:
 ```sql
-CREATE TYPE business_status AS ENUM (
-    'pending',      -- Pendiente de aprobación
-    'approved',     -- Aprobado y activo
-    'suspended',    -- Suspendido
-    'inactive'      -- Inactivo/Archivado
-);
+-- Definición inline en columna de tabla businesses
+CREATE TABLE businesses (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- ... otros campos
+    estado ENUM('pending', 'approved', 'suspended', 'inactive') 
+        NOT NULL DEFAULT 'pending' 
+        COMMENT 'Estado del negocio en la plataforma',
+    -- ... otros campos
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Laravel Migration**:
+```php
+$table->enum('estado', ['pending', 'approved', 'suspended', 'inactive'])
+      ->default('pending')
+      ->comment('Estado del negocio en la plataforma');
 ```
 
 ---
@@ -141,13 +183,24 @@ CREATE TYPE business_status AS ENUM (
 
 **Justificación**: Estructura de precios en diferentes niveles.
 
-**SQL**:
+**Nota**: Este campo se implementa como VARCHAR(50) en lugar de ENUM para mayor flexibilidad en adición de nuevos planes sin alterar estructura. Los valores listados son los iniciales.
+
+**SQL (MariaDB)**:
 ```sql
-CREATE TYPE subscription_plan AS ENUM (
-    'basic',        -- Plan básico
-    'standard',     -- Plan estándar
-    'premium'       -- Plan premium
-);
+-- Implementado como VARCHAR con valores sugeridos
+CREATE TABLE businesses (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- ... otros campos
+    plan VARCHAR(50) NOT NULL DEFAULT 'basic' 
+        COMMENT 'Plan de suscripción: basic, standard, premium',
+    -- ... otros campos
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Laravel Migration**:
+```php
+$table->string('plan', 50)->default('basic')
+      ->comment('Plan de suscripción: basic, standard, premium');
 ```
 
 ---
@@ -168,13 +221,23 @@ CREATE TYPE subscription_plan AS ENUM (
 
 **Justificación**: Múltiples canales de comunicación para máxima cobertura.
 
-**SQL**:
+**SQL (MariaDB)**:
 ```sql
-CREATE TYPE notification_type AS ENUM (
-    'email',        -- Correo electrónico
-    'whatsapp',     -- WhatsApp (Fase 2)
-    'sms'           -- SMS (Fase 2)
-);
+-- Definición inline en columna de tabla notification_logs
+CREATE TABLE notification_logs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- ... otros campos
+    tipo ENUM('email', 'whatsapp', 'sms') 
+        NOT NULL 
+        COMMENT 'Canal de notificación utilizado',
+    -- ... otros campos
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Laravel Migration**:
+```php
+$table->enum('tipo', ['email', 'whatsapp', 'sms'])
+      ->comment('Canal de notificación utilizado');
 ```
 
 ---
@@ -196,14 +259,23 @@ CREATE TYPE notification_type AS ENUM (
 
 **Justificación**: Seguimiento detallado de estado de notificaciones para debugging.
 
-**SQL**:
+**SQL (MariaDB)**:
 ```sql
-CREATE TYPE notification_status AS ENUM (
-    'enviado',      -- Enviado exitosamente
-    'fallido',      -- Falló el envío
-    'reintentando', -- En proceso de reintento
-    'descartado'    -- Descartado después de intentos
-);
+-- Definición inline en columna de tabla notification_logs
+CREATE TABLE notification_logs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- ... otros campos
+    estado ENUM('enviado', 'fallido', 'reintentando', 'descartado') 
+        NOT NULL 
+        COMMENT 'Estado actual de la notificación',
+    -- ... otros campos
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Laravel Migration**:
+```php
+$table->enum('estado', ['enviado', 'fallido', 'reintentando', 'descartado'])
+      ->comment('Estado actual de la notificación');
 ```
 
 ---
@@ -228,79 +300,192 @@ CREATE TYPE notification_status AS ENUM (
 
 ---
 
-## Especificaciones Técnicas PostgreSQL
+## Especificaciones Técnicas MariaDB
 
 ### Sintaxis de Creación
 
 ```sql
--- Crear todos los ENUM types
-CREATE TYPE appointment_status AS ENUM (...);
-CREATE TYPE schedule_exception_type AS ENUM (...);
-CREATE TYPE resource_type AS ENUM (...);
-CREATE TYPE business_status AS ENUM (...);
-CREATE TYPE subscription_plan AS ENUM (...);
-CREATE TYPE notification_type AS ENUM (...);
-CREATE TYPE notification_status AS ENUM (...);
+-- En MariaDB, los ENUMs se definen inline en cada columna
+-- No hay necesidad de CREATE TYPE previo
+
+-- Ejemplo en tabla appointments
+CREATE TABLE appointments (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    estado ENUM('pending', 'confirmed', 'completed', 'cancelled', 'no_show') 
+        NOT NULL DEFAULT 'pending',
+    -- ... otros campos
+);
+
+-- Ejemplo en tabla schedule_exceptions
+CREATE TABLE schedule_exceptions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tipo ENUM('feriado', 'vacaciones', 'cierre') NOT NULL,
+    -- ... otros campos
+);
 ```
 
-### Ventajas de Usar ENUM
+### Ventajas de Usar ENUM en MariaDB
 
 1. **Validación a nivel BD**: Imposible insertar valores no válidos
-2. **Storage eficiente**: 4 bytes por valor (vs VARCHAR)
+2. **Storage eficiente**: 1-2 bytes por valor (dependiendo del número de opciones)
 3. **Performance**: Comparación más rápida que strings
-4. **Documentación automática**: Schema auto-documenta valores válidos
+4. **Simplicidad**: Definición inline, no requiere tipos separados
+5. **Documentación automática**: Schema auto-documenta valores válidos
 
 ### Limitaciones y Mitigaciones
 
 | Limitación | Impacto | Mitigación |
 |------------|---------|-----------|
-| Agregar valores requiere ALTER TYPE | Downtime o complejidad | Planificar enumerados desde inicio |
-| No se pueden remover valores directamente | Dificultad en refactor | Usar estrategia de deprecación |
-| El orden importa para casting | Confusión en código | Documentar claramente |
+| Agregar valores requiere ALTER TABLE | Operación que puede bloquear tabla | Usar migrations en horarios de bajo tráfico |
+| El orden de valores importa para índices | Puede afectar performance | Planificar valores desde inicio |
+| Remover valores requiere recrear columna | Downtime potencial | Usar estrategia de deprecación + datos históricos |
+| Máximo 65,535 elementos | Limitación teórica | No aplica (nuestros ENUMs tienen 3-5 valores) |
+
+### Comparación: ENUM vs VARCHAR
+
+| Aspecto | ENUM | VARCHAR(50) |
+|---------|------|-------------|
+| Storage | 1-2 bytes | 50+ bytes |
+| Validación | Automática en BD | Requiere validación en app |
+| Modificación | Requiere ALTER TABLE | Solo cambio en validación app |
+| Performance | Excelente (índices numéricos) | Buena (índices string) |
+| Flexibilidad | Baja | Alta |
+
+**Decisión para CitasEmpresariales**: Usar ENUM para estados fijos con 3-7 valores que raramente cambiarán (estados de cita, tipos de excepción). Usar VARCHAR para campos que pueden expandirse frecuentemente (planes de suscripción).
 
 ---
 
 ## Uso en Tablas
 
-### Ejemplo: Appointments
+### Ejemplo: Appointments con MariaDB
 ```sql
 CREATE TABLE appointments (
-    id BIGSERIAL PRIMARY KEY,
-    estado appointment_status NOT NULL DEFAULT 'pending',
-    -- ...
-);
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    business_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    employee_id BIGINT UNSIGNED,
+    location_id BIGINT UNSIGNED NOT NULL,
+    service_id BIGINT UNSIGNED NOT NULL,
+    fecha_hora_inicio DATETIME NOT NULL,
+    fecha_hora_fin DATETIME NOT NULL,
+    estado ENUM('pending', 'confirmed', 'completed', 'cancelled', 'no_show') 
+        NOT NULL DEFAULT 'pending'
+        COMMENT 'Estado actual de la cita',
+    codigo_confirmacion VARCHAR(20) UNIQUE NOT NULL,
+    custom_data JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    FOREIGN KEY (business_id) REFERENCES businesses(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (employee_id) REFERENCES employees(id),
+    FOREIGN KEY (location_id) REFERENCES business_locations(id),
+    FOREIGN KEY (service_id) REFERENCES services(id),
+    CHECK (fecha_hora_fin > fecha_hora_inicio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Validación automática en inserción
 INSERT INTO appointments (estado) VALUES ('invalid'); 
--- ERROR: invalid input value for enum appointment_status: "invalid"
+-- ERROR: Data truncated for column 'estado' at row 1
 ```
 
-### Ejemplo: Schedule Exceptions
+### Ejemplo: Schedule Exceptions con MariaDB
 ```sql
 CREATE TABLE schedule_exceptions (
-    id BIGSERIAL PRIMARY KEY,
-    tipo schedule_exception_type NOT NULL,
-    -- ...
-);
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    business_location_id BIGINT UNSIGNED NOT NULL,
+    fecha DATE NOT NULL,
+    tipo ENUM('feriado', 'vacaciones', 'cierre') 
+        NOT NULL
+        COMMENT 'Tipo de excepción de horario',
+    todo_el_dia BOOLEAN NOT NULL DEFAULT TRUE,
+    hora_inicio TIME,
+    hora_fin TIME,
+    descripcion VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (business_location_id) REFERENCES business_locations(id) ON DELETE CASCADE,
+    INDEX idx_location_fecha (business_location_id, fecha)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Casteo desde string
+-- Actualización con valor ENUM
 UPDATE schedule_exceptions 
-SET tipo = 'feriado'::schedule_exception_type 
+SET tipo = 'feriado' 
 WHERE id = 1;
 ```
 
 ---
 
-## Migraciones Laravel
+## Migraciones Laravel (Schema Builder)
 
-En migraciones Laravel, se usa el método `enum()` o se ejecuta SQL directo:
+En migraciones Laravel para MariaDB, se usa el método `enum()` nativo del Schema Builder:
 
 ```php
-// Opción 1: Directo SQL en migraciones
-DB::statement("CREATE TYPE appointment_status AS ENUM ('pending', 'confirmed', 'completed', 'cancelled', 'no_show')");
+// database/migrations/xxxx_create_appointments_table.php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-// Opción 2: Usando macro personalizado (ver documentación FASE 1)
-$table->enum('estado', ['pending', 'confirmed', 'completed', 'cancelled', 'no_show']);
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('appointments', function (Blueprint $table) {
+            $table->id(); // BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
+            $table->foreignId('business_id')->constrained();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('employee_id')->nullable()->constrained();
+            $table->foreignId('location_id')->constrained('business_locations');
+            $table->foreignId('service_id')->constrained();
+            $table->dateTime('fecha_hora_inicio');
+            $table->dateTime('fecha_hora_fin');
+            
+            // ENUM inline
+            $table->enum('estado', ['pending', 'confirmed', 'completed', 'cancelled', 'no_show'])
+                  ->default('pending')
+                  ->comment('Estado actual de la cita');
+            
+            $table->string('codigo_confirmacion', 20)->unique();
+            $table->json('custom_data')->nullable();
+            $table->timestamps(); // created_at, updated_at
+            $table->softDeletes(); // deleted_at
+            
+            // Índices
+            $table->index(['business_id', 'employee_id', 'fecha_hora_inicio', 'estado']);
+            $table->index(['employee_id', 'fecha_hora_inicio']);
+        });
+        
+        // CHECK constraint (MariaDB 10.2.1+)
+        DB::statement('ALTER TABLE appointments ADD CONSTRAINT chk_fecha_fin_mayor 
+                       CHECK (fecha_hora_fin > fecha_hora_inicio)');
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('appointments');
+    }
+};
+```
+
+### Ejemplo: Schedule Exceptions
+```php
+Schema::create('schedule_exceptions', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('business_location_id')->constrained()->onDelete('cascade');
+    $table->date('fecha');
+    
+    $table->enum('tipo', ['feriado', 'vacaciones', 'cierre'])
+          ->comment('Tipo de excepción de horario');
+    
+    $table->boolean('todo_el_dia')->default(true);
+    $table->time('hora_inicio')->nullable();
+    $table->time('hora_fin')->nullable();
+    $table->string('descripcion')->nullable();
+    $table->timestamps();
+    
+    $table->index(['business_location_id', 'fecha']);
+});
+```
 ```
 
 ---

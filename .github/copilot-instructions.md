@@ -5,14 +5,20 @@
 **Plataforma SaaS multi-tenant para gestión de citas empresariales** que conecta usuarios finales con negocios de servicios (peluquerías, clínicas, talleres, etc.).
 
 ### Stack Tecnológico
-- **Backend API**: Laravel 10+ + PostgreSQL 14+ + Laravel Sanctum
-- **Frontend Web (Panel Admin/Negocios)**: Next.js + React + TypeScript + ShadCN/UI
+- **Backend + Frontend Integrados**: Laravel 12+ + MariaDB 11.4.9+
+- **Frontend Web (Panel Admin/Negocios)**: Laravel Blade + Livewire 3.x + Alpine.js 3.x + Tailwind CSS
 - **App Móvil (Usuarios Finales)**: Flutter 3.x + Dart
 - **Multi-Tenancy**: Single Database con segregación por columna `business_id`
-- **Autenticación**: REST API con Bearer tokens (Laravel Sanctum)
+- **Autenticación Web**: Laravel Breeze + Session-based
+- **Autenticación API Móvil**: Laravel Sanctum con Bearer tokens
 
 ### Estado Actual del Proyecto
 El proyecto está en **Fase 0 (Diseño)** con documentación arquitectónica completa. La implementación de código seguirá las especificaciones en `/docs` y `/database`.
+
+**Entorno de Hosting**: Neubox Tellit (hosting compartido)
+- **Servidor**: MariaDB 11.4.9, PHP 8.2, Apache 2.4.66
+- **Acceso**: cPanel (sin SSH directo)
+- **Limitaciones**: Hosting compartido con recursos limitados
 
 ### Contexto de Mercado (México)
 - **WhatsApp**: Canal principal de notificaciones (Twilio/WhatsApp Business API)
@@ -107,11 +113,11 @@ $permisos = [
     'reportes.read'
 ];
 
-// Query de validación multi-tenant
+// Query de validación multi-tenant (MariaDB)
 // ¿Usuario X tiene permiso "servicio.update" en Negocio Y?
 SELECT 1 FROM business_user_roles bur
-JOIN role_permissions rp ON bur.role_id = rp.role_id
-JOIN permissions p ON rp.permission_id = p.id
+INNER JOIN role_permissions rp ON bur.role_id = rp.role_id
+INNER JOIN permissions p ON rp.permission_id = p.id
 WHERE bur.user_id = ? AND bur.business_id = ? AND p.name = 'servicio.update';
 ```
 
@@ -196,30 +202,38 @@ if (!in_array($nuevoEstado, $transiciones[$estadoActual])) {
 | Timestamps | Laravel standard | `created_at`, `updated_at`, `deleted_at` |
 | ENUMs PostgreSQL | snake_case | `appointment_status`, `schedule_exception_type` |
 
-### ENUM Types
+### ENUM Types (MariaDB Inline)
 
 ```sql
--- Estados de cita (ciclo de vida)
-CREATE TYPE appointment_status AS ENUM (
-    'pending',    -- Pendiente confirmación
-    'confirmed',  -- Confirmada y activa
-    'completed',  -- Finalizada exitosamente
-    'cancelled',  -- Cancelada
-    'no_show'     -- Usuario no asistió
-);
+-- Estados de cita (ciclo de vida) - Definido en columna
+-- estado ENUM('pending', 'confirmed', 'completed', 'cancelled', 'no_show')
+-- Valores:
+--   'pending'    - Pendiente confirmación
+--   'confirmed'  - Confirmada y activa
+--   'completed'  - Finalizada exitosamente
+--   'cancelled'  - Cancelada
+--   'no_show'    - Usuario no asistió
 
--- Tipos de excepción de horario
-CREATE TYPE schedule_exception_type AS ENUM (
-    'feriado',     -- Día feriado nacional
-    'vacaciones',  -- Período vacacional
-    'cierre'       -- Cierre temporal
-);
+-- Tipos de excepción de horario - Definido en columna
+-- tipo ENUM('feriado', 'vacaciones', 'cierre')
+-- Valores:
+--   'feriado'     - Día feriado nacional
+--   'vacaciones'  - Período vacacional
+--   'cierre'      - Cierre temporal
 
--- Tipos de recurso (Fase 2)
-CREATE TYPE resource_type AS ENUM (
-    'fisico',   -- Sala, camilla, silla
-    'virtual'   -- Link Zoom, plataforma video
-);
+-- Tipos de recurso (Fase 2) - Definido en columna
+-- tipo ENUM('fisico', 'virtual')
+-- Valores:
+--   'fisico'   - Sala, camilla, silla
+--   'virtual'  - Link Zoom, plataforma video
+
+-- Estados de negocio - Definido en columna
+-- estado ENUM('pending', 'approved', 'suspended', 'inactive')
+-- Valores:
+--   'pending'    - Pendiente aprobación
+--   'approved'   - Aprobado y activo
+--   'suspended'  - Suspendido temporalmente
+--   'inactive'   - Inactivo
 ```
 
 ### Critical Indexes
@@ -249,7 +263,7 @@ CREATE UNIQUE INDEX idx_business_user_roles_unique
 ### Custom Fields (Campos Personalizables)
 
 ```php
-// Servicios con metadatos personalizables (JSONB)
+// Servicios con metadatos personalizables (JSON)
 $service = Service::create([
     'business_id' => $businessId,
     'nombre' => 'Corte de cabello',
@@ -265,7 +279,7 @@ $service = Service::create([
     ]
 ]);
 
-// Citas con datos personalizados del cliente (JSONB)
+// Citas con datos personalizados del cliente (JSON)
 $appointment = Appointment::create([
     // ... campos estándar
     'custom_data' => [
@@ -384,32 +398,49 @@ class AppointmentService
 class AppointmentPolicy
 ```
 
-### Frontend Web (Next.js) - Convenciones Anticipadas
+### Frontend Web (Laravel Blade + Livewire)
 
-```typescript
-// Estructura de carpetas App Router
-app/
-├── (auth)/           // Rutas públicas (login, registro)
-├── (dashboard)/      // Rutas protegidas del panel
-│   ├── negocios/
-│   ├── sucursales/
-│   ├── servicios/
-│   ├── empleados/
-│   └── citas/
-├── api/              // API Routes (si se usan)
-└── layout.tsx
+```php
+// Estructura de vistas Blade
+resources/views/
+├── layouts/
+│   ├── app.blade.php           // Layout principal con Alpine.js + Tailwind
+│   ├── guest.blade.php         // Layout para auth
+│   └── navigation.blade.php    // Menú de navegación
+├── auth/
+│   ├── login.blade.php
+│   ├── register.blade.php
+│   └── forgot-password.blade.php
+├── dashboard/
+│   └── index.blade.php         // Dashboard principal
+├── negocios/
+│   ├── index.blade.php         // Lista de negocios
+│   ├── create.blade.php        // Wizard de alta
+│   └── edit.blade.php          // Edición
+├── sucursales/
+├── servicios/
+├── empleados/
+└── citas/
 
-// Hooks personalizados con prefijo 'use'
-useAuth()             // Manejo de autenticación
-useAppointments()     // CRUD de citas con React Query
-useBusiness()         // Contexto del negocio actual
-useAvailability()     // Motor de disponibilidad
+// Componentes Livewire: PascalCase
+app/Livewire/
+├── Auth/
+├── Dashboard/
+├── Negocios/
+│   ├── WizardAlta.php          // Wizard de 5 pasos
+│   ├── ListaNegocios.php
+│   └── FormularioNegocio.php
+├── Citas/
+│   ├── CalendarioDisponibilidad.php
+│   ├── FormularioCita.php
+│   └── ListaCitas.php
+└── Shared/
+    ├── Modal.php
+    ├── NotificationToast.php
+    └── ConfirmDialog.php
 
-// Componentes: PascalCase
-<AppointmentCard />
-<ServiceSelector />
-<EmployeeAvatar />
-<SlotPicker />
+// Alpine.js para interactividad ligera (SPA-like)
+// Usar x-data, x-show, x-model para elementos reactivos
 ```
 
 ### App Móvil (Flutter)
@@ -523,20 +554,30 @@ TENANT_MISMATCH         // Recurso no pertenece al tenant
 
 ### API Endpoints por Módulo
 
-**Autenticación & Usuario**
+**Autenticación & Usuario (Web - Laravel Breeze)**
 ```php
-// Registro y login
-POST   /api/v1/auth/register                 // Usuario final {email, password, name, phone?}
-POST   /api/v1/auth/register-business        // Negocio {business_name, tax_id, owner_email, phone}
-POST   /api/v1/auth/login                    // Todos {email, password, guard}
-POST   /api/v1/auth/logout                   // [Token required]
-POST   /api/v1/auth/refresh                  // [Token required]
-POST   /api/v1/auth/forgot-password          // Recuperación de cuenta
-POST   /api/v1/auth/reset-password           // Reset password
+// Rutas Web (Session-based)
+GET    /login                               // Formulario login
+POST   /login                               // Procesar login
+POST   /logout                              // Cerrar sesión
+GET    /register                            // Formulario registro
+POST   /register                            // Procesar registro
+GET    /forgot-password                     // Recuperar contraseña
+POST   /forgot-password                     // Enviar link
+GET    /reset-password/{token}              // Formulario reset
+POST   /reset-password                      // Procesar reset
 
-// Perfil usuario
-GET    /api/v1/user/profile                  // [Token required]
-GET    /api/v1/user/appointments             // Mis citas [Token required]
+// Perfil usuario web
+GET    /profile                             // Ver/editar perfil [Auth required]
+PUT    /profile                             // Actualizar perfil [Auth required]
+DELETE /profile                             // Eliminar cuenta [Auth required]
+
+// API Móvil (Laravel Sanctum - Token-based)
+POST   /api/v1/auth/register                // Usuario final móvil
+POST   /api/v1/auth/login                   // Login móvil
+POST   /api/v1/auth/logout                  // [Token required]
+GET    /api/v1/user/profile                 // [Token required]
+GET    /api/v1/user/appointments            // Mis citas [Token required]
 ```
 
 **Negocios (Públicas)**
@@ -686,17 +727,17 @@ $schedule->command('appointments:send-reminders-1h')->everyFifteenMinutes();
   estado: 'enviado' | 'fallido' | 'reintentado',
   intentos: number,
   ultimo_intento: timestamp,
-  metadata: jsonb  // Detalles del envío
-}
-```
+  metadata+ Frontend (Laravel Monolito)
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate:fresh --seed
 
-**Plantillas Editables:**
-Negocios pueden personalizar plantillas desde el panel:
-- Variables permitidas: `{nombre_usuario}`, `{servicio}`, `{fecha}`, `{hora}`, `{negocio}`, etc.
-- Preview en tiempo real
-- Validación de variables obligatorias
-
----
+# Instalar Livewire y dependencias frontend
+composer require livewire/livewire
+npm install
+npm run build           # Para producción
+npm run dev             # Para desarrollo con hot-reload
 
 ## Development Workflows
 
@@ -738,9 +779,9 @@ php artisan db:seed --class=TestBusinessSeeder
 # Generar migración para nueva tabla
 php artisan make:migration create_tabla_name_table
 
-# PostgreSQL: Backup/Restore
-pg_dump citas_empresariales > backup_$(date +%Y%m%d).sql
-psql citas_empresariales < backup.sql
+# MariaDB: Backup/Restore
+mysqldump -u root -p citas_empresariales > backup_$(date +%Y%m%d).sql
+mysql -u root -p citas_empresariales < backup.sql
 ```
 
 ### Testing
@@ -824,8 +865,8 @@ Log::error('Slot validation failed', [
   accion: 'created' | 'updated' | 'deleted',
   modelo: 'Appointment' | 'Service' | 'Employee',
   modelo_id: number,
-  datos_previos: jsonb,      // Estado anterior
-  datos_nuevos: jsonb,       // Estado nuevo
+  datos_previos: json,      // Estado anterior
+  datos_nuevos: json,       // Estado nuevo
   ip_address: string,
   user_agent: string,
   created_at
@@ -990,7 +1031,7 @@ public function generateSlots(
 - [docs/plan_desarrollo_base_datos.md](docs/plan_desarrollo_base_datos.md) - Plan de fases de desarrollo
 
 ### Especificaciones de Base de Datos
-- [database/sql/00_especificacion_enums.md](database/sql/00_especificacion_enums.md) - Tipos ENUM PostgreSQL
+- [database/sql/00_especificacion_enums.md](database/sql/00_especificacion_enums.md) - Tipos ENUM MariaDB
 - [database/schemas/01_diagrama_erd_conceptual.md](database/schemas/01_diagrama_erd_conceptual.md) - ERD completo
 - [database/documentation/01_mapeo_matriz_permisos_rbac.md](database/documentation/01_mapeo_matriz_permisos_rbac.md) - Matriz RBAC detallada
 - [database/documentation/02_especificacion_indices.md](database/documentation/02_especificacion_indices.md) - Índices críticos
@@ -1113,7 +1154,7 @@ $displayTime = $appointment->fecha_hora_inicio
 ## Plan de Desarrollo (Sprints)
 
 ### Sprint 1 (Semanas 1-2): Fundación
-- Setup Laravel + PostgreSQL + migraciones base
+- Setup Laravel + MariaDB + migraciones base
 - Autenticación con Sanctum (registro, login, tokens)
 - CRUD Negocios y Sucursales
 - Seeders de datos de prueba
@@ -1140,8 +1181,8 @@ $displayTime = $appointment->fecha_hora_inicio
 
 ## Additional Resources
 
-- **PostgreSQL 14+ Docs**: https://www.postgresql.org/docs/14/
+- **MariaDB Documentation**: https://mariadb.com/kb/en/documentation/
 - **Laravel Multi-Tenancy**: https://tenancyforlaravel.com/docs/
 - **Laravel Sanctum**: https://laravel.com/docs/sanctum
-- **React Query (TanStack)**: https://tanstack.com/query/latest
-- **Expo Documentation**: https://docs.expo.dev/
+- **Livewire**: https://livewire.laravel.com/
+- **Alpine.js**: https://alpinejs.dev/

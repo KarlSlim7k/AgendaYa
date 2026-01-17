@@ -1,0 +1,67 @@
+# ============================================
+# .dockerignore - Excluir archivos de builds
+# ============================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentación (no necesaria en contenedores)
+docs/
+database/documentation/
+database/schemas/
+*.md
+!docker/README.md
+
+# Archivos de desarrollo
+.vscode/
+.idea/
+*.sublime-*
+
+# Node modules (se instalan en build)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Dependencias PHP (se instalan en build)
+vendor/
+
+# Laravel específico
+storage/logs/*
+!storage/logs/.gitkeep
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
+storage/framework/views/*
+!storage/framework/views/.gitkeep
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Archivos de cache
+*.cache
+.phpunit.result.cache
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.bak
+*.old
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scripts SQL raw (no necesarios en contenedor)
+database/postgresql/
+database/mysql/
+database/mariadb/
+
+# Tests
+tests/
+phpunit.xml

@@ -35,7 +35,7 @@ Este checklist debe ser completado y firmado antes de proceder a FASE 1. Cada it
 | 1.2.2 | Tabla `business_locations` existe y tiene FK a businesses | ⬜ | |
 | 1.2.3 | Tabla `services` existe con `duracion_minutos`, `precio` | ⬜ | |
 | 1.2.4 | `services` tiene `buffer_pre_minutos` y `buffer_post_minutos` | ⬜ | |
-| 1.2.5 | `services` tiene campo `meta` (JSONB para custom fields) | ⬜ | |
+| 1.2.5 | `services` tiene campo `meta` (JSON para custom fields) | ⬜ | |
 | 1.2.6 | Tabla `employees` existe con FK opcional a `users` | ⬜ | |
 | 1.2.7 | Tabla `employee_services` es pivote N:M correcto | ⬜ | |
 | 1.2.8 | Tabla `schedule_templates` tiene día_semana (0-6) y horarios | ⬜ | |
@@ -59,7 +59,7 @@ Este checklist debe ser completado y firmado antes de proceder a FASE 1. Cada it
 | 1.4.3 | `appointments` tiene `estado` (ENUM appointment_status) | ⬜ | |
 | 1.4.4 | `appointments` tiene FK a user, location, service, employee | ⬜ | |
 | 1.4.5 | `appointments` tiene `codigo_confirmacion` UNIQUE | ⬜ | |
-| 1.4.6 | `appointments` tiene `custom_data` (JSONB) | ⬜ | |
+| 1.4.6 | `appointments` tiene `custom_data` (JSON) | ⬜ | |
 | 1.4.7 | `appointments` tiene CHECK (fecha_fin > fecha_inicio) | ⬜ | |
 | 1.4.8 | Tabla `appointment_status_histories` con historial completo | ⬜ | |
 
@@ -212,9 +212,9 @@ Este checklist debe ser completado y firmado antes de proceder a FASE 1. Cada it
 
 | Item | Requisito | Estado | Observaciones |
 |------|-----------|--------|---|
-| 11.1 | Diseño compatible con PostgreSQL 14+ | ⬜ | |
-| 11.2 | Diseño compatible con Laravel 10+ | ⬜ | |
-| 11.3 | ENUM types para Eloquent ORM | ⬜ | |
+| 11.1 | Diseño compatible con MariaDB 11.4.9+ | ⬜ | |
+| 11.2 | Diseño compatible con Laravel 12+ | ⬜ | |
+| 11.3 | ENUM types inline para columnas | ⬜ | |
 | 11.4 | JSON fields para custom_data | ⬜ | |
 | 11.5 | Soft deletes para Laravel (deleted_at) | ⬜ | |
 | 11.6 | Global scopes documentados para modelos | ⬜ | |
@@ -266,8 +266,8 @@ Este checklist debe ser completado y firmado antes de proceder a FASE 1. Cada it
 
 | Item | Requisito | Estado | Observaciones |
 |------|-----------|--------|---|
-| 15.1 | Scripts SQL compilables en PostgreSQL 14+ | ⬜ | |
-| 15.2 | ENUM types creables sin errores | ⬜ | |
+| 15.1 | Scripts SQL compilables en MariaDB 11.4.9+ | ⬜ | |
+| 15.2 | ENUM types inline creables sin errores | ⬜ | |
 | 15.3 | Tablas creables sin errores FK | ⬜ | |
 | 15.4 | Índices creables sin conflictos | ⬜ | |
 | 15.5 | Constraints validables (CHECK, UNIQUE) | ⬜ | |

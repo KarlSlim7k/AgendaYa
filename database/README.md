@@ -1,20 +1,24 @@
 # Base de Datos - Citas Empresariales SaaS
 
+## Motor Principal: MariaDB 11.4.9+
+
+Este proyecto está diseñado para **MariaDB 11.4.9+** como motor de base de datos principal, compatible con el hosting compartido Neubox Tellit.
+
 ## Estructura de Carpetas
 
 ```
 database/
-├── mysql/                          # Scripts para MySQL 8.0+
+├── mariadb/                        # Scripts para MariaDB 11.4.9+ (PRINCIPAL)
 │   ├── 01_create_database.sql      # Crear base de datos
 │   ├── 02_create_tables.sql        # Crear todas las tablas
 │   └── 03_seeders_rbac.sql         # Seeders de roles y permisos
 │
-├── mariadb/                        # Scripts para MariaDB 10.6+
+├── mysql/                          # Scripts para MySQL 8.0+ (compatible)
 │   ├── 01_create_database.sql      # Crear base de datos
 │   ├── 02_create_tables.sql        # Crear todas las tablas
 │   └── 03_seeders_rbac.sql         # Seeders de roles y permisos
 │
-├── postgresql/                     # Scripts para PostgreSQL 14+
+├── postgresql/                     # Scripts para PostgreSQL 14+ (legacy/alternativa)
 │   ├── 01_create_database.sql      # Crear base de datos
 │   ├── 02_create_enums.sql         # Crear ENUM types nativos
 │   ├── 03_create_tables.sql        # Crear todas las tablas
@@ -33,37 +37,9 @@ database/
     └── 00_especificacion_enums.md
 ```
 
-## Orden de Ejecución
+## Orden de Ejecución (MariaDB - RECOMENDADO)
 
-### PostgreSQL 14+
-
-```bash
-# 1. Crear base de datos y extensiones
-psql -U postgres -f postgresql/01_create_database.sql
-
-# 2. Conectar a la base de datos y ejecutar el resto
-psql -U postgres -d citas_empresariales -f postgresql/02_create_enums.sql
-psql -U postgres -d citas_empresariales -f postgresql/03_create_tables.sql
-psql -U postgres -d citas_empresariales -f postgresql/04_seeders_rbac.sql
-
-# 5. (Opcional) Verificar con queries de ejemplo
-psql -U postgres -d citas_empresariales -f postgresql/05_queries_examples.sql
-```
-
-### MySQL 8.0+
-
-```bash
-# 1. Crear base de datos
-mysql -u root -p < mysql/01_create_database.sql
-
-# 2. Crear tablas
-mysql -u root -p citas_empresariales < mysql/02_create_tables.sql
-
-# 3. Insertar seeders RBAC
-mysql -u root -p citas_empresariales < mysql/03_seeders_rbac.sql
-```
-
-### MariaDB 10.6+
+### MariaDB 11.4.9+ (Producción - Neubox Tellit)
 
 ```bash
 # 1. Crear base de datos
@@ -75,6 +51,15 @@ mysql -u root -p citas_empresariales < mariadb/02_create_tables.sql
 # 3. Insertar seeders RBAC
 mysql -u root -p citas_empresariales < mariadb/03_seeders_rbac.sql
 ```
+
+**Ventajas de MariaDB para este proyecto:**
+- ✅ Disponible en Neubox Tellit hosting compartido
+- ✅ Compatible con cPanel
+- ✅ No requiere Node.js ni servicios adicionales
+- ✅ ENUM inline (sin necesidad de CREATE TYPE)
+- ✅ JSON nativo con funciones de consulta
+- ✅ CHECK constraints completamente soportados
+- ✅ Excelente performance para aplicaciones multi-tenant
 
 ## Diferencias entre Motores
 
@@ -160,24 +145,55 @@ Formato: `modulo.accion`
 
 ## Configuración de Entorno Laravel
 
-### PostgreSQL (.env)
-```env
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=citas_empresariales
-DB_USERNAME=postgres
-DB_PASSWORD=your_password
-```
-
-### MySQL (.env)
+### MariaDB 11.4.9+ (.env) - RECOMENDADO
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=citas_empresariales
 DB_USERNAME=root
-DB_PASSWORD=your_password
+DB_PASSWORD=
+
+# Configuración específica de MariaDB
+DB_CHARSET=utf8mb4
+DB_COLLATION=utf8mb4_unicode_ci
+DB_ENGINE=InnoDB
+```
+
+### MySQL 8.0+ (.env) - Compatible
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=citas_empresariales
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### PostgreSQL 14+ (.env) - Alternativa (requiere hosting con soporte)
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=citas_empresariales
+DB_USERNAME=postgres
+DB_PASSWORD=
+```
+
+## Diferencias entre Motores
+
+| Característica | MariaDB 11.4.9 | MySQL 8.0+ | PostgreSQL 14+ |
+|----------------|----------------|------------|----------------|
+| **ENUM Types** | ENUM inline en columnas ✅ | ENUM inline en columnas ✅ | CREATE TYPE + columna 💡 |
+| **JSON** | JSON nativo ✅ | JSON nativo ✅ | JSONB (indexable) 💡 |
+| **AUTO_INCREMENT** | ✅ | ✅ | BIGSERIAL 💡 |
+| **CHECK Constraints** | ✅ Completo | ✅ 8.0.16+ | ✅ Siempre |
+| **Partial Indexes** | ❌ No | ❌ No | ✅ Soportados |
+| **Triggers updated_at** | ON UPDATE CURRENT_TIMESTAMP ✅ | ON UPDATE CURRENT_TIMESTAMP ✅ | Función + Trigger |
+| **Collation** | utf8mb4_unicode_ci ✅ | utf8mb4_unicode_ci ✅ | UTF8/es_MX.UTF-8 |
+| **Hosting Neubox** | ✅ Disponible | ⚠️ Versiones antiguas | ❌ No disponible |
+
+**Decisión**: MariaDB 11.4.9 es el motor recomendado para producción en Neubox Tellit.
 ```
 
 ### MariaDB (.env)
