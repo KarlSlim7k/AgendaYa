@@ -63,4 +63,12 @@ class Service extends Model
     {
         return $this->belongsToMany(Employee::class, 'employee_services');
     }
+
+    /**
+     * Relación: Citas que utilizan este servicio
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }

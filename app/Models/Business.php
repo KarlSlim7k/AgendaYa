@@ -104,6 +104,14 @@ class Business extends Model
     }
 
     /**
+     * Citas del negocio.
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /**
      * Scope para negocios activos/aprobados.
      */
     public function scopeActive($query)

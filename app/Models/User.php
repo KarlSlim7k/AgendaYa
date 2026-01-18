@@ -45,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'telefono',
         'password',
         'foto_perfil_url',
+        'current_business_id',
     ];
 
     /**
@@ -86,6 +87,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Business::class, 'business_user_roles')
             ->withPivot('role_id', 'asignado_el')
             ->withTimestamps();
+    }
+
+    /**
+     * Citas del usuario como cliente.
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     /**

@@ -74,6 +74,14 @@ class Employee extends Model
     }
 
     /**
+     * Relación: Citas asignadas al empleado
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /**
      * Scope: Solo empleados disponibles
      */
     public function scopeDisponibles(Builder $query): Builder

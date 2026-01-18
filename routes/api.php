@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\AvailabilityController;
 use App\Http\Controllers\Api\V1\EmployeeController;
 use App\Http\Controllers\Api\V1\ScheduleController;
@@ -22,6 +23,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // API v1
     Route::prefix('v1')->group(function () {
+        // Citas
+        Route::apiResource('appointments', AppointmentController::class)->only(['index', 'store', 'show', 'update']);
+        Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel']);
+
         // Servicios
         Route::apiResource('services', ServiceController::class);
 
