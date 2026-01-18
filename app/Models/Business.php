@@ -88,6 +88,22 @@ class Business extends Model
     }
 
     /**
+     * Servicios del negocio.
+     */
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    /**
+     * Empleados del negocio.
+     */
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
+
+    /**
      * Scope para negocios activos/aprobados.
      */
     public function scopeActive($query)

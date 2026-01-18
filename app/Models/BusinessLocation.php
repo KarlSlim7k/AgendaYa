@@ -92,6 +92,22 @@ class BusinessLocation extends Model
     }
 
     /**
+     * Plantillas de horario de la sucursal.
+     */
+    public function scheduleTemplates()
+    {
+        return $this->hasMany(ScheduleTemplate::class);
+    }
+
+    /**
+     * Excepciones de horario de la sucursal.
+     */
+    public function scheduleExceptions()
+    {
+        return $this->hasMany(ScheduleException::class);
+    }
+
+    /**
      * Scope para sucursales activas.
      */
     public function scopeActive($query)
