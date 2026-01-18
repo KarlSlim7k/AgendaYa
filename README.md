@@ -91,4 +91,4 @@ Todas las tablas con `business_id` usan **Global Scopes** automáticos para aisl
 
 ## Licencia
 
-Propietario - Karol Delgado © 2024
+Propietario - DevelomentGroup7k © 2024
