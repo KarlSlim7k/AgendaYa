@@ -1,16 +1,3 @@
-# AgendaYa- Plataforma SaaS Multi-Tenant
-
-Sistema de gestión de citas empresariales que conecta usuarios finales con negocios de servicios (peluquerías, clínicas, talleres, etc.).
-
-## Stack Tecnológico
-
-- **Backend + Frontend Web**: Laravel 12+ + MariaDB 11.4.9
-- **Frontend Web**: Laravel Blade + Livewire 3.x + Alpine.js 3.x + Tailwind CSS
-- **App Móvil**: Flutter 3.x (planeado)
-- **Multi-Tenancy**: Single Database con `business_id`
-- **Autenticación Web**: Laravel Breeze (sessions)
-- **Autenticación API**: Laravel Sanctum (tokens)
-
 # AgendaYa - Plataforma SaaS Multi-Tenant
 
 Plataforma completa de gestión de citas empresariales con panel web administrativo y APIs robustas. Conecta usuarios finales con negocios de servicios (peluquerías, clínicas, talleres, etc.) mediante un sistema multi-tenant seguro y escalable.
