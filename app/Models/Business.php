@@ -70,6 +70,14 @@ class Business extends Model
     }
 
     /**
+     * Sucursales activas del negocio.
+     */
+    public function activeLocations()
+    {
+        return $this->hasMany(BusinessLocation::class)->where('activo', true);
+    }
+
+    /**
      * Usuarios con roles en este negocio.
      */
     public function users()

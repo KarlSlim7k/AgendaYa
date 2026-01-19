@@ -98,6 +98,18 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Obtener el negocio activo actual del usuario.
+     */
+    public function currentBusiness()
+    {
+        if (!$this->current_business_id) {
+            return null;
+        }
+
+        return Business::find($this->current_business_id);
+    }
+
+    /**
      * Verificar si el usuario tiene un rol específico en un negocio.
      */
     public function hasRoleInBusiness(string $roleName, int $businessId): bool

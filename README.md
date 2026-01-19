@@ -1,4 +1,4 @@
-# CitasEmpresariales - Plataforma SaaS Multi-Tenant
+# AgendaYa- Plataforma SaaS Multi-Tenant
 
 Sistema de gestión de citas empresariales que conecta usuarios finales con negocios de servicios (peluquerías, clínicas, talleres, etc.).
 
@@ -91,4 +91,4 @@ Todas las tablas con `business_id` usan **Global Scopes** automáticos para aisl
 
 ## Licencia
 
-Propietario - Karol Delgado © 2024
+Propietario - DevelomentGroup7k © 2024

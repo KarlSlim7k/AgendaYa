@@ -4,9 +4,12 @@ namespace App\Services;
 
 use App\Exceptions\InvalidStateTransitionException;
 use App\Exceptions\SlotNotAvailableException;
+use App\Jobs\SendAppointmentConfirmationJob;
 use App\Models\Appointment;
 use App\Models\Employee;
 use App\Models\Service;
+use App\Notifications\AppointmentConfirmed;
+use App\Notifications\AppointmentCancelled;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -82,6 +85,10 @@ class AppointmentService
             // Invalidar caché de disponibilidad
             $this->invalidateAvailabilityCache($data['business_id'], $data['service_id'], $fechaHoraInicio);
 
+            // Enviar notificación de confirmación
+            $appointment->load(['user', 'service', 'employee', 'business']);
+            $appointment->user->notify(new AppointmentConfirmed($appointment));
+
             return $appointment;
         });
     }
@@ -129,7 +136,7 @@ class AppointmentService
         int $cancelledByUserId,
         ?string $motivo = null
     ): Appointment {
-        return $this->updateAppointmentStatus(
+        $result = $this->updateAppointmentStatus(
             $appointment,
             Appointment::ESTADO_CANCELLED,
             [
@@ -137,6 +144,12 @@ class AppointmentService
                 'motivo_cancelacion' => $motivo,
             ]
         );
+
+        // Enviar notificación de cancelación
+        $appointment->load(['user', 'service', 'employee', 'business']);
+        $appointment->user->notify(new AppointmentCancelled($appointment, $motivo));
+
+        return $result;
     }
 
     /**

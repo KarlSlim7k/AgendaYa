@@ -94,7 +94,7 @@ class CreateAppointmentTest extends TestCase
         $response = $this->get(route('appointments.create'));
         
         $response->assertStatus(200);
-        $response->assertSeeLivewire('appointments.create-appointment');
+        $response->assertSeeLivewire('appointments.create-appointment-form');
     }
 
     /** @test */
