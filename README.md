@@ -11,6 +11,19 @@ Sistema de gestión de citas empresariales que conecta usuarios finales con nego
 - **Autenticación Web**: Laravel Breeze (sessions)
 - **Autenticación API**: Laravel Sanctum (tokens)
 
+# AgendaYa - Plataforma SaaS Multi-Tenant
+
+Plataforma completa de gestión de citas empresariales con panel web administrativo y APIs robustas. Conecta usuarios finales con negocios de servicios (peluquerías, clínicas, talleres, etc.) mediante un sistema multi-tenant seguro y escalable.
+
+## Stack Tecnológico
+
+- **Backend + Frontend Web**: Laravel 12+ + MariaDB 11.4.9
+- **Frontend Web**: Laravel Blade + Livewire 3.x + Alpine.js 3.x + Tailwind CSS
+- **App Móvil**: Flutter 3.x (planeado)
+- **Multi-Tenancy**: Single Database con `business_id`
+- **Autenticación Web**: Laravel Breeze (sessions)
+- **Autenticación API**: Laravel Sanctum (tokens)
+
 ## Estado Actual
 
 ### Sprint 1: Fundación - ✅ COMPLETADO
@@ -30,23 +43,47 @@ Sistema de gestión de citas empresariales que conecta usuarios finales con nego
 - Tests completos (68 tests, 530 aserciones)
 - Endpoint de disponibilidad pública
 
-### Próximo: Sprint 3 - Citas y Disponibilidad
-- Motor de disponibilidad completo
-- Gestión de citas con validación de slots
-- Prevención de doble booking con locks
-- Estados de citas y transiciones
-- Notificaciones básicas
+### Sprint 3: Frontend Web - ✅ COMPLETADO
+- Panel web completo con 8 componentes Livewire
+- Gestión de citas: listado, creación y detalles
+- Dashboard con métricas y KPIs en tiempo real
+- Gestión de horarios semanales y excepciones
+- Motor de disponibilidad integrado
+- Tests completos (105 tests, 613 aserciones)
+
+### Sprint 4: Web Panel & Notificaciones - ✅ COMPLETADO
+- CRUD completo: Servicios, Empleados, Horarios
+- Perfil de negocio editable
+- Sistema de notificaciones por email automático
+- Reportes y analytics avanzados
+- Modales de confirmación y UX mejorada
+- Tests completos (153 tests, 891 aserciones)
+
+### Próximo: Sprint 5 - App Móvil
+- Desarrollo de app Flutter para usuarios finales
+- Integración con APIs existentes
+- Autenticación móvil con Sanctum
+- Reserva de citas desde dispositivo móvil
+- Notificaciones push (planeado)
 
 ## Estructura del Proyecto
 
 ```
-CitasEmpresariales/
+AgendaYa/
 ├── app/                    # Código fuente Laravel
 │   ├── Http/               # Controllers, Requests, Resources
 │   ├── Models/             # Eloquent models con Global Scopes
-│   ├── Livewire/           # Componentes Livewire
-│   ├── Services/           # Lógica de negocio
-│   └── Policies/           # Autorización RBAC
+│   ├── Livewire/           # 20+ componentes funcionales
+│   │   ├── Appointments/   # Gestión de citas
+│   │   ├── Dashboard/      # Panel de métricas
+│   │   ├── Services/       # CRUD servicios
+│   │   ├── Employees/      # CRUD empleados
+│   │   ├── Schedule/       # Gestión de horarios
+│   │   ├── Business/       # Perfil de negocio
+│   │   └── Reports/        # Reportes y analytics
+│   ├── Services/           # Lógica de negocio (AvailabilityService)
+│   ├── Policies/           # Autorización RBAC
+│   └── Notifications/      # Sistema de emails
 ├── database/
 │   ├── migrations/         # Migraciones versionadas
 │   ├── seeders/            # Datos de prueba
@@ -59,13 +96,16 @@ CitasEmpresariales/
 │   └── progreso_sprints/   # Avance por sprints
 ├── public/                 # Punto de entrada web
 ├── resources/
-│   ├── views/              # Blade templates
+│   ├── views/              # Blade templates + Livewire
+│   │   ├── livewire/       # 20+ vistas de componentes
+│   │   ├── auth/           # Vistas de autenticación
+│   │   └── layouts/        # Layouts principales
 │   ├── css/                # Tailwind CSS
 │   └── js/                 # Alpine.js
 ├── routes/
 │   ├── web.php             # Rutas web (sessions)
 │   └── api.php             # Rutas API (Sanctum)
-└── tests/                  # Tests PHPUnit
+└── tests/                  # Tests PHPUnit (326 tests total)
 ```
 
 ## Documentación
@@ -76,12 +116,38 @@ CitasEmpresariales/
 - **Progreso por Sprints**: [docs/progreso_sprints/](docs/progreso_sprints/)
 - **Copilot Instructions**: [.github/copilot-instructions.md](.github/copilot-instructions.md)
 
-## Multi-Tenancy
+## Características Principales
 
+### ✅ Panel Web Administrativo
+- **Dashboard con métricas en tiempo real**: KPIs, gráficos y tendencias
+- **Gestión completa de citas**: Creación, listado, estados y detalles
+- **CRUD de servicios y empleados**: Con validaciones y sincronización
+- **Sistema de horarios flexibles**: Plantillas semanales + excepciones
+- **Reportes avanzados**: Analytics y exportación de datos
+
+### ✅ APIs Robustas
+- **Motor de disponibilidad inteligente**: 7 reglas de negocio
+- **Prevención de doble booking**: Locks pesimistas
+- **Sistema RBAC completo**: 5 roles, 26 permisos granulares
+- **Multi-tenancy seguro**: Aislamiento por `business_id`
+
+### ✅ Notificaciones Automáticas
+- **Emails de confirmación**: Inmediatos al crear cita
+- **Recordatorios programados**: 24h y 1h antes
+- **Cancelaciones**: Con motivos y opciones de reprogramación
+- **Logging completo**: Tracking de envíos y estados
+
+### ✅ Testing Exhaustivo
+- **326 tests totales**: 2,035 aserciones
+- **Cobertura completa**: CRUD, RBAC, multi-tenancy, concurrencia
+- **Tests de integración**: APIs, componentes Livewire, notificaciones
+
+## Arquitectura
+
+### Multi-Tenancy
 Todas las tablas con `business_id` usan **Global Scopes** automáticos para aislamiento de datos por tenant.
 
-## Sistema RBAC
-
+### Sistema RBAC
 5 roles jerárquicos con 26 permisos granulares:
 - `USUARIO_FINAL`: Usuario móvil, solo citas propias
 - `NEGOCIO_STAFF`: Empleado, agenda asignada
