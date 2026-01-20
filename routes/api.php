@@ -41,14 +41,31 @@ Route::middleware('auth:sanctum')->group(function () {
         
 
         // Citas
-        Route::apiResource('appointments', AppointmentController::class)->only(['index', 'store', 'show', 'update']);
-        Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel']);
+        Route::apiResource('appointments', AppointmentController::class)->only(['index', 'store', 'show', 'update'])->names([
+            'index' => 'api.appointments.index',
+            'store' => 'api.appointments.store',
+            'show' => 'api.appointments.show',
+            'update' => 'api.appointments.update',
+        ]);
+        Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('api.appointments.cancel');
 
         // Servicios
-        Route::apiResource('services', ServiceController::class);
+        Route::apiResource('services', ServiceController::class)->names([
+            'index' => 'api.services.index',
+            'store' => 'api.services.store',
+            'show' => 'api.services.show',
+            'update' => 'api.services.update',
+            'destroy' => 'api.services.destroy',
+        ]);
 
         // Empleados
-        Route::apiResource('employees', EmployeeController::class);
+        Route::apiResource('employees', EmployeeController::class)->names([
+            'index' => 'api.employees.index',
+            'store' => 'api.employees.store',
+            'show' => 'api.employees.show',
+            'update' => 'api.employees.update',
+            'destroy' => 'api.employees.destroy',
+        ]);
 
         // Horarios de sucursales
         Route::prefix('locations/{location}')->group(function () {

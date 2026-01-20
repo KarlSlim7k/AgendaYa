@@ -41,15 +41,73 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+        // #region agent log
+        // Instrumentación para debug: Verificar configuración de BD antes de autenticar
+        try {
+            $dbConfig = config('database.connections.mysql');
+            \Illuminate\Support\Facades\Log::info('Login Debug - Verificando configuración de BD', [
+                'sessionId' => 'debug-session',
+                'runId' => 'login-attempt',
+                'hypothesisId' => 'C',
+                'location' => 'LoginRequest::authenticate',
+                'message' => 'Configuración de BD antes de autenticar',
+                'data' => [
+                    'db_host' => $dbConfig['host'] ?? 'not_set',
+                    'db_port' => $dbConfig['port'] ?? 'not_set',
+                    'db_database' => $dbConfig['database'] ?? 'not_set',
+                    'db_username' => $dbConfig['username'] ?? 'not_set',
+                    'db_password_set' => !empty($dbConfig['password'] ?? ''),
+                    'db_connection' => config('database.default'),
+                    'email_attempt' => $this->input('email'),
+                ],
+                'timestamp' => now()->timestamp * 1000,
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Login Debug - Error al verificar BD', [
+                'sessionId' => 'debug-session',
+                'runId' => 'login-attempt',
+                'hypothesisId' => 'C',
+                'location' => 'LoginRequest::authenticate',
+                'message' => 'Error al verificar configuración de BD',
+                'data' => ['error' => $e->getMessage()],
+                'timestamp' => now()->timestamp * 1000,
             ]);
         }
+        // #endregion
 
-        RateLimiter::clear($this->throttleKey());
+        try {
+            if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
+
+            RateLimiter::clear($this->throttleKey());
+        } catch (\PDOException $e) {
+            // #region agent log
+            // Capturar errores de conexión a BD
+            \Illuminate\Support\Facades\Log::error('Login Debug - Error de conexión a BD', [
+                'sessionId' => 'debug-session',
+                'runId' => 'login-attempt',
+                'hypothesisId' => 'D',
+                'location' => 'LoginRequest::authenticate',
+                'message' => 'PDOException durante autenticación',
+                'data' => [
+                    'error_code' => $e->getCode(),
+                    'error_message' => $e->getMessage(),
+                    'sql_state' => $e->errorInfo[0] ?? 'unknown',
+                    'driver_code' => $e->errorInfo[1] ?? 'unknown',
+                    'driver_message' => $e->errorInfo[2] ?? 'unknown',
+                ],
+                'timestamp' => now()->timestamp * 1000,
+            ]);
+            // #endregion
+            
+            // Re-lanzar la excepción para que Laravel la maneje
+            throw $e;
+        }
     }
 
     /**
