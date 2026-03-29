@@ -1,47 +1,75 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@extends('layouts.auth-marketing')
 
-    <form method="POST" action="{{ route('login') }}">
+@section('auth_title', 'Iniciar sesión | AgendaYa')
+@section('tag', 'Bienvenido de vuelta')
+@section('title', 'Inicia sesión en AgendaYa')
+@section('subtitle', 'Accede a tu panel para gestionar citas, equipo y horarios desde cualquier dispositivo.')
+
+@section('nav_action')
+    <a href="{{ route('register') }}" class="btn-ghost">Crear cuenta</a>
+@endsection
+
+@section('aside_title', 'Tu operación diaria, siempre en control')
+@section('aside_text', 'Con AgendaYa centralizas reservas, disponibilidad y recordatorios para enfocarte en hacer crecer tu negocio.')
+
+@section('aside_points')
+    <li>Agenda online 24/7 para clientes nuevos y frecuentes.</li>
+    <li>Recordatorios automáticos para bajar ausencias.</li>
+    <li>Vista clara de citas, servicios y equipo en tiempo real.</li>
+@endsection
+
+@section('content')
+    <form method="POST" action="{{ route('login') }}" class="auth-form" novalidate>
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="field">
+            <label for="email">Correo electrónico</label>
+            <input
+                id="email"
+                type="email"
+                name="email"
+                value="{{ old('email') }}"
+                required
+                autofocus
+                autocomplete="username"
+                placeholder="tu@negocio.com"
+            >
+            @error('email')
+                <p class="field-error">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="field">
+            <label for="password">Contraseña</label>
+            <input
+                id="password"
+                type="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                placeholder="Tu contraseña"
+            >
+            @error('password')
+                <p class="field-error">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
+        <div class="form-meta">
+            <label for="remember_me" class="checkbox-wrap">
+                <input id="remember_me" type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                <span>Recordarme en este dispositivo</span>
             </label>
-        </div>
 
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
+                <a class="text-link" href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <button type="submit" class="btn-primary">Entrar al panel</button>
     </form>
-</x-guest-layout>
+
+    <p class="foot-note">
+        ¿Aún no tienes cuenta?
+        <a href="{{ route('register') }}">Regístrate gratis</a>
+    </p>
+@endsection

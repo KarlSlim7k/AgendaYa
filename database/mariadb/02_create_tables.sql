@@ -1,11 +1,11 @@
 -- =====================================================
--- CITAS EMPRESARIALES - MariaDB 10.6+
+-- AgendaYa - MariaDB 10.6+
 -- Script de Creación de Tablas
 -- Versión: 1.0
 -- Fecha: 13 de enero de 2026
 -- =====================================================
 
-USE citas_empresariales;
+USE agendaya_agendaya;
 
 -- =====================================================
 -- NOTA: MariaDB utiliza ENUM inline como MySQL.

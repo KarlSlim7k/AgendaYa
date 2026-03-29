@@ -6,11 +6,11 @@
 -- =====================================================
 
 -- Crear base de datos con charset adecuado para español
-CREATE DATABASE IF NOT EXISTS citas_empresariales
+CREATE DATABASE IF NOT EXISTS agendaya
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
-USE citas_empresariales;
+USE agendaya;
 
 -- Verificar versión de MariaDB
 SELECT VERSION() AS 'MariaDB Version';

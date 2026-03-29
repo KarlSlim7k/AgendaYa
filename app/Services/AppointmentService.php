@@ -195,7 +195,7 @@ class AppointmentService
         $cacheKey = "slots:{$businessId}:{$serviceId}:{$fecha->format('Y-m-d')}";
         cache()->forget($cacheKey);
         
-        // Invalidar por tenant
-        cache()->tags(['tenant_' . $businessId])->flush();
+        // Invalidar por tenant (sin tags para compatibilidad con database/file cache)
+        // Se invalida por clave individual; cache()->tags() no es compatible con CACHE_STORE=database
     }
 }
