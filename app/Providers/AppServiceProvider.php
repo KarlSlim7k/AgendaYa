@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\ViteManifestNotFoundException;
@@ -70,6 +72,56 @@ class AppServiceProvider extends ServiceProvider
         foreach ($permissions as $permission) {
             Gate::define($permission, fn($user) => true);
         }
+
+        Gate::define('platform-admin', function ($user) {
+            if (!$user) {
+                return false;
+            }
+
+            $hasPlatformRole = false;
+            if (Schema::hasTable('business_user_roles') && Schema::hasTable('roles')) {
+                $roleNameColumn = null;
+                if (Schema::hasColumn('roles', 'nombre')) {
+                    $roleNameColumn = 'nombre';
+                } elseif (Schema::hasColumn('roles', 'name')) {
+                    $roleNameColumn = 'name';
+                }
+
+                if ($roleNameColumn !== null) {
+                    $platformRoleQuery = DB::table('business_user_roles as bur')
+                        ->join('roles as r', 'r.id', '=', 'bur.role_id')
+                        ->where('bur.user_id', $user->id)
+                        ->where('r.'.$roleNameColumn, 'PLATAFORMA_ADMIN');
+
+                    if (Schema::hasColumn('business_user_roles', 'deleted_at')) {
+                        $platformRoleQuery->whereNull('bur.deleted_at');
+                    }
+
+                    $hasPlatformRole = $platformRoleQuery->exists();
+                }
+            }
+
+            if ($hasPlatformRole) {
+                return true;
+            }
+
+            if (empty($user->email) || !Schema::hasTable('platform_admins')) {
+                return false;
+            }
+
+            $platformAdminQuery = DB::table('platform_admins')
+                ->where('email', $user->email);
+
+            if (Schema::hasColumn('platform_admins', 'activo')) {
+                $platformAdminQuery->where('activo', true);
+            }
+
+            if (Schema::hasColumn('platform_admins', 'deleted_at')) {
+                $platformAdminQuery->whereNull('deleted_at');
+            }
+
+            return $platformAdminQuery->exists();
+        });
 
         // #region agent log
         // Instrumentación para debug: Verificar configuración de Vite

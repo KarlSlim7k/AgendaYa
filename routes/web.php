@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\Appointments\AppointmentsList;
 use App\Livewire\Appointments\CreateAppointmentForm;
 use App\Livewire\Business\BusinessProfile;
-use App\Livewire\Dashboard\BusinessDashboard;
 use App\Livewire\Reports\AppointmentsReport;
 use App\Livewire\Services\ServicesList;
 use App\Livewire\Services\CreateEditService;
@@ -12,6 +12,8 @@ use App\Livewire\Employees\EmployeesList;
 use App\Livewire\Employees\CreateEditEmployee;
 use App\Livewire\Schedule\ManageSchedule;
 use App\Livewire\Schedule\ManageExceptions;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,7 +22,13 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard principal
-    Route::get('/dashboard', BusinessDashboard::class)->name('dashboard');
+    Route::get('/dashboard', function (Request $request) {
+        if (Gate::forUser($request->user())->allows('platform-admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return view('dashboard');
+    })->name('dashboard');
     
     // Perfil de usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -51,5 +59,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Ruta de Reportes
     Route::get('/reports', AppointmentsReport::class)->name('reports.index');
 });
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'role:PLATAFORMA_ADMIN'])
+    ->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/businesses/{id}/approve', [DashboardController::class, 'approveBusiness'])
+            ->whereNumber('id')
+            ->name('businesses.approve');
+        Route::post('/businesses/{id}/suspend', [DashboardController::class, 'suspendBusiness'])
+            ->whereNumber('id')
+            ->name('businesses.suspend');
+        Route::post('/settings', [DashboardController::class, 'updateSettings'])->name('settings.update');
+        Route::post('/failed-jobs/{id}/retry', [DashboardController::class, 'retryFailedJob'])
+            ->whereNumber('id')
+            ->name('jobs.retry');
+    });
 
 require __DIR__.'/auth.php';
