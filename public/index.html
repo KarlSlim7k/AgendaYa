@@ -125,6 +125,36 @@
       text-decoration: none; transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--white); }
+
+    /* ─── NAV DROPDOWN ──────────────────────────────── */
+    .nav-dropdown { position: relative; }
+    .nav-dropdown-trigger {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 14px; font-weight: 500; color: var(--muted);
+      text-decoration: none; cursor: pointer; transition: color 0.2s;
+      background: none; border: none; font-family: var(--font-body);
+    }
+    .nav-dropdown-trigger:hover { color: var(--white); }
+    .nav-dropdown-trigger svg { transition: transform 0.2s; }
+    .nav-dropdown:hover .nav-dropdown-trigger svg { transform: rotate(180deg); }
+    .nav-dropdown-menu {
+      position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px;
+      padding: 8px; min-width: 220px; opacity: 0; visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .nav-dropdown:hover .nav-dropdown-menu { opacity: 1; visibility: visible; }
+    .nav-dropdown-menu a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 14px; font-weight: 500; color: var(--muted);
+      text-decoration: none; transition: background 0.15s, color 0.15s;
+    }
+    .nav-dropdown-menu a:hover { background: rgba(0,229,160,0.08); color: var(--white); }
+    .nav-dropdown-menu a .dd-icon { font-size: 16px; }
+    .nav-dropdown-divider { height: 1px; background: var(--border); margin: 4px 8px; }
+
     .nav-actions { display: flex; align-items: center; gap: 12px; }
     .nav-login {
       font-size: 14px; font-weight: 500; color: var(--muted);
@@ -735,6 +765,24 @@
       <li><a href="#como-funciona">Cómo funciona</a></li>
       <li><a href="#para-quien">Para ti si...</a></li>
       <li><a href="#precios">Precios</a></li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-trigger">
+          Recursos
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="app-movil.html"><span class="dd-icon">📱</span> App móvil</a>
+          <a href="novedades.html"><span class="dd-icon">🆕</span> Novedades</a>
+          <div class="nav-dropdown-divider"></div>
+          <a href="centro-de-ayuda.html"><span class="dd-icon">❓</span> Centro de ayuda</a>
+          <a href="documentacion.html"><span class="dd-icon">📚</span> Documentación</a>
+          <a href="estado-del-sistema.html"><span class="dd-icon">🟢</span> Estado del sistema</a>
+          <a href="seguridad.html"><span class="dd-icon">🔒</span> Seguridad</a>
+          <div class="nav-dropdown-divider"></div>
+          <a href="socios.html"><span class="dd-icon">🤝</span> Socios</a>
+          <a href="contacto.html"><span class="dd-icon">✉️</span> Contacto</a>
+        </div>
+      </li>
     </ul>
     <div class="nav-actions">
       <a href="/login" class="nav-login">Iniciar sesión</a>
@@ -758,6 +806,14 @@
     <li><a href="#como-funciona" onclick="toggleMenu()">Cómo funciona</a></li>
     <li><a href="#para-quien" onclick="toggleMenu()">Para ti si...</a></li>
     <li><a href="#precios" onclick="toggleMenu()">Precios</a></li>
+    <li><a href="app-movil.html" onclick="toggleMenu()">App móvil</a></li>
+    <li><a href="novedades.html" onclick="toggleMenu()">Novedades</a></li>
+    <li><a href="centro-de-ayuda.html" onclick="toggleMenu()">Centro de ayuda</a></li>
+    <li><a href="documentacion.html" onclick="toggleMenu()">Documentación</a></li>
+    <li><a href="estado-del-sistema.html" onclick="toggleMenu()">Estado del sistema</a></li>
+    <li><a href="seguridad.html" onclick="toggleMenu()">Seguridad</a></li>
+    <li><a href="socios.html" onclick="toggleMenu()">Socios</a></li>
+    <li><a href="contacto.html" onclick="toggleMenu()">Contacto</a></li>
     <li><a href="/login">Iniciar sesión</a></li>
     <li><a href="/register" style="color:var(--teal);">Comenzar gratis →</a></li>
   </ul>
@@ -1199,29 +1255,28 @@
         <ul>
           <li><a href="#funciones">Funciones</a></li>
           <li><a href="#precios">Precios</a></li>
-          <li><a href="#">API para desarrolladores</a></li>
-          <li><a href="#">App móvil</a></li>
-          <li><a href="#">Novedades</a></li>
+          <li><a href="app-movil.html">App móvil</a></li>
+          <li><a href="novedades.html">Novedades</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h5>Empresa</h5>
         <ul>
-          <li><a href="#">Nosotros</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">Casos de éxito</a></li>
-          <li><a href="#">Socios</a></li>
-          <li><a href="#">Contacto</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="casos-de-exito.html">Casos de éxito</a></li>
+          <li><a href="socios.html">Socios</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h5>Soporte</h5>
         <ul>
-          <li><a href="#">Centro de ayuda</a></li>
-          <li><a href="#">Documentación</a></li>
+          <li><a href="centro-de-ayuda.html">Centro de ayuda</a></li>
+          <li><a href="documentacion.html">Documentación</a></li>
           <li><a href="mailto:hola@agendaya.mx">hola@agendaya.mx</a></li>
-          <li><a href="#">Estado del sistema</a></li>
-          <li><a href="#">Seguridad</a></li>
+          <li><a href="estado-del-sistema.html">Estado del sistema</a></li>
+          <li><a href="seguridad.html">Seguridad</a></li>
         </ul>
       </div>
     </div>

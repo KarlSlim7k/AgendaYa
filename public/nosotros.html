@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nosotros — AgendaYa</title>
+  <meta name="description" content="Conoce al equipo detrás de AgendaYa, la plataforma SaaS de gestión de citas para negocios de servicios en Latinoamérica." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080E1C; --bg-2: #0D1526; --bg-3: #111D35;
+      --teal: #00E5A0; --teal-dim: #00C88A;
+      --coral: #FF5C38; --coral-dim: #E04C2C;
+      --white: #F0F4FF; --muted: #6B7FA8;
+      --border: rgba(255,255,255,0.08); --card: rgba(255,255,255,0.04);
+      --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--white); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 3px; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.25); padding: 6px 14px; border-radius: 100px; }
+    .tag::before { content: ''; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+    h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--coral); color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 15px; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+    .btn-primary:hover { background: var(--coral-dim); transform: translateY(-1px); }
+    .btn-ghost { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); font-family: var(--font-body); font-weight: 500; font-size: 15px; padding: 13px 24px; border-radius: 8px; border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+    .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(8,14,28,0.88); backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--teal); }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-login { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-login:hover { color: var(--white); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+    @media (max-width: 768px) { .nav-links, .nav-actions .btn-primary { display: none; } .hamburger { display: flex; } .nav-login { display: none; } }
+
+    /* HERO */
+    .page-hero { padding: 160px 0 80px; position: relative; overflow: hidden; }
+    .page-hero::after { content: ''; position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,229,160,0.1) 0%, transparent 70%); pointer-events: none; }
+    .hero-blob { position: absolute; bottom: -10%; left: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,92,56,0.07) 0%, transparent 70%); pointer-events: none; }
+    .page-hero-content { position: relative; z-index: 2; text-align: center; }
+    .page-hero h1 { font-size: clamp(38px, 5.5vw, 68px); font-weight: 800; letter-spacing: -0.03em; margin: 20px 0 24px; }
+    .page-hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--teal) 0%, #00B8FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .page-hero p { font-size: clamp(17px, 2vw, 19px); color: var(--muted); max-width: 560px; margin: 0 auto; font-weight: 300; line-height: 1.7; }
+
+    /* STATS */
+    .stats-bar { background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 40px 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+    .stat-num { font-family: var(--font-head); font-size: clamp(32px, 4vw, 48px); font-weight: 800; color: var(--teal); }
+    .stat-label { font-size: 14px; color: var(--muted); margin-top: 6px; }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    /* MISSION */
+    .section { padding: 96px 0; }
+    .section-label { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; }
+    .section-title { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .section-body { font-size: 17px; color: var(--muted); line-height: 1.8; max-width: 600px; }
+    .mission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .mission-visual { position: relative; }
+    .mission-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 20px; padding: 32px; position: relative; overflow: hidden; }
+    .mission-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,229,160,0.15) 0%, transparent 70%); }
+    .mission-quote { font-family: var(--font-head); font-size: 22px; font-weight: 700; line-height: 1.4; margin-bottom: 20px; position: relative; z-index: 1; }
+    .mission-quote span { color: var(--teal); }
+    .mission-meta { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+    .mission-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--teal) 0%, #00B8FF 100%); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 16px; color: var(--bg); flex-shrink: 0; }
+    .mission-person strong { display: block; font-weight: 600; font-size: 14px; }
+    .mission-person span { font-size: 13px; color: var(--muted); }
+    @media (max-width: 860px) { .mission-grid { grid-template-columns: 1fr; } }
+
+    /* VALUES */
+    .values-section { background: var(--bg-2); padding: 96px 0; }
+    .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .value-card { background: var(--bg-3); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: border-color 0.2s; }
+    .value-card:hover { border-color: rgba(0,229,160,0.3); }
+    .value-icon { font-size: 32px; margin-bottom: 20px; }
+    .value-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .value-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    @media (max-width: 760px) { .values-grid { grid-template-columns: 1fr; } }
+
+    /* TEAM */
+    .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 48px; }
+    .team-card { text-align: center; }
+    .team-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 28px; color: var(--bg); }
+    .team-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .team-card p { font-size: 13px; color: var(--muted); }
+    .team-card .team-role { display: inline-block; margin-top: 8px; font-size: 12px; color: var(--teal); background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.2); padding: 4px 10px; border-radius: 100px; }
+    @media (max-width: 760px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 440px) { .team-grid { grid-template-columns: 1fr; } }
+
+    /* TIMELINE */
+    .timeline { position: relative; padding-left: 32px; margin-top: 48px; }
+    .timeline::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(180deg, var(--teal) 0%, rgba(0,229,160,0.1) 100%); }
+    .timeline-item { position: relative; padding-bottom: 40px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { position: absolute; left: -39px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--teal); border: 3px solid var(--bg); }
+    .timeline-date { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .timeline-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .timeline-text { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+    /* CTA */
+    .cta-section { padding: 96px 0; text-align: center; }
+    .cta-inner { background: var(--bg-2); border: 1px solid var(--border); border-radius: 24px; padding: 64px 40px; position: relative; overflow: hidden; }
+    .cta-inner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,229,160,0.12) 0%, transparent 70%); }
+    .cta-inner::after { content: ''; position: absolute; bottom: -60px; left: -60px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,92,56,0.1) 0%, transparent 70%); }
+    .cta-inner h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; position: relative; z-index: 1; }
+    .cta-inner p { font-size: 17px; color: var(--muted); margin-bottom: 36px; max-width: 440px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; }
+    .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+    /* FOOTER */
+    footer { background: var(--bg-2); border-top: 1px solid var(--border); padding: 64px 0 32px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 16px; display: block; }
+    .footer-logo span { color: var(--teal); }
+    .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 260px; }
+    .footer-col h5 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--teal); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); flex-wrap: wrap; gap: 12px; }
+    .footer-bottom a { color: var(--muted); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--teal); }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
+    @media (max-width: 500px) { .footer-grid { grid-template-columns: 1fr; } }
+
+    /* Mobile nav */
+    .mobile-nav { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100vh; background: var(--bg-2); z-index: 200; transition: right 0.35s cubic-bezier(0.25,0.46,0.45,0.94); padding: 80px 32px 32px; border-left: 1px solid var(--border); }
+    .mobile-nav.open { right: 0; }
+    .mobile-nav ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .mobile-nav ul a { display: block; padding: 12px 0; font-size: 18px; font-weight: 500; color: var(--white); text-decoration: none; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-nav ul a:hover { color: var(--teal); }
+    .mobile-nav-close { position: absolute; top: 24px; right: 24px; font-size: 22px; color: var(--muted); cursor: pointer; transition: color 0.2s; }
+    .mobile-nav-close:hover { color: var(--white); }
+    .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Agenda<span>Ya</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#funciones">Funciones</a></li>
+      <li><a href="index.html#como-funciona">Cómo funciona</a></li>
+      <li><a href="index.html#precios">Precios</a></li>
+      <li><a href="nosotros.html" style="color:var(--white)">Nosotros</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="nav-login">Iniciar sesión</a>
+      <a href="/register" class="btn-primary" style="padding:10px 20px;font-size:14px;">Comenzar gratis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+<div class="mobile-nav" id="mobileNav">
+  <span class="mobile-nav-close" onclick="toggleMenu()">✕</span>
+  <ul>
+    <li><a href="index.html#funciones" onclick="toggleMenu()">Funciones</a></li>
+    <li><a href="index.html#precios" onclick="toggleMenu()">Precios</a></li>
+    <li><a href="nosotros.html">Nosotros</a></li>
+    <li><a href="/login">Iniciar sesión</a></li>
+    <li><a href="/register" style="color:var(--teal)">Comenzar gratis →</a></li>
+  </ul>
+</div>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="hero-blob"></div>
+  <div class="container">
+    <div class="page-hero-content">
+      <span class="tag">Nuestra historia</span>
+      <h1>Construido para el <em>negocio real</em></h1>
+      <p>Nacimos de la frustración de ver negocios increíbles perder clientes por una mala gestión de agenda. AgendaYa es la solución que queríamos y no existía.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div><div class="stat-num">500+</div><div class="stat-label">Negocios activos</div></div>
+      <div><div class="stat-num">3</div><div class="stat-label">Países de operación</div></div>
+      <div><div class="stat-num">98%</div><div class="stat-label">Satisfacción de clientes</div></div>
+      <div><div class="stat-num">2023</div><div class="stat-label">Año de fundación</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MISSION -->
+<section class="section">
+  <div class="container">
+    <div class="mission-grid">
+      <div>
+        <div class="section-label">Nuestra misión</div>
+        <h2 class="section-title">Que ningún negocio pierda un cliente por falta de herramientas</h2>
+        <p class="section-body">En Latinoamérica, millones de negocios de servicios operan con WhatsApp, libretas y hojas de cálculo. AgendaYa democratiza el acceso a tecnología profesional de gestión de citas — sin curvas de aprendizaje, sin costos exorbitantes.</p>
+        <p class="section-body" style="margin-top:16px;">Creemos que el dueño de una barbería en Guadalajara merece las mismas herramientas que una cadena de spas con 50 sucursales.</p>
+      </div>
+      <div class="mission-visual">
+        <div class="mission-card">
+          <div class="mission-quote">"Queríamos que cualquier negocio pudiera verse <span>tan profesional</span> como los grandes."</div>
+          <div class="mission-meta">
+            <div class="mission-avatar">KD</div>
+            <div class="mission-person">
+              <strong>Karol Delgado</strong>
+              <span>Co-fundador &amp; CEO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="values-section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:0">
+      <span class="tag">Lo que nos mueve</span>
+      <h2 class="section-title" style="margin-top:20px">Nuestros valores</h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card fade-up">
+        <div class="value-icon">🎯</div>
+        <h3>Simplicidad radical</h3>
+        <p>Si necesita un manual, lo simplificamos. Cada función de AgendaYa está diseñada para ser obvia desde el primer clic.</p>
+      </div>
+      <div class="value-card fade-up" style="transition-delay:0.1s">
+        <div class="value-icon">🤝</div>
+        <h3>Éxito del cliente primero</h3>
+        <p>Ganamos cuando nuestros clientes crecen. Su éxito es nuestra métrica más importante, por encima de cualquier KPI interno.</p>
+      </div>
+      <div class="value-card fade-up" style="transition-delay:0.2s">
+        <div class="value-icon">⚡</div>
+        <h3>Velocidad con propósito</h3>
+        <p>Lanzamos rápido, iteramos con feedback real y no esperamos la perfección para entregar valor. El mercado nos enseña.</p>
+      </div>
+      <div class="value-card fade-up" style="transition-delay:0.3s">
+        <div class="value-icon">🌎</div>
+        <h3>Hecho para LATAM</h3>
+        <p>No somos una copia del norte. Entendemos el mercado latinoamericano: sus dinámicas, sus idiomas y sus necesidades únicas.</p>
+      </div>
+      <div class="value-card fade-up" style="transition-delay:0.4s">
+        <div class="value-icon">🔒</div>
+        <h3>Confianza y transparencia</h3>
+        <p>Tus datos son tuyos. Nunca los vendemos, nunca los usamos para publicidad. La privacidad es una promesa, no una política.</p>
+      </div>
+      <div class="value-card fade-up" style="transition-delay:0.5s">
+        <div class="value-icon">🚀</div>
+        <h3>Ambición con humildad</h3>
+        <p>Queremos ser la plataforma de citas número uno de Latinoamérica. Y sabemos que ese camino se construye escuchando a cada cliente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="section">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">El equipo</span>
+      <h2 class="section-title" style="margin-top:20px">Personas que ponen el corazón</h2>
+      <p style="color:var(--muted);max-width:480px;margin:0 auto 0">Somos un equipo pequeño y enfocado, apasionado por construir herramientas que cambian la operación diaria de negocios reales.</p>
+    </div>
+    <div class="team-grid" style="margin-top:48px">
+      <div class="team-card fade-up">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#00E5A0,#00B8FF)">KD</div>
+        <h4>Karol Delgado</h4>
+        <p>Co-fundador &amp; CEO</p>
+        <span class="team-role">Producto &amp; Estrategia</span>
+      </div>
+      <div class="team-card fade-up" style="transition-delay:0.1s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#FF5C38,#FF9A38)">MB</div>
+        <h4>Miguel Bermúdez</h4>
+        <p>Co-fundador &amp; CTO</p>
+        <span class="team-role">Ingeniería</span>
+      </div>
+      <div class="team-card fade-up" style="transition-delay:0.2s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#7C3AED,#DB2777)">LR</div>
+        <h4>Laura Rivas</h4>
+        <p>Head of Design</p>
+        <span class="team-role">UX / Diseño</span>
+      </div>
+      <div class="team-card fade-up" style="transition-delay:0.3s">
+        <div class="team-avatar" style="background:linear-gradient(135deg,#0EA5E9,#06B6D4)">AM</div>
+        <h4>Andrés Morales</h4>
+        <p>Head of Growth</p>
+        <span class="team-role">Marketing</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section" style="padding-top:0">
+  <div class="container" style="max-width:720px">
+    <div style="text-align:center;margin-bottom:48px">
+      <span class="tag">Nuestra historia</span>
+      <h2 class="section-title" style="margin-top:20px">De idea a plataforma</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Enero 2023</div>
+        <div class="timeline-title">La chispa</div>
+        <p class="timeline-text">Karol no podía agendar una cita en su barbería favorita porque el dueño usaba WhatsApp para todo. Ahí nació la idea: un sistema simple, accesible y hecho para LATAM.</p>
+      </div>
+      <div class="timeline-item fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Junio 2023</div>
+        <div class="timeline-title">Primer prototipo</div>
+        <p class="timeline-text">Con 3 meses de desarrollo intenso y feedback de 20 negocios piloto en Guadalajara, lanzamos la primera versión funcional de AgendaYa.</p>
+      </div>
+      <div class="timeline-item fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Enero 2024</div>
+        <div class="timeline-title">Lanzamiento público</div>
+        <p class="timeline-text">Abrimos la plataforma a cualquier negocio. En los primeros 60 días superamos los 100 negocios activos en México. La tracción fue inmediata.</p>
+      </div>
+      <div class="timeline-item fade-up">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Hoy — 2025</div>
+        <div class="timeline-title">Expansión regional</div>
+        <p class="timeline-text">Más de 500 negocios en México, Colombia y Guatemala confían en AgendaYa. Seguimos creciendo con una sola obsesión: hacer que agendar sea lo más simple del mundo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <h2>¿Quieres ser parte del crecimiento?</h2>
+      <p>Únete a más de 500 negocios que ya automatizan su agenda con AgendaYa.</p>
+      <div class="cta-actions">
+        <a href="/register" class="btn-primary">Comenzar gratis 14 días <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="contacto.html" class="btn-ghost">Contactar equipo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="footer-logo">Agenda<span>Ya</span></span>
+        <p>La plataforma SaaS de gestión de citas para negocios de servicios en Latinoamérica. Simple, potente y diseñada para crecer contigo.</p>
+      </div>
+      <div class="footer-col"><h5>Producto</h5><ul><li><a href="index.html#funciones">Funciones</a></li><li><a href="index.html#precios">Precios</a></li><li><a href="app-movil.html">App móvil</a></li><li><a href="novedades.html">Novedades</a></li></ul></div>
+      <div class="footer-col"><h5>Empresa</h5><ul><li><a href="nosotros.html">Nosotros</a></li><li><a href="blog.html">Blog</a></li><li><a href="casos-de-exito.html">Casos de éxito</a></li><li><a href="socios.html">Socios</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
+      <div class="footer-col"><h5>Soporte</h5><ul><li><a href="centro-de-ayuda.html">Centro de ayuda</a></li><li><a href="documentacion.html">Documentación</a></li><li><a href="mailto:hola@agendaya.mx">hola@agendaya.mx</a></li><li><a href="estado-del-sistema.html">Estado del sistema</a></li><li><a href="seguridad.html">Seguridad</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 AgendaYa. Todos los derechos reservados.</span>
+      <div style="display:flex;gap:20px;"><a href="#">Privacidad</a><a href="#">Términos de uso</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('mobileNav').classList.toggle('open');
+    document.getElementById('mobileOverlay').classList.toggle('open');
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

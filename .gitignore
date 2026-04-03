@@ -84,6 +84,11 @@ web_modules/
 .env.*
 !.env.example
 
+# Local-only tooling and dependency/vendor folders
+.claude/
+vendor/
+storage/
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

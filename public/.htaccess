@@ -1,7 +1,7 @@
 # AgendaYa - Laravel en Neubox Tell It
 
 Options +FollowSymLinks
-DirectoryIndex index.php index.html
+DirectoryIndex index.html index.php
 AddDefaultCharset UTF-8
 
 <IfModule mod_rewrite.c>
@@ -14,6 +14,9 @@ AddDefaultCharset UTF-8
     # Forzar HTTPS
     RewriteCond %{HTTPS} !=on
     RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R=301,L]
+
+    # Mantener compatibilidad con enlaces antiguos a landing.html
+    RewriteRule ^landing\.html$ /index.html [R=301,L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

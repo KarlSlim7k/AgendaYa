@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Socios — AgendaYa</title>
+  <meta name="description" content="Programa de socios de AgendaYa. Crece junto a nosotros con beneficios exclusivos, comisiones atractivas y soporte dedicado." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080E1C; --bg-2: #0D1526; --bg-3: #111D35;
+      --teal: #00E5A0; --teal-dim: #00C88A;
+      --coral: #FF5C38; --coral-dim: #E04C2C;
+      --white: #F0F4FF; --muted: #6B7FA8;
+      --border: rgba(255,255,255,0.08); --card: rgba(255,255,255,0.04);
+      --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--white); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 3px; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.25); padding: 6px 14px; border-radius: 100px; }
+    .tag::before { content: ''; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+    h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--coral); color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 15px; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+    .btn-primary:hover { background: var(--coral-dim); transform: translateY(-1px); }
+    .btn-ghost { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); font-family: var(--font-body); font-weight: 500; font-size: 15px; padding: 13px 24px; border-radius: 8px; border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+    .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-teal { display: inline-flex; align-items: center; gap: 10px; background: var(--teal); color: var(--bg); font-family: var(--font-body); font-weight: 600; font-size: 15px; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+    .btn-teal:hover { background: var(--teal-dim); transform: translateY(-1px); }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(8,14,28,0.88); backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--teal); }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-login { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-login:hover { color: var(--white); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+    @media (max-width: 768px) { .nav-links, .nav-actions .btn-primary { display: none; } .hamburger { display: flex; } .nav-login { display: none; } }
+
+    .page-hero { padding: 160px 0 80px; position: relative; overflow: hidden; }
+    .page-hero::after { content: ''; position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,229,160,0.1) 0%, transparent 70%); pointer-events: none; }
+    .hero-blob { position: absolute; bottom: -10%; left: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,92,56,0.07) 0%, transparent 70%); pointer-events: none; }
+    .page-hero-content { position: relative; z-index: 2; text-align: center; }
+    .page-hero h1 { font-size: clamp(38px, 5.5vw, 68px); font-weight: 800; letter-spacing: -0.03em; margin: 20px 0 24px; }
+    .page-hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--teal) 0%, #00B8FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .page-hero p { font-size: clamp(17px, 2vw, 19px); color: var(--muted); max-width: 560px; margin: 0 auto; font-weight: 300; line-height: 1.7; }
+
+    .section { padding: 96px 0; }
+    .section-label { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; }
+    .section-title { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .section-body { font-size: 17px; color: var(--muted); line-height: 1.8; max-width: 600px; }
+
+    .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .benefit-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: border-color 0.2s, transform 0.2s; }
+    .benefit-card:hover { border-color: rgba(0,229,160,0.3); transform: translateY(-2px); }
+    .benefit-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 20px; }
+    .benefit-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .benefit-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    @media (max-width: 760px) { .benefits-grid { grid-template-columns: 1fr; } }
+
+    .tiers { background: var(--bg-2); padding: 96px 0; }
+    .tiers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .tier-card { background: var(--bg-3); border: 1px solid var(--border); border-radius: 20px; padding: 40px 32px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+    .tier-card.featured { border-color: var(--teal); }
+    .tier-card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--teal); }
+    .tier-badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); background: rgba(0,229,160,0.1); padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; }
+    .tier-card h3 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .tier-card .tier-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+    .tier-card .tier-commission { font-family: var(--font-head); font-size: 42px; font-weight: 800; color: var(--teal); margin-bottom: 4px; }
+    .tier-card .tier-commission span { font-size: 16px; font-weight: 400; color: var(--muted); }
+    .tier-card .tier-period { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .tier-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .tier-features li { font-size: 14px; color: var(--white); display: flex; align-items: flex-start; gap: 10px; }
+    .tier-features li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .tier-card .btn-primary, .tier-card .btn-teal { width: 100%; justify-content: center; }
+    @media (max-width: 760px) { .tiers-grid { grid-template-columns: 1fr; } }
+
+    .how-it-works { padding: 96px 0; }
+    .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 48px; }
+    .step { text-align: center; position: relative; }
+    .step-num { width: 48px; height: 48px; border-radius: 50%; background: var(--bg-2); border: 2px solid var(--teal); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 18px; color: var(--teal); margin: 0 auto 20px; }
+    .step h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    @media (max-width: 760px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .steps-grid { grid-template-columns: 1fr; } }
+
+    .testimonials-section { background: var(--bg-2); padding: 96px 0; }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 48px; }
+    .testimonial-card { background: var(--bg-3); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
+    .testimonial-text { font-size: 15px; color: var(--white); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 14px; color: var(--bg); }
+    .testimonial-name { font-size: 14px; font-weight: 600; }
+    .testimonial-role { font-size: 12px; color: var(--muted); }
+    @media (max-width: 760px) { .testimonials-grid { grid-template-columns: 1fr; } }
+
+    .cta-section { padding: 96px 0; text-align: center; }
+    .cta-inner { background: var(--bg-2); border: 1px solid var(--border); border-radius: 24px; padding: 64px 40px; position: relative; overflow: hidden; }
+    .cta-inner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,229,160,0.12) 0%, transparent 70%); }
+    .cta-inner::after { content: ''; position: absolute; bottom: -60px; left: -60px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,92,56,0.1) 0%, transparent 70%); }
+    .cta-inner h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; position: relative; z-index: 1; }
+    .cta-inner p { font-size: 17px; color: var(--muted); margin-bottom: 36px; max-width: 440px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; }
+    .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+    footer { background: var(--bg-2); border-top: 1px solid var(--border); padding: 64px 0 32px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 16px; display: block; }
+    .footer-logo span { color: var(--teal); }
+    .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 260px; }
+    .footer-col h5 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--teal); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); flex-wrap: wrap; gap: 12px; }
+    .footer-bottom a { color: var(--muted); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--teal); }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
+    @media (max-width: 500px) { .footer-grid { grid-template-columns: 1fr; } }
+
+    .mobile-nav { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100vh; background: var(--bg-2); z-index: 200; transition: right 0.35s cubic-bezier(0.25,0.46,0.45,0.94); padding: 80px 32px 32px; border-left: 1px solid var(--border); }
+    .mobile-nav.open { right: 0; }
+    .mobile-nav ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .mobile-nav ul a { display: block; padding: 12px 0; font-size: 18px; font-weight: 500; color: var(--white); text-decoration: none; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-nav ul a:hover { color: var(--teal); }
+    .mobile-nav-close { position: absolute; top: 24px; right: 24px; font-size: 22px; color: var(--muted); cursor: pointer; transition: color 0.2s; }
+    .mobile-nav-close:hover { color: var(--white); }
+    .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Agenda<span>Ya</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#funciones">Funciones</a></li>
+      <li><a href="index.html#como-funciona">Cómo funciona</a></li>
+      <li><a href="index.html#precios">Precios</a></li>
+      <li><a href="nosotros.html">Nosotros</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="nav-login">Iniciar sesión</a>
+      <a href="/register" class="btn-primary" style="padding:10px 20px;font-size:14px;">Comenzar gratis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+<div class="mobile-nav" id="mobileNav">
+  <span class="mobile-nav-close" onclick="toggleMenu()">✕</span>
+  <ul>
+    <li><a href="index.html#funciones" onclick="toggleMenu()">Funciones</a></li>
+    <li><a href="index.html#precios" onclick="toggleMenu()">Precios</a></li>
+    <li><a href="nosotros.html">Nosotros</a></li>
+    <li><a href="socios.html" onclick="toggleMenu()" style="color:var(--teal)">Socios</a></li>
+    <li><a href="/login">Iniciar sesión</a></li>
+    <li><a href="/register" style="color:var(--teal)">Comenzar gratis →</a></li>
+  </ul>
+</div>
+
+<section class="page-hero">
+  <div class="hero-blob"></div>
+  <div class="container">
+    <div class="page-hero-content">
+      <span class="tag">Programa de socios</span>
+      <h1>Crece con <em>nosotros</em></h1>
+      <p>Únete al programa de socios de AgendaYa y genera ingresos recurrentes mientras ayudas a negocios a transformar su gestión de citas.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">Beneficios</span>
+      <h2 class="section-title" style="margin-top:20px">Todo lo que ganas como socio</h2>
+      <p class="section-body" style="margin:0 auto">Comisiones atractivas, herramientas exclusivas y un equipo dedicado a tu éxito.</p>
+    </div>
+    <div class="benefits-grid">
+      <div class="benefit-card fade-up">
+        <div class="benefit-icon" style="background:rgba(0,229,160,0.1)">💰</div>
+        <h3>Comisiones recurrentes</h3>
+        <p>Gana un porcentaje de cada pago de los clientes que refieras, mes a mes, mientras sigan activos.</p>
+      </div>
+      <div class="benefit-card fade-up" style="transition-delay:0.1s">
+        <div class="benefit-icon" style="background:rgba(255,92,56,0.1)">🎓</div>
+        <h3>Capacitación gratuita</h3>
+        <p>Accede a webinars, guías y sesiones de onboarding para que conozcas la plataforma a fondo.</p>
+      </div>
+      <div class="benefit-card fade-up" style="transition-delay:0.2s">
+        <div class="benefit-icon" style="background:rgba(0,184,255,0.1)">📊</div>
+        <h3>Dashboard de referido</h3>
+        <p>Panel en tiempo real con métricas de tus referidos, comisiones acumuladas y pagos pendientes.</p>
+      </div>
+      <div class="benefit-card fade-up" style="transition-delay:0.3s">
+        <div class="benefit-icon" style="background:rgba(124,58,237,0.1)">🤝</div>
+        <h3>Soporte dedicado</h3>
+        <p>Canal directo con nuestro equipo de partnerships para resolver dudas y optimizar tu estrategia.</p>
+      </div>
+      <div class="benefit-card fade-up" style="transition-delay:0.4s">
+        <div class="benefit-icon" style="background:rgba(219,39,119,0.1)">🎨</div>
+        <h3>Material de marketing</h3>
+        <p>Banners, templates de email, posts para redes y todo lo que necesitas para promover AgendaYa.</p>
+      </div>
+      <div class="benefit-card fade-up" style="transition-delay:0.5s">
+        <div class="benefit-icon" style="background:rgba(14,165,233,0.1)">🏆</div>
+        <h3>Bonificaciones por volumen</h3>
+        <p>Desbloquea comisiones más altas y premios especiales al alcanzar hitos de referidos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tiers">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">Niveles</span>
+      <h2 class="section-title" style="margin-top:20px">Elige tu nivel de socio</h2>
+      <p class="section-body" style="margin:0 auto">Mientras más creces, más ganas. Sube de nivel automáticamente con tus referidos activos.</p>
+    </div>
+    <div class="tiers-grid">
+      <div class="tier-card fade-up">
+        <span class="tier-badge">Bronce</span>
+        <h3>Socio Starter</h3>
+        <p class="tier-desc">Ideal para freelancers y consultores independientes.</p>
+        <div class="tier-commission">15%<span> / mes</span></div>
+        <p class="tier-period">por cada referido activo</p>
+        <ul class="tier-features">
+          <li>Hasta 20 referidos</li>
+          <li>Dashboard de métricas</li>
+          <li>Material de marketing básico</li>
+          <li>Soporte por email</li>
+        </ul>
+        <a href="/register" class="btn-ghost" style="width:100%;justify-content:center;">Comenzar</a>
+      </div>
+      <div class="tier-card featured fade-up" style="transition-delay:0.1s">
+        <span class="tier-badge">Más popular</span>
+        <h3>Socio Pro</h3>
+        <p class="tier-desc">Para agencias y consultores con cartera de clientes.</p>
+        <div class="tier-commission">25%<span> / mes</span></div>
+        <p class="tier-period">por cada referido activo</p>
+        <ul class="tier-features">
+          <li>Referidos ilimitados</li>
+          <li>Dashboard avanzado</li>
+          <li>Material de marketing completo</li>
+          <li>Soporte prioritario</li>
+          <li>Acceso a webinars exclusivos</li>
+        </ul>
+        <a href="/register" class="btn-primary" style="width:100%;justify-content:center;">Ser socio Pro</a>
+      </div>
+      <div class="tier-card fade-up" style="transition-delay:0.2s">
+        <span class="tier-badge">Enterprise</span>
+        <h3>Socio Elite</h3>
+        <p class="tier-desc">Para grandes partners con estrategias de volumen.</p>
+        <div class="tier-commission">35%<span> / mes</span></div>
+        <p class="tier-period">por cada referido activo</p>
+        <ul class="tier-features">
+          <li>Todo lo de Pro</li>
+          <li>Comisiones negociables</li>
+          <li>Account manager dedicado</li>
+          <li>Co-marketing y eventos</li>
+          <li>API de integración</li>
+        </ul>
+        <a href="contacto.html" class="btn-teal" style="width:100%;justify-content:center;">Contactar ventas</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">Proceso</span>
+      <h2 class="section-title" style="margin-top:20px">Cómo funciona</h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step fade-up">
+        <div class="step-num">1</div>
+        <h4>Regístrate</h4>
+        <p>Crea tu cuenta de socio en menos de 2 minutos. Sin costos ni compromisos.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:0.1s">
+        <div class="step-num">2</div>
+        <h4>Comparte tu enlace</h4>
+        <p>Usa tu link único o código de referido para invitar negocios a AgendaYa.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:0.2s">
+        <div class="step-num">3</div>
+        <h4>Ellos se suscriben</h4>
+        <p>Cuando un referido activa su plan, automáticamente comienzas a ganar.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:0.3s">
+        <div class="step-num">4</div>
+        <h4>Cobra mensual</h4>
+        <p>Recibe tus comisiones cada mes directo a tu cuenta bancaria o PayPal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials-section">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">Testimonios</span>
+      <h2 class="section-title" style="margin-top:20px">Lo que dicen nuestros socios</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up">
+        <p class="testimonial-text">"En 6 meses como socio Pro, he generado más ingresos que con mi consultoría tradicional. AgendaYa se vende sola."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:linear-gradient(135deg,#00E5A0,#00B8FF)">RC</div>
+          <div>
+            <div class="testimonial-name">Roberto Castillo</div>
+            <div class="testimonial-role">Consultor de negocios, CDMX</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up" style="transition-delay:0.1s">
+        <p class="testimonial-text">"Como agencia de marketing, recomendar AgendaYa fue la decisión más fácil. Nuestros clientes quedan encantados y nosotros ganamos en automático."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:linear-gradient(135deg,#FF5C38,#FF9A38)">MV</div>
+          <div>
+            <div class="testimonial-name">María Velasco</div>
+            <div class="testimonial-role">Directora, Agencia Digital360</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <h2>¿Listo para generar ingresos extra?</h2>
+      <p>Únete a cientos de socios que ya ganan recomendando AgendaYa.</p>
+      <div class="cta-actions">
+        <a href="/register" class="btn-primary">Registrarme como socio <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="contacto.html" class="btn-ghost">Hablar con el equipo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="footer-logo">Agenda<span>Ya</span></span>
+        <p>La plataforma SaaS de gestión de citas para negocios de servicios en Latinoamérica. Simple, potente y diseñada para crecer contigo.</p>
+      </div>
+      <div class="footer-col"><h5>Producto</h5><ul><li><a href="index.html#funciones">Funciones</a></li><li><a href="index.html#precios">Precios</a></li><li><a href="app-movil.html">App móvil</a></li><li><a href="novedades.html">Novedades</a></li></ul></div>
+      <div class="footer-col"><h5>Empresa</h5><ul><li><a href="nosotros.html">Nosotros</a></li><li><a href="blog.html">Blog</a></li><li><a href="casos-de-exito.html">Casos de éxito</a></li><li><a href="socios.html">Socios</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
+      <div class="footer-col"><h5>Soporte</h5><ul><li><a href="centro-de-ayuda.html">Centro de ayuda</a></li><li><a href="documentacion.html">Documentación</a></li><li><a href="mailto:hola@agendaya.mx">hola@agendaya.mx</a></li><li><a href="estado-del-sistema.html">Estado del sistema</a></li><li><a href="seguridad.html">Seguridad</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 AgendaYa. Todos los derechos reservados.</span>
+      <div style="display:flex;gap:20px;"><a href="#">Privacidad</a><a href="#">Términos de uso</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('mobileNav').classList.toggle('open');
+    document.getElementById('mobileOverlay').classList.toggle('open');
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

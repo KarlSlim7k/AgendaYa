@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casos de éxito — AgendaYa</title>
+  <meta name="description" content="Historias reales de negocios que transformaron su operación con AgendaYa." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080E1C; --bg-2: #0D1526; --bg-3: #111D35;
+      --teal: #00E5A0; --teal-dim: #00C88A;
+      --coral: #FF5C38; --coral-dim: #E04C2C;
+      --white: #F0F4FF; --muted: #6B7FA8;
+      --border: rgba(255,255,255,0.08);
+      --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--white); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 3px; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.25); padding: 6px 14px; border-radius: 100px; }
+    .tag::before { content: ''; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+    h1, h2, h3 { font-family: var(--font-head); line-height: 1.15; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--coral); color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 15px; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+    .btn-primary:hover { background: var(--coral-dim); transform: translateY(-1px); }
+    .btn-ghost { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); font-family: var(--font-body); font-weight: 500; font-size: 15px; padding: 13px 24px; border-radius: 8px; border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+    .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(8,14,28,0.88); backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--teal); }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-login { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-login:hover { color: var(--white); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+    @media (max-width: 768px) { .nav-links, .nav-actions .btn-primary { display: none; } .hamburger { display: flex; } .nav-login { display: none; } }
+
+    .page-hero { padding: 160px 0 80px; text-align: center; position: relative; overflow: hidden; }
+    .page-hero::after { content: ''; position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,229,160,0.1) 0%, transparent 70%); pointer-events: none; }
+    .page-hero h1 { font-size: clamp(38px, 5.5vw, 64px); font-weight: 800; letter-spacing: -0.03em; margin: 20px 0 24px; position: relative; z-index: 1; }
+    .page-hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--teal) 0%, #00B8FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .page-hero p { font-size: 18px; color: var(--muted); max-width: 520px; margin: 0 auto; font-weight: 300; position: relative; z-index: 1; }
+
+    /* STATS */
+    .stats-bar { background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 40px 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+    .stat-num { font-family: var(--font-head); font-size: clamp(30px, 4vw, 48px); font-weight: 800; color: var(--teal); }
+    .stat-label { font-size: 14px; color: var(--muted); margin-top: 6px; }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    /* CASE STUDIES */
+    .cases { padding: 96px 0; }
+    .case-card { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; margin-bottom: 80px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 24px; padding: 48px; transition: border-color 0.2s; }
+    .case-card:hover { border-color: rgba(0,229,160,0.3); }
+    .case-card:last-child { margin-bottom: 0; }
+    .case-card.reverse { direction: rtl; }
+    .case-card.reverse > * { direction: ltr; }
+    .case-icon { font-size: 80px; text-align: center; padding: 40px; background: var(--bg-3); border-radius: 20px; border: 1px solid var(--border); }
+    .case-industry { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+    .case-card h2 { font-size: clamp(22px, 2.5vw, 30px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .case-card p { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+    .metric { background: var(--bg-3); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+    .metric-val { font-family: var(--font-head); font-size: 26px; font-weight: 800; color: var(--teal); }
+    .metric-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .quote-block { background: rgba(0,229,160,0.06); border-left: 3px solid var(--teal); border-radius: 0 12px 12px 0; padding: 20px 24px; margin-top: 24px; }
+    .quote-block p { font-size: 15px; font-style: italic; color: var(--white); margin: 0 0 12px; line-height: 1.6; }
+    .quote-author { font-size: 13px; font-weight: 600; color: var(--teal); }
+    @media (max-width: 860px) { .case-card, .case-card.reverse { grid-template-columns: 1fr; direction: ltr; } .metrics { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .testimonials-grid { grid-template-columns: 1fr; } }
+
+    /* CTA */
+    .cta-section { padding: 96px 0; text-align: center; }
+    .cta-inner { background: var(--bg-2); border: 1px solid var(--border); border-radius: 24px; padding: 64px 40px; position: relative; overflow: hidden; }
+    .cta-inner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,229,160,0.12) 0%, transparent 70%); }
+    .cta-inner h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; position: relative; z-index: 1; }
+    .cta-inner p { font-size: 17px; color: var(--muted); margin-bottom: 36px; max-width: 440px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; }
+    .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+    footer { background: var(--bg-2); border-top: 1px solid var(--border); padding: 64px 0 32px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 16px; display: block; }
+    .footer-logo span { color: var(--teal); }
+    .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 260px; }
+    .footer-col h5 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--teal); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); flex-wrap: wrap; gap: 12px; }
+    .footer-bottom a { color: var(--muted); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--teal); }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
+    @media (max-width: 500px) { .footer-grid { grid-template-columns: 1fr; } }
+
+    .mobile-nav { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100vh; background: var(--bg-2); z-index: 200; transition: right 0.35s; padding: 80px 32px 32px; border-left: 1px solid var(--border); }
+    .mobile-nav.open { right: 0; }
+    .mobile-nav ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .mobile-nav ul a { display: block; padding: 12px 0; font-size: 18px; font-weight: 500; color: var(--white); text-decoration: none; border-bottom: 1px solid var(--border); }
+    .mobile-nav-close { position: absolute; top: 24px; right: 24px; font-size: 22px; color: var(--muted); cursor: pointer; }
+    .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+    .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Agenda<span>Ya</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#funciones">Funciones</a></li>
+      <li><a href="index.html#precios">Precios</a></li>
+      <li><a href="nosotros.html">Nosotros</a></li>
+      <li><a href="casos-de-exito.html" style="color:var(--white)">Casos de éxito</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="nav-login">Iniciar sesión</a>
+      <a href="/register" class="btn-primary" style="padding:10px 20px;font-size:14px;">Comenzar gratis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+<div class="mobile-nav" id="mobileNav">
+  <span class="mobile-nav-close" onclick="toggleMenu()">✕</span>
+  <ul>
+    <li><a href="index.html#funciones">Funciones</a></li>
+    <li><a href="index.html#precios">Precios</a></li>
+    <li><a href="/login">Iniciar sesión</a></li>
+    <li><a href="/register" style="color:var(--teal)">Comenzar gratis →</a></li>
+  </ul>
+</div>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="tag">Historias reales</span>
+    <h1>Negocios que <em>transformaron</em> su operación</h1>
+    <p>Descubre cómo negocios reales en Latinoamérica crecieron con AgendaYa.</p>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div><div class="stat-num">40%</div><div class="stat-label">Reducción promedio de ausencias</div></div>
+      <div><div class="stat-num">3×</div><div class="stat-label">Más reservas en línea</div></div>
+      <div><div class="stat-num">12h</div><div class="stat-label">Tiempo ahorrado por semana</div></div>
+      <div><div class="stat-num">98%</div><div class="stat-label">Clientes satisfechos</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="cases">
+  <div class="container">
+
+    <!-- CASE 1 -->
+    <div class="case-card fade-up">
+      <div>
+        <div class="case-icon">💈</div>
+      </div>
+      <div>
+        <div class="case-industry">Barbería · Guadalajara, México</div>
+        <h2>Barber House GDL: de agenda en papel a 200 citas al mes</h2>
+        <p>Con 3 estilistas y una cartera de clientes leales, Barber House GDL luchaba con llamadas perdidas y ausencias constantes. En 5 días implementaron AgendaYa y los resultados fueron inmediatos.</p>
+        <div class="metrics">
+          <div class="metric"><div class="metric-val">+185%</div><div class="metric-label">Reservas mensuales</div></div>
+          <div class="metric"><div class="metric-val">−52%</div><div class="metric-label">Ausencias sin avisar</div></div>
+          <div class="metric"><div class="metric-val">8h</div><div class="metric-label">Ahorradas por semana</div></div>
+        </div>
+        <div class="quote-block">
+          <p>"Antes perdía 3 o 4 citas por semana porque no contestaba el teléfono. Ahora mis clientes reservan solos y me avisan si cancelan."</p>
+          <span class="quote-author">— Roberto Herrera, fundador de Barber House GDL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASE 2 -->
+    <div class="case-card reverse fade-up">
+      <div>
+        <div class="case-icon">💆</div>
+      </div>
+      <div>
+        <div class="case-industry">Spa · Ciudad de México</div>
+        <h2>Spa Lumina: 8 empleados, 350 citas semanales sin caos</h2>
+        <p>Spa Lumina manejaba todo con WhatsApp y hojas de cálculo. Con 8 terapeutas y horarios complejos, los errores de doble reserva eran frecuentes y el estrés administrativo era insostenible.</p>
+        <div class="metrics">
+          <div class="metric"><div class="metric-val">0</div><div class="metric-label">Dobles reservas</div></div>
+          <div class="metric"><div class="metric-val">+67%</div><div class="metric-label">Ocupación del equipo</div></div>
+          <div class="metric"><div class="metric-val">$0</div><div class="metric-label">Costo extra de admin</div></div>
+        </div>
+        <div class="quote-block">
+          <p>"Pasamos de WhatsApp caótico a un sistema profesional en una semana. Mis terapeuras ya no tienen que preguntar cuántas citas tienen: lo ven en su perfil."</p>
+          <span class="quote-author">— Mariana Torres, directora de Spa Lumina</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASE 3 -->
+    <div class="case-card fade-up">
+      <div>
+        <div class="case-icon">🦷</div>
+      </div>
+      <div>
+        <div class="case-industry">Odontología · Bogotá, Colombia</div>
+        <h2>Clínica Dental Bello: 30% más pacientes sin contratar a nadie</h2>
+        <p>La Clínica Dental Bello tenía horarios con capacidad sin usar porque los pacientes no podían agendar fuera de horario de oficina. Con AgendaYa, la agenda se llenó automáticamente.</p>
+        <div class="metrics">
+          <div class="metric"><div class="metric-val">+30%</div><div class="metric-label">Nuevos pacientes</div></div>
+          <div class="metric"><div class="metric-val">24/7</div><div class="metric-label">Agenda disponible</div></div>
+          <div class="metric"><div class="metric-val">−40%</div><div class="metric-label">Llamadas al consultorio</div></div>
+        </div>
+        <div class="quote-block">
+          <p>"Lo que más me sorprendió es que el 60% de mis nuevas citas se agendan fuera del horario laboral. Antes, ese tiempo simplemente no existía."</p>
+          <span class="quote-author">— Dr. Alejandro Bello, director médico</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="container">
+    <h2 class="testimonials-title">Lo que dicen nuestros clientes</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up">
+        <div class="stars">★★★★★</div>
+        <p>"La implementación fue rapidísima. En menos de una hora ya tenía mi agenda disponible en línea. Mis clientes lo adoptaron de inmediato."</p>
+        <div class="testimonial-author">
+          <div class="t-avatar">CP</div>
+          <div><div class="t-name">Carmen Pérez</div><div class="t-role">Salón de uñas, Monterrey</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up" style="transition-delay:0.1s">
+        <div class="stars">★★★★★</div>
+        <p>"El soporte es excepcional. Tuve una duda a las 9pm y me respondieron en 15 minutos. No esperaba ese nivel de atención."</p>
+        <div class="testimonial-author">
+          <div class="t-avatar" style="background:linear-gradient(135deg,#FF5C38,#FF9A38)">JR</div>
+          <div><div class="t-name">Jorge Ramírez</div><div class="t-role">Fisioterapia, CDMX</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up" style="transition-delay:0.2s">
+        <div class="stars">★★★★★</div>
+        <p>"Mis clientes ahora reagendan solos sin llamarme. Ese solo cambio me liberó al menos 2 horas diarias de mensajes de WhatsApp."</p>
+        <div class="testimonial-author">
+          <div class="t-avatar" style="background:linear-gradient(135deg,#7C3AED,#DB2777)">LC</div>
+          <div><div class="t-name">Lucía Castro</div><div class="t-role">Yoga studio, Guadalajara</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <h2>¿Tu negocio es el siguiente?</h2>
+      <p>Únete a más de 500 negocios que ya transformaron su operación con AgendaYa.</p>
+      <div class="cta-actions">
+        <a href="/register" class="btn-primary">Prueba gratis 14 días <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="contacto.html" class="btn-ghost">Hablar con ventas</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><span class="footer-logo">Agenda<span>Ya</span></span><p>La plataforma SaaS de gestión de citas para negocios de servicios en Latinoamérica.</p></div>
+      <div class="footer-col"><h5>Producto</h5><ul><li><a href="index.html#funciones">Funciones</a></li><li><a href="index.html#precios">Precios</a></li><li><a href="app-movil.html">App móvil</a></li><li><a href="novedades.html">Novedades</a></li></ul></div>
+      <div class="footer-col"><h5>Empresa</h5><ul><li><a href="nosotros.html">Nosotros</a></li><li><a href="blog.html">Blog</a></li><li><a href="casos-de-exito.html">Casos de éxito</a></li><li><a href="socios.html">Socios</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
+      <div class="footer-col"><h5>Soporte</h5><ul><li><a href="centro-de-ayuda.html">Centro de ayuda</a></li><li><a href="documentacion.html">Documentación</a></li><li><a href="mailto:hola@agendaya.mx">hola@agendaya.mx</a></li><li><a href="estado-del-sistema.html">Estado del sistema</a></li><li><a href="seguridad.html">Seguridad</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 AgendaYa. Todos los derechos reservados.</span>
+      <div style="display:flex;gap:20px;"><a href="#">Privacidad</a><a href="#">Términos de uso</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() { document.getElementById('mobileNav').classList.toggle('open'); document.getElementById('mobileOverlay').classList.toggle('open'); }
+  const observer = new IntersectionObserver(e => e.forEach(x => x.isIntersecting && x.target.classList.add('visible')), { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

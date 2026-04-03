@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Centro de Ayuda — AgendaYa</title>
+  <meta name="description" content="Centro de ayuda de AgendaYa. Encuentra respuestas, guías y soporte para sacar el máximo provecho de la plataforma." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080E1C; --bg-2: #0D1526; --bg-3: #111D35;
+      --teal: #00E5A0; --teal-dim: #00C88A;
+      --coral: #FF5C38; --coral-dim: #E04C2C;
+      --white: #F0F4FF; --muted: #6B7FA8;
+      --border: rgba(255,255,255,0.08); --card: rgba(255,255,255,0.04);
+      --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--white); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 3px; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.25); padding: 6px 14px; border-radius: 100px; }
+    .tag::before { content: ''; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+    h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--coral); color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 15px; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+    .btn-primary:hover { background: var(--coral-dim); transform: translateY(-1px); }
+    .btn-ghost { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--white); font-family: var(--font-body); font-weight: 500; font-size: 15px; padding: 13px 24px; border-radius: 8px; border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+    .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(8,14,28,0.88); backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .nav-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--teal); }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-login { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-login:hover { color: var(--white); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+    @media (max-width: 768px) { .nav-links, .nav-actions .btn-primary { display: none; } .hamburger { display: flex; } .nav-login { display: none; } }
+
+    .page-hero { padding: 160px 0 80px; position: relative; overflow: hidden; }
+    .page-hero::after { content: ''; position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,229,160,0.1) 0%, transparent 70%); pointer-events: none; }
+    .hero-blob { position: absolute; bottom: -10%; left: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,92,56,0.07) 0%, transparent 70%); pointer-events: none; }
+    .page-hero-content { position: relative; z-index: 2; text-align: center; }
+    .page-hero h1 { font-size: clamp(38px, 5.5vw, 68px); font-weight: 800; letter-spacing: -0.03em; margin: 20px 0 24px; }
+    .page-hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--teal) 0%, #00B8FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .page-hero p { font-size: clamp(17px, 2vw, 19px); color: var(--muted); max-width: 560px; margin: 0 auto; font-weight: 300; line-height: 1.7; }
+
+    .search-box { max-width: 520px; margin: 32px auto 0; position: relative; }
+    .search-box input { width: 100%; background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 18px 24px 18px 52px; color: var(--white); font-family: var(--font-body); font-size: 16px; outline: none; transition: border-color 0.2s; }
+    .search-box input:focus { border-color: var(--teal); }
+    .search-box input::placeholder { color: var(--muted); }
+    .search-box svg { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+    .section { padding: 96px 0; }
+    .section-label { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; }
+    .section-title { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 20px; }
+
+    .categories-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .category-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; text-decoration: none; color: var(--white); transition: border-color 0.2s, transform 0.2s; display: block; }
+    .category-card:hover { border-color: rgba(0,229,160,0.3); transform: translateY(-2px); }
+    .category-icon { font-size: 32px; margin-bottom: 20px; }
+    .category-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .category-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .category-card .cat-count { font-size: 12px; color: var(--teal); margin-top: 16px; font-weight: 600; }
+    @media (max-width: 760px) { .categories-grid { grid-template-columns: 1fr; } }
+
+    .popular-section { background: var(--bg-2); padding: 96px 0; }
+    .popular-list { display: flex; flex-direction: column; gap: 16px; margin-top: 48px; max-width: 720px; margin-left: auto; margin-right: auto; }
+    .popular-item { background: var(--bg-3); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: var(--white); transition: border-color 0.2s; }
+    .popular-item:hover { border-color: rgba(0,229,160,0.3); }
+    .popular-item h4 { font-size: 15px; font-weight: 600; }
+    .popular-item .arrow { color: var(--teal); font-size: 18px; }
+
+    .contact-section { padding: 96px 0; text-align: center; }
+    .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .contact-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
+    .contact-card .cc-icon { font-size: 28px; margin-bottom: 16px; }
+    .contact-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .contact-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    @media (max-width: 760px) { .contact-grid { grid-template-columns: 1fr; } }
+
+    .cta-section { padding: 96px 0; text-align: center; }
+    .cta-inner { background: var(--bg-2); border: 1px solid var(--border); border-radius: 24px; padding: 64px 40px; position: relative; overflow: hidden; }
+    .cta-inner::before { content: ''; position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,229,160,0.12) 0%, transparent 70%); }
+    .cta-inner::after { content: ''; position: absolute; bottom: -60px; left: -60px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,92,56,0.1) 0%, transparent 70%); }
+    .cta-inner h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; position: relative; z-index: 1; }
+    .cta-inner p { font-size: 17px; color: var(--muted); margin-bottom: 36px; max-width: 440px; margin-left: auto; margin-right: auto; position: relative; z-index: 1; }
+    .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+    footer { background: var(--bg-2); border-top: 1px solid var(--border); padding: 64px 0 32px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 16px; display: block; }
+    .footer-logo span { color: var(--teal); }
+    .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 260px; }
+    .footer-col h5 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--teal); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); flex-wrap: wrap; gap: 12px; }
+    .footer-bottom a { color: var(--muted); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--teal); }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
+    @media (max-width: 500px) { .footer-grid { grid-template-columns: 1fr; } }
+
+    .mobile-nav { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100vh; background: var(--bg-2); z-index: 200; transition: right 0.35s cubic-bezier(0.25,0.46,0.45,0.94); padding: 80px 32px 32px; border-left: 1px solid var(--border); }
+    .mobile-nav.open { right: 0; }
+    .mobile-nav ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .mobile-nav ul a { display: block; padding: 12px 0; font-size: 18px; font-weight: 500; color: var(--white); text-decoration: none; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-nav ul a:hover { color: var(--teal); }
+    .mobile-nav-close { position: absolute; top: 24px; right: 24px; font-size: 22px; color: var(--muted); cursor: pointer; transition: color 0.2s; }
+    .mobile-nav-close:hover { color: var(--white); }
+    .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Agenda<span>Ya</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#funciones">Funciones</a></li>
+      <li><a href="index.html#como-funciona">Cómo funciona</a></li>
+      <li><a href="index.html#precios">Precios</a></li>
+      <li><a href="nosotros.html">Nosotros</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/login" class="nav-login">Iniciar sesión</a>
+      <a href="/register" class="btn-primary" style="padding:10px 20px;font-size:14px;">Comenzar gratis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+<div class="mobile-nav" id="mobileNav">
+  <span class="mobile-nav-close" onclick="toggleMenu()">✕</span>
+  <ul>
+    <li><a href="index.html#funciones" onclick="toggleMenu()">Funciones</a></li>
+    <li><a href="index.html#precios" onclick="toggleMenu()">Precios</a></li>
+    <li><a href="nosotros.html">Nosotros</a></li>
+    <li><a href="centro-de-ayuda.html" onclick="toggleMenu()" style="color:var(--teal)">Centro de ayuda</a></li>
+    <li><a href="/login">Iniciar sesión</a></li>
+    <li><a href="/register" style="color:var(--teal)">Comenzar gratis →</a></li>
+  </ul>
+</div>
+
+<section class="page-hero">
+  <div class="hero-blob"></div>
+  <div class="container">
+    <div class="page-hero-content">
+      <span class="tag">Centro de ayuda</span>
+      <h1>¿Cómo podemos <em>ayudarte</em>?</h1>
+      <p>Encuentra respuestas rápidas, guías paso a paso y todo lo que necesitas para dominar AgendaYa.</p>
+      <div class="search-box">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar artículos, guías, preguntas..." />
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">Categorías</span>
+      <h2 class="section-title" style="margin-top:20px">Explora por tema</h2>
+    </div>
+    <div class="categories-grid">
+      <a href="#" class="category-card fade-up">
+        <div class="category-icon">🚀</div>
+        <h3>Primeros pasos</h3>
+        <p>Configura tu cuenta, crea tu primer servicio y empieza a recibir citas en minutos.</p>
+        <div class="cat-count">8 artículos</div>
+      </a>
+      <a href="#" class="category-card fade-up" style="transition-delay:0.1s">
+        <div class="category-icon">📅</div>
+        <h3>Gestión de agenda</h3>
+        <p>Aprende a crear citas, bloquear horarios, configurar disponibilidad y más.</p>
+        <div class="cat-count">12 artículos</div>
+      </a>
+      <a href="#" class="category-card fade-up" style="transition-delay:0.2s">
+        <div class="category-icon">👥</div>
+        <h3>Clientes y contacto</h3>
+        <p>Administra tu base de clientes, envía mensajes y gestiona confirmaciones.</p>
+        <div class="cat-count">9 artículos</div>
+      </a>
+      <a href="#" class="category-card fade-up" style="transition-delay:0.3s">
+        <div class="category-icon">💳</div>
+        <h3>Facturación y pagos</h3>
+        <p>Planes, métodos de pago, facturación, reembolsos y historial de transacciones.</p>
+        <div class="cat-count">7 artículos</div>
+      </a>
+      <a href="#" class="category-card fade-up" style="transition-delay:0.4s">
+        <div class="category-icon">🔗</div>
+        <h3>Integraciones</h3>
+        <p>Conecta AgendaYa con Google Calendar, WhatsApp, Stripe y más herramientas.</p>
+        <div class="cat-count">6 artículos</div>
+      </a>
+      <a href="#" class="category-card fade-up" style="transition-delay:0.5s">
+        <div class="category-icon">⚙️</div>
+        <h3>Configuración avanzada</h3>
+        <p>Personaliza tu página de reservas, configura notificaciones y ajusta permisos.</p>
+        <div class="cat-count">10 artículos</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="popular-section">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">Lo más buscado</span>
+      <h2 class="section-title" style="margin-top:20px">Artículos populares</h2>
+    </div>
+    <div class="popular-list">
+      <a href="#" class="popular-item fade-up"><h4>¿Cómo creo mi primera cita?</h4><span class="arrow">→</span></a>
+      <a href="#" class="popular-item fade-up"><h4>Configurar recordatorios automáticos</h4><span class="arrow">→</span></a>
+      <a href="#" class="popular-item fade-up"><h4>Personalizar mi página de reservas</h4><span class="arrow">→</span></a>
+      <a href="#" class="popular-item fade-up"><h4>Agregar miembros del equipo</h4><span class="arrow">→</span></a>
+      <a href="#" class="popular-item fade-up"><h4>Conectar con Google Calendar</h4><span class="arrow">→</span></a>
+      <a href="#" class="popular-item fade-up"><h4>Cambiar mi plan o cancelar</h4><span class="arrow">→</span></a>
+      <a href="#" class="popular-item fade-up"><h4>Exportar reportes de ingresos</h4><span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="contact-section">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="tag">¿No encuentras lo que buscas?</span>
+      <h2 class="section-title" style="margin-top:20px">Contáctanos directamente</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card fade-up">
+        <div class="cc-icon">📧</div>
+        <h3>Email</h3>
+        <p>Escríbenos y te respondemos en menos de 24 horas hábiles.</p>
+        <a href="mailto:hola@agendaya.mx" class="btn-ghost" style="font-size:14px;padding:10px 20px;">hola@agendaya.mx</a>
+      </div>
+      <div class="contact-card fade-up" style="transition-delay:0.1s">
+        <div class="cc-icon">💬</div>
+        <h3>WhatsApp</h3>
+        <p>Chat en vivo con nuestro equipo de soporte de lunes a sábado.</p>
+        <a href="#" class="btn-ghost" style="font-size:14px;padding:10px 20px;">Iniciar chat</a>
+      </div>
+      <div class="contact-card fade-up" style="transition-delay:0.2s">
+        <div class="cc-icon">📚</div>
+        <h3>Documentación</h3>
+        <p>Guías técnicas detalladas para integraciones y configuraciones avanzadas.</p>
+        <a href="documentacion.html" class="btn-ghost" style="font-size:14px;padding:10px 20px;">Ver docs</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <h2>¿Aún no conoces AgendaYa?</h2>
+      <p>Descubre por qué más de 500 negocios confían en nosotros para gestionar sus citas.</p>
+      <div class="cta-actions">
+        <a href="/register" class="btn-primary">Comenzar gratis 14 días <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a href="index.html#funciones" class="btn-ghost">Ver funciones</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="footer-logo">Agenda<span>Ya</span></span>
+        <p>La plataforma SaaS de gestión de citas para negocios de servicios en Latinoamérica. Simple, potente y diseñada para crecer contigo.</p>
+      </div>
+      <div class="footer-col"><h5>Producto</h5><ul><li><a href="index.html#funciones">Funciones</a></li><li><a href="index.html#precios">Precios</a></li><li><a href="app-movil.html">App móvil</a></li><li><a href="novedades.html">Novedades</a></li></ul></div>
+      <div class="footer-col"><h5>Empresa</h5><ul><li><a href="nosotros.html">Nosotros</a></li><li><a href="blog.html">Blog</a></li><li><a href="casos-de-exito.html">Casos de éxito</a></li><li><a href="socios.html">Socios</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
+      <div class="footer-col"><h5>Soporte</h5><ul><li><a href="centro-de-ayuda.html">Centro de ayuda</a></li><li><a href="documentacion.html">Documentación</a></li><li><a href="mailto:hola@agendaya.mx">hola@agendaya.mx</a></li><li><a href="estado-del-sistema.html">Estado del sistema</a></li><li><a href="seguridad.html">Seguridad</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 AgendaYa. Todos los derechos reservados.</span>
+      <div style="display:flex;gap:20px;"><a href="#">Privacidad</a><a href="#">Términos de uso</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('mobileNav').classList.toggle('open');
+    document.getElementById('mobileOverlay').classList.toggle('open');
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
