@@ -136,8 +136,80 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // #endregion
     })->create();
 
-// Split deployment: public_html está fuera de agendaya_app/
-// __DIR__ = agendaya_app/bootstrap → dirname x2 = /home/agendaya
-$app->usePublicPath(dirname(__DIR__, 2) . '/public_html');
+// Resolver el public path segun el entorno real:
+// - Neubox split deploy: /home/USER/public_html
+// - Laravel convencional:  /ruta/proyecto/public
+$configuredPublicPath = $_ENV['APP_PUBLIC_PATH']
+    ?? $_SERVER['APP_PUBLIC_PATH']
+    ?? getenv('APP_PUBLIC_PATH')
+    ?: null;
+
+$defaultPublicPath = dirname(__DIR__) . '/public';
+$priorityPublicPathCandidates = [];
+$publicPathCandidates = [];
+
+if (is_string($configuredPublicPath) && trim($configuredPublicPath) !== '') {
+    $configuredPublicPath = trim($configuredPublicPath);
+    $priorityPublicPathCandidates[] = str_starts_with($configuredPublicPath, DIRECTORY_SEPARATOR)
+        ? $configuredPublicPath
+        : dirname(__DIR__) . '/' . ltrim($configuredPublicPath, '/');
+}
+
+$scriptFilename = $_SERVER['SCRIPT_FILENAME'] ?? null;
+if (is_string($scriptFilename) && basename($scriptFilename) === 'index.php') {
+    $priorityPublicPathCandidates[] = dirname($scriptFilename);
+}
+
+$documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
+if (is_string($documentRoot) && trim($documentRoot) !== '') {
+    $priorityPublicPathCandidates[] = rtrim($documentRoot, DIRECTORY_SEPARATOR);
+}
+
+$publicPathCandidates = array_values(array_unique(array_merge(
+    $priorityPublicPathCandidates,
+    $publicPathCandidates,
+    [
+        dirname(__DIR__, 2) . '/public_html',
+        $defaultPublicPath,
+    ]
+)));
+
+$resolvedPublicPath = null;
+
+foreach ($priorityPublicPathCandidates as $candidate) {
+    if (is_dir($candidate)) {
+        $resolvedPublicPath = $candidate;
+        break;
+    }
+}
+
+if ($resolvedPublicPath === null) {
+    foreach ($publicPathCandidates as $candidate) {
+        if (is_file($candidate . '/build/manifest.json')) {
+            $resolvedPublicPath = $candidate;
+            break;
+        }
+    }
+}
+
+if ($resolvedPublicPath === null) {
+    foreach ($publicPathCandidates as $candidate) {
+        if (is_dir($candidate . '/build') && is_file($candidate . '/index.php')) {
+            $resolvedPublicPath = $candidate;
+            break;
+        }
+    }
+}
+
+if ($resolvedPublicPath === null) {
+    foreach ($publicPathCandidates as $candidate) {
+        if (is_dir($candidate)) {
+            $resolvedPublicPath = $candidate;
+            break;
+        }
+    }
+}
+
+$app->usePublicPath($resolvedPublicPath ?? $defaultPublicPath);
 
 return $app;
