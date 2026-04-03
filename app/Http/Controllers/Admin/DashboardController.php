@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Business;
 use App\Models\NotificationLog;
+use App\Models\Permission;
 use App\Models\PlatformSetting;
+use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,6 +22,12 @@ class DashboardController extends Controller
 {
     private const FILTERABLE_ESTADOS = ['pending', 'approved', 'suspended', 'inactive'];
 
+    private const VALID_SECTIONS = [
+        'dashboard', 'negocios', 'usuarios', 'citas',
+        'notificaciones', 'jobs', 'configuracion',
+        'roles', 'finanzas', 'salud',
+    ];
+
     private const SETTING_KEYS = [
         'email_notifications_enabled',
         'whatsapp_notifications_enabled',
@@ -32,6 +40,11 @@ class DashboardController extends Controller
     {
         try {
             abort_unless(Gate::allows('platform-admin'), 403, 'No autorizado.');
+
+            $currentSection = $request->string('seccion')->toString();
+            if (! in_array($currentSection, self::VALID_SECTIONS, true)) {
+                $currentSection = 'dashboard';
+            }
 
             $today = now()->startOfDay();
             $monthStart = now()->startOfMonth();
@@ -175,29 +188,116 @@ class DashboardController extends Controller
                     ->keyBy('clave');
             }
 
+            // ── Usuarios Globales ──────────────────────────────────────────────
+            $globalUsers = collect();
+            if ($currentSection === 'usuarios') {
+                $globalUsers = User::query()
+                    ->select(['id', 'nombre', 'apellidos', 'email', 'telefono', 'email_verified_at', 'created_at', 'deleted_at'])
+                    ->withTrashed()
+                    ->withCount(['businessRoles as roles_count' => fn ($q) => $q->withoutGlobalScopes()])
+                    ->latest()
+                    ->paginate(20)
+                    ->withQueryString();
+            }
+
+            // ── Roles & Permisos ───────────────────────────────────────────────
+            $rolesList = collect();
+            if ($currentSection === 'roles' && Schema::hasTable('roles')) {
+                $rolesList = Role::query()
+                    ->withCount(['businessUserRoles as asignaciones_count' => fn ($q) => $q->withoutGlobalScopes()])
+                    ->with('permissions')
+                    ->orderBy('nivel_jerarquia')
+                    ->get();
+            }
+
+            // ── Reportes Financieros ───────────────────────────────────────────
+            $monthlyRevenue = collect();
+            $revenueByPlan = ['basic' => 0, 'standard' => 0, 'premium' => 0];
+            if ($currentSection === 'finanzas' && Schema::hasTable('appointments')) {
+                $monthlyRevenue = Appointment::withoutGlobalScopes()
+                    ->join('services', 'appointments.service_id', '=', 'services.id')
+                    ->whereNull('appointments.deleted_at')
+                    ->where('appointments.estado', Appointment::ESTADO_COMPLETED)
+                    ->selectRaw('YEAR(appointments.fecha_hora_inicio) as year, MONTH(appointments.fecha_hora_inicio) as month, SUM(services.precio) as total')
+                    ->groupBy(DB::raw('YEAR(appointments.fecha_hora_inicio)'), DB::raw('MONTH(appointments.fecha_hora_inicio)'))
+                    ->orderBy('year')
+                    ->orderBy('month')
+                    ->limit(12)
+                    ->get();
+
+                Business::query()->select('meta')->get()->each(function (Business $business) use (&$revenueByPlan, $monthStart, $monthEnd) {
+                    $plan = $this->resolveBusinessPlan($business->meta);
+                    $revenue = Appointment::withoutGlobalScopes()
+                        ->join('services', 'appointments.service_id', '=', 'services.id')
+                        ->whereNull('appointments.deleted_at')
+                        ->where('appointments.business_id', $business->id)
+                        ->where('appointments.estado', Appointment::ESTADO_COMPLETED)
+                        ->whereBetween('appointments.fecha_hora_inicio', [$monthStart, $monthEnd])
+                        ->sum('services.precio');
+                    $revenueByPlan[$plan] = ($revenueByPlan[$plan] ?? 0) + (float) $revenue;
+                });
+            }
+
+            // ── Salud del Sistema ──────────────────────────────────────────────
+            $systemHealth = [];
+            if ($currentSection === 'salud') {
+                $systemHealth = [
+                    'php_version'    => PHP_VERSION,
+                    'laravel_version'=> app()->version(),
+                    'environment'    => app()->environment(),
+                    'app_version'    => config('app.version', env('APP_VERSION', '1.0.0')),
+                    'app_url'        => config('app.url'),
+                    'timezone'       => config('app.timezone'),
+                    'cache_driver'   => config('cache.default'),
+                    'queue_driver'   => config('queue.default'),
+                    'db_connection'  => config('database.default'),
+                    'failed_jobs'    => $failedJobsTotal,
+                    'is_healthy'     => $failedJobsTotal === 0,
+                ];
+            }
+
             if ($request->ajax() && $request->query('partial') === 'businesses-table') {
                 return response()->view('admin.partials.businesses-table', [
                     'businessesTable' => $businessesTable,
                 ]);
             }
 
+            $sectionLabels = [
+                'dashboard'      => 'Dashboard',
+                'negocios'       => 'Negocios y Tenants',
+                'usuarios'       => 'Usuarios Globales',
+                'citas'          => 'Monitor de Citas',
+                'notificaciones' => 'Log de Notificaciones',
+                'jobs'           => 'Cola de Jobs',
+                'configuracion'  => 'Configuracion',
+                'roles'          => 'Roles y Permisos',
+                'finanzas'       => 'Reportes Financieros',
+                'salud'          => 'Salud del Sistema',
+            ];
+
             return view('admin.dashboard', [
-                'stats' => $stats,
-                'stats_deltas' => $statsDeltas,
-                'businesses_table' => $businessesTable,
-                'chart_planes' => $chartPlanes,
-                'top_businesses' => $topBusinesses,
-                'citas_chart_data' => $citasChartData,
-                'pending_businesses' => $pendingBusinesses,
+                'current_section'   => $currentSection,
+                'stats'             => $stats,
+                'stats_deltas'      => $statsDeltas,
+                'businesses_table'  => $businessesTable,
+                'chart_planes'      => $chartPlanes,
+                'top_businesses'    => $topBusinesses,
+                'citas_chart_data'  => $citasChartData,
+                'pending_businesses'=> $pendingBusinesses,
                 'notification_logs' => $notificationLogs,
-                'failed_jobs' => $failedJobs,
+                'failed_jobs'       => $failedJobs,
                 'failed_jobs_total' => $failedJobsTotal,
                 'platform_settings' => $platformSettings,
                 'system_is_healthy' => $failedJobsTotal === 0,
                 'topbar_notifications_count' => $topbarNotificationsCount,
-                'breadcrumbs' => [
+                'global_users'      => $globalUsers,
+                'roles_list'        => $rolesList,
+                'monthly_revenue'   => $monthlyRevenue,
+                'revenue_by_plan'   => $revenueByPlan,
+                'system_health'     => $systemHealth,
+                'breadcrumbs'       => [
                     ['label' => 'Plataforma', 'url' => route('admin.dashboard')],
-                    ['label' => 'Dashboard', 'url' => null],
+                    ['label' => $sectionLabels[$currentSection] ?? 'Dashboard', 'url' => null],
                 ],
                 'selected_estado_filter' => $estadoFilter,
             ]);
@@ -226,6 +326,7 @@ class DashboardController extends Controller
             }
 
             return response()->view('admin.dashboard', [
+                'current_section' => 'dashboard',
                 'stats' => [
                     'total_businesses' => 0,
                     'citas_hoy' => 0,
@@ -256,6 +357,11 @@ class DashboardController extends Controller
                 'platform_settings' => collect(),
                 'system_is_healthy' => false,
                 'topbar_notifications_count' => 0,
+                'global_users' => collect(),
+                'roles_list' => collect(),
+                'monthly_revenue' => collect(),
+                'revenue_by_plan' => ['basic' => 0, 'standard' => 0, 'premium' => 0],
+                'system_health' => [],
                 'breadcrumbs' => [
                     ['label' => 'Plataforma', 'url' => route('admin.dashboard')],
                     ['label' => 'Dashboard', 'url' => null],
