@@ -38,6 +38,56 @@ class RoleMiddleware
 
         $hasRoleInContext = false;
         if ($rolesTablesAvailable && $roleNameColumn !== null) {
+            $hasCurrentBusinessId = Schema::hasColumn('users', 'current_business_id');
+
+            // Si current_business_id es null o no existe la columna, auto-asignar desde business_user_roles
+            if (Schema::hasColumn('business_user_roles', 'business_id')) {
+                $effectiveBusinessId = ($hasCurrentBusinessId && !empty($user->current_business_id))
+                    ? $user->current_business_id
+                    : null;
+
+                // Verificar que el negocio activo exista y no esté eliminado
+                if (!empty($effectiveBusinessId) && Schema::hasTable('businesses')) {
+                    $businessExistsQuery = DB::table('businesses')->where('id', $effectiveBusinessId);
+                    if (Schema::hasColumn('businesses', 'deleted_at')) {
+                        $businessExistsQuery->whereNull('deleted_at');
+                    }
+                    if (!$businessExistsQuery->exists()) {
+                        $effectiveBusinessId = null;
+                        if ($hasCurrentBusinessId) {
+                            DB::table('users')->where('id', $user->id)->update(['current_business_id' => null]);
+                            $user->current_business_id = null;
+                            $user->unsetRelation('currentBusiness');
+                        }
+                    }
+                }
+
+                if (empty($effectiveBusinessId)) {
+                    $firstBusinessRow = DB::table('business_user_roles as bur')
+                        ->join('roles as r', 'r.id', '=', 'bur.role_id')
+                        ->where('bur.user_id', $user->id)
+                        ->whereIn('r.'.$roleNameColumn, $roleNames)
+                        ->when(Schema::hasColumn('business_user_roles', 'deleted_at'), fn($q) => $q->whereNull('bur.deleted_at'))
+                        ->select('bur.business_id')
+                        ->first();
+
+                    if ($firstBusinessRow) {
+                        $effectiveBusinessId = $firstBusinessRow->business_id;
+
+                        // Persistir solo si la columna existe en la BD
+                        if ($hasCurrentBusinessId) {
+                            DB::table('users')
+                                ->where('id', $user->id)
+                                ->update(['current_business_id' => $effectiveBusinessId]);
+                            $user->current_business_id = $effectiveBusinessId;
+                            $user->unsetRelation('currentBusiness');
+                        }
+                    }
+                }
+            } else {
+                $effectiveBusinessId = null;
+            }
+
             $contextQuery = DB::table('business_user_roles as bur')
                 ->join('roles as r', 'r.id', '=', 'bur.role_id')
                 ->where('bur.user_id', $user->id)
@@ -47,14 +97,8 @@ class RoleMiddleware
                 $contextQuery->whereNull('bur.deleted_at');
             }
 
-            if (Schema::hasColumn('business_user_roles', 'business_id')) {
-                $contextQuery->where(function ($query) use ($user) {
-                    $query->whereNull('bur.business_id');
-
-                    if (!empty($user->current_business_id)) {
-                        $query->orWhere('bur.business_id', $user->current_business_id);
-                    }
-                });
+            if (!empty($effectiveBusinessId)) {
+                $contextQuery->where('bur.business_id', $effectiveBusinessId);
             }
 
             $hasRoleInContext = $contextQuery->exists();
@@ -76,19 +120,26 @@ class RoleMiddleware
                 $hasAnyPlatformRole = $platformRoleQuery->exists();
             }
 
-            if (!$hasAnyPlatformRole && !empty($user->email) && Schema::hasTable('platform_admins')) {
-                $platformAdminQuery = DB::table('platform_admins')
-                    ->where('email', $user->email);
+            if (!$hasAnyPlatformRole && Schema::hasTable('platform_admins')) {
+                $platformAdminQuery = DB::table('platform_admins');
 
-                if (Schema::hasColumn('platform_admins', 'activo')) {
-                    $platformAdminQuery->where('activo', true);
+                if (Schema::hasColumn('platform_admins', 'email')) {
+                    $platformAdminQuery->where('email', $user->email);
+                } elseif (Schema::hasColumn('platform_admins', 'user_id')) {
+                    $platformAdminQuery->where('user_id', $user->id);
+                } else {
+                    $platformAdminQuery = null;
                 }
 
-                if (Schema::hasColumn('platform_admins', 'deleted_at')) {
-                    $platformAdminQuery->whereNull('deleted_at');
+                if ($platformAdminQuery !== null) {
+                    if (Schema::hasColumn('platform_admins', 'activo')) {
+                        $platformAdminQuery->where('activo', true);
+                    }
+                    if (Schema::hasColumn('platform_admins', 'deleted_at')) {
+                        $platformAdminQuery->whereNull('deleted_at');
+                    }
+                    $hasAnyPlatformRole = $platformAdminQuery->exists();
                 }
-
-                $hasAnyPlatformRole = $platformAdminQuery->exists();
             }
         }
 

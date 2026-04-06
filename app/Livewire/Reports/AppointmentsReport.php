@@ -2,16 +2,19 @@
 
 namespace App\Livewire\Reports;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
+use App\Models\Employee;
+use App\Models\Service;
+use App\Services\ReportsService;
+use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Services\ReportsService;
-use App\Models\Service;
-use App\Models\Employee;
-use Carbon\Carbon;
 
 class AppointmentsReport extends Component
 {
     use WithPagination;
+    use UsesBusinessLayout;
 
     public $fechaInicio;
     public $fechaFin;
@@ -68,9 +71,23 @@ class AppointmentsReport extends Component
         $this->resetPage();
     }
 
+    private function resolveBusiness()
+    {
+        $business = auth()->user()->currentBusiness;
+
+        if (!$business) {
+            session()->flash('error', 'No tienes un negocio activo asignado. Contacta al administrador.');
+            $this->redirect(route('business.dashboard'));
+            return null;
+        }
+
+        return $business;
+    }
+
     public function exportToCsv()
     {
-        $business = auth()->user()->currentBusiness();
+        $business = $this->resolveBusiness();
+        if (!$business) return;
         
         $appointments = $this->reportsService->getAppointmentsReport(
             $business,
@@ -136,8 +153,16 @@ class AppointmentsReport extends Component
 
     public function render()
     {
-        $business = auth()->user()->currentBusiness();
-        
+        $business = $this->resolveBusiness();
+        if (!$business) {
+            $empty = new LengthAwarePaginator([], 0, 20);
+            return $this->renderInBusinessLayout('livewire.reports.appointments-report', [
+                'appointments' => $empty,
+                'services' => collect(),
+                'employees' => collect(),
+            ], 'Reportes', 'Gestion');
+        }
+
         $appointments = $this->reportsService->getAppointmentsReport(
             $business,
             Carbon::parse($this->fechaInicio),
@@ -150,10 +175,10 @@ class AppointmentsReport extends Component
         $services = Service::where('business_id', $business->id)->orderBy('nombre')->get();
         $employees = Employee::where('business_id', $business->id)->orderBy('nombre')->get();
 
-        return view('livewire.reports.appointments-report', [
+        return $this->renderInBusinessLayout('livewire.reports.appointments-report', [
             'appointments' => $appointments,
             'services' => $services,
             'employees' => $employees
-        ]);
+        ], 'Reportes', 'Gestion');
     }
 }

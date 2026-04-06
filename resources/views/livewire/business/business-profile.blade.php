@@ -8,11 +8,21 @@
                 </div>
 
                 @if (session()->has('message'))
-                    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" 
+                    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
                          class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
                         {{ session('message') }}
                     </div>
                 @endif
+
+                @if (session()->has('error'))
+                    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if (!$business)
+                    <p class="text-gray-500">Cargando información del negocio...</p>
+                @else
 
                 <form wire:submit="save">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,7 +125,7 @@
 
                     <!-- Botones de acción -->
                     <div class="mt-6 flex items-center justify-end space-x-3">
-                        <button type="button" onclick="window.location.href='{{ route('dashboard') }}'"
+                        <button type="button" onclick="window.location.href='{{ route('business.dashboard') }}'"
                                 class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             Cancelar
                         </button>
@@ -142,6 +152,8 @@
                         @endforelse
                     </div>
                 </div>
+
+                @endif
             </div>
         </div>
     </div>

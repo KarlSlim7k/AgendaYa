@@ -1,4 +1,10 @@
 <div class="space-y-6">
+    @if(session('error'))
+        <div class="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            {{ session('error') }}
+        </div>
+    @endif
+
     {{-- Header --}}
     <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold text-gray-900">Reporte de Citas</h1>

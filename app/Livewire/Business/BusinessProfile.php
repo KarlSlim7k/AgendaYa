@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Business;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Business;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -9,8 +10,9 @@ use Livewire\WithFileUploads;
 class BusinessProfile extends Component
 {
     use WithFileUploads;
+    use UsesBusinessLayout;
 
-    public Business $business;
+    public ?Business $business = null;
     public $nombre;
     public $razon_social;
     public $rfc;
@@ -34,8 +36,15 @@ class BusinessProfile extends Component
 
     public function mount()
     {
-        $this->business = Business::with('locations')
-            ->findOrFail(auth()->user()->current_business_id);
+        $businessId = auth()->user()->current_business_id;
+
+        if (!$businessId) {
+            session()->flash('error', 'No tienes un negocio activo asignado. Contacta al administrador.');
+            $this->redirect(route('business.dashboard'));
+            return;
+        }
+
+        $this->business = Business::with('locations')->findOrFail($businessId);
 
         $this->nombre = $this->business->nombre;
         $this->razon_social = $this->business->razon_social;
@@ -59,6 +68,10 @@ class BusinessProfile extends Component
 
     public function render()
     {
-        return view('livewire.business.business-profile');
+        if (!$this->business) {
+            return $this->renderInBusinessLayout('livewire.business.business-profile', [], 'Perfil del Negocio', 'Gestion');
+        }
+
+        return $this->renderInBusinessLayout('livewire.business.business-profile', [], 'Perfil del Negocio', 'Gestion');
     }
 }
