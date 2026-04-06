@@ -2,17 +2,20 @@
 
 namespace App\Livewire\Appointments;
 
-use App\Models\Service;
-use App\Models\Employee;
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\BusinessLocation;
+use App\Models\Employee;
+use App\Models\Service;
 use App\Models\User;
 use App\Services\AvailabilityService;
 use App\Services\AppointmentService;
-use Livewire\Component;
 use Carbon\Carbon;
+use Livewire\Component;
 
 class CreateAppointmentForm extends Component
 {
+    use UsesBusinessLayout;
+
     public $currentStep = 1;
     
     // Step 1: Service selection
@@ -99,6 +102,11 @@ class CreateAppointmentForm extends Component
         }
     }
 
+    public function updatedCustomerSearch()
+    {
+        $this->searchCustomers();
+    }
+
     public function loadAvailableSlots()
     {
         $location = BusinessLocation::where('business_id', auth()->user()->current_business_id)->first();
@@ -133,7 +141,7 @@ class CreateAppointmentForm extends Component
             $q->where('nombre', 'like', '%' . $this->customerSearch . '%')
               ->orWhere('email', 'like', '%' . $this->customerSearch . '%');
         })
-        ->whereDoesntHave('businessUserRoles')
+        ->whereDoesntHave('businessRoles')
         ->limit(10)
         ->get()
         ->toArray();
@@ -165,7 +173,7 @@ class CreateAppointmentForm extends Component
             ]);
 
             session()->flash('message', 'Cita creada exitosamente');
-            return redirect()->route('appointments.index');
+            return redirect()->route('business.appointments.index');
             
         } catch (\Exception $e) {
             session()->flash('error', 'Error al crear la cita: ' . $e->getMessage());
@@ -174,16 +182,20 @@ class CreateAppointmentForm extends Component
 
     public function render()
     {
-        $services = Service::where('activo', true)->get();
+        $services = Service::where('business_id', auth()->user()->current_business_id)
+            ->where('activo', true)
+            ->orderBy('nombre')
+            ->get();
         $employees = $this->selectedService 
             ? Employee::whereHas('services', fn($q) => $q->where('services.id', $this->selectedService))
                 ->where('estado', 'disponible')
+                ->orderBy('nombre')
                 ->get()
             : collect();
 
-        return view('livewire.appointments.create-appointment-form', [
+        return $this->renderInBusinessLayout('livewire.appointments.create-appointment-form', [
             'services' => $services,
             'employees' => $employees,
-        ])->layout('layouts.app');
+        ], 'Nueva Cita', 'Principal');
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Livewire\Appointments;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Appointment;
-use App\Models\Service;
 use App\Models\Employee;
+use App\Models\Service;
 use Illuminate\Support\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -12,6 +13,7 @@ use Livewire\WithPagination;
 class AppointmentsList extends Component
 {
     use WithPagination;
+    use UsesBusinessLayout;
 
     // Filtros
     public $search = '';
@@ -118,8 +120,9 @@ class AppointmentsList extends Component
         // Aplicar filtros
         if ($this->search) {
             $query->whereHas('user', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
+                $q->where('nombre', 'like', '%' . $this->search . '%')
+                    ->orWhere('apellidos', 'like', '%' . $this->search . '%')
+                    ->orWhere('email', 'like', '%' . $this->search . '%');
             });
         }
 
@@ -154,10 +157,10 @@ class AppointmentsList extends Component
             ->get();
 
         $empleados = Employee::where('business_id', $user->current_business_id)
-            ->where('activo', true)
+            ->whereNotIn('estado', ['baja'])
             ->get();
 
-        return view('livewire.appointments.appointments-list', [
+        return $this->renderInBusinessLayout('livewire.appointments.appointments-list', [
             'appointments' => $appointments,
             'servicios' => $servicios,
             'empleados' => $empleados,
@@ -168,6 +171,6 @@ class AppointmentsList extends Component
                 Appointment::ESTADO_CANCELLED => 'Cancelada',
                 Appointment::ESTADO_NO_SHOW => 'No asistió',
             ],
-        ]);
+        ], 'Citas', 'Principal');
     }
 }

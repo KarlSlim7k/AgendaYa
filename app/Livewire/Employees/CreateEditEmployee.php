@@ -2,12 +2,15 @@
 
 namespace App\Livewire\Employees;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Employee;
 use App\Models\Service;
 use Livewire\Component;
 
 class CreateEditEmployee extends Component
 {
+    use UsesBusinessLayout;
+
     public $employeeId = null;
     public $nombre = '';
     public $email = '';
@@ -76,16 +79,21 @@ class CreateEditEmployee extends Component
             session()->flash('message', 'Empleado creado correctamente');
         }
 
-        return redirect()->route('employees.index');
+        return redirect()->route('business.employees.index');
     }
 
     public function cancel()
     {
-        return redirect()->route('employees.index');
+        return redirect()->route('business.employees.index');
     }
 
     public function render()
     {
-        return view('livewire.employees.create-edit-employee');
+        return $this->renderInBusinessLayout(
+            'livewire.employees.create-edit-employee',
+            [],
+            $this->employeeId ? 'Editar Empleado' : 'Nuevo Empleado',
+            'Principal'
+        );
     }
 }

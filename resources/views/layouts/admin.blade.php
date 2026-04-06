@@ -211,15 +211,77 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button type="button" class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 text-slate-200 transition hover:bg-slate-800" aria-label="Notificaciones de plataforma">
-                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path d="M10 2.5a4 4 0 0 0-4 4V8c0 .795-.316 1.558-.879 2.121l-.56.56A1.5 1.5 0 0 0 5.621 13h8.758a1.5 1.5 0 0 0 1.06-2.56l-.56-.56A3 3 0 0 1 14 8V6.5a4 4 0 0 0-4-4Z" />
-                            <path d="M8 15.5a2 2 0 1 0 4 0H8Z" />
-                        </svg>
-                        @if ($notificationsCount > 0)
-                            <span class="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold text-white">{{ $notificationsCount }}</span>
-                        @endif
-                    </button>
+                    <div x-data="{ notifOpen: false }" class="relative">
+                        <button type="button" @click="notifOpen = !notifOpen" class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 text-slate-200 transition hover:bg-slate-800" aria-label="Notificaciones de plataforma">
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path d="M10 2.5a4 4 0 0 0-4 4V8c0 .795-.316 1.558-.879 2.121l-.56.56A1.5 1.5 0 0 0 5.621 13h8.758a1.5 1.5 0 0 0 1.06-2.56l-.56-.56A3 3 0 0 1 14 8V6.5a4 4 0 0 0-4-4Z" />
+                                <path d="M8 15.5a2 2 0 1 0 4 0H8Z" />
+                            </svg>
+                            @if ($notificationsCount > 0)
+                                <span class="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold text-white">{{ $notificationsCount }}</span>
+                            @endif
+                        </button>
+
+                        <div x-show="notifOpen" @click.outside="notifOpen = false" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95 -translate-y-1" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 -translate-y-1" class="absolute right-0 z-[60] mt-2 w-80 rounded-xl border border-slate-700/50 bg-slate-900 shadow-2xl shadow-slate-950/80">
+                            <div class="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+                                <h3 class="text-sm font-bold text-white">Notificaciones</h3>
+                                @if(($topbar_notifications_count ?? 0) > 0)
+                                    <span class="rounded-full bg-indigo-500/15 px-2 py-0.5 text-[10px] font-bold text-indigo-200">{{ $topbar_notifications_count }} hoy</span>
+                                @endif
+                            </div>
+
+                            <div class="max-h-80 overflow-y-auto">
+                                @if(isset($notification_logs) && $notification_logs->count() > 0)
+                                    @foreach($notification_logs->take(8) as $notification)
+                                        @php
+                                            $tipo = strtolower($notification->tipo ?? 'email');
+                                            $estado = strtolower($notification->estado ?? 'enviado');
+                                            $displayUser = trim(implode(' ', array_filter([$notification->user?->nombre, $notification->user?->apellidos])));
+                                            $displayUser = $displayUser !== '' ? $displayUser : ($notification->user?->email ?? 'N/A');
+                                            $tipoBadge = match($tipo) {
+                                                'email' => 'bg-blue-500/15 text-blue-200',
+                                                'whatsapp' => 'bg-emerald-500/15 text-emerald-200',
+                                                'sms' => 'bg-orange-500/15 text-orange-200',
+                                                default => 'bg-slate-600/20 text-slate-300',
+                                            };
+                                            $estadoDot = match($estado) {
+                                                'enviado' => 'bg-emerald-400',
+                                                'fallido' => 'bg-rose-400',
+                                                'reintentado' => 'bg-amber-400',
+                                                default => 'bg-slate-400',
+                                            };
+                                        @endphp
+                                        <div class="border-b border-slate-800/50 px-4 py-3 transition hover:bg-slate-800/30 last:border-b-0">
+                                            <div class="flex items-start justify-between gap-2">
+                                                <div class="min-w-0 flex-1">
+                                                    <p class="truncate text-xs font-semibold text-white">{{ ucfirst($notification->evento ?? 'Evento') }}</p>
+                                                    <p class="mt-0.5 truncate text-[11px] text-slate-400">{{ $displayUser }}</p>
+                                                    <p class="mt-1 text-[10px] text-slate-500">{{ optional($notification->created_at)->diffForHumans() }}</p>
+                                                </div>
+                                                <div class="flex shrink-0 flex-col items-end gap-1">
+                                                    <span class="rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase {{ $tipoBadge }}">{{ $tipo }}</span>
+                                                    <span class="inline-flex items-center gap-1 text-[10px] text-slate-400">
+                                                        <span class="h-1.5 w-1.5 rounded-full {{ $estadoDot }}"></span>
+                                                        {{ $estado }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div class="flex flex-col items-center justify-center px-4 py-10 text-center">
+                                        <svg class="h-8 w-8 text-slate-600" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5a4 4 0 0 0-4 4V8c0 .795-.316 1.558-.879 2.121l-.56.56A1.5 1.5 0 0 0 5.621 13h8.758a1.5 1.5 0 0 0 1.06-2.56l-.56-.56A3 3 0 0 1 14 8V6.5a4 4 0 0 0-4-4Zm0 15a2.25 2.25 0 0 0 2.122-1.5H7.878A2.25 2.25 0 0 0 10 17.5Z" /></svg>
+                                        <p class="mt-2 text-xs font-semibold text-slate-300">Sin notificaciones</p>
+                                        <p class="mt-0.5 text-[11px] text-slate-500">Las notificaciones apareceran aqui.</p>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <a href="{{ route('admin.dashboard', ['seccion' => 'notificaciones']) }}" class="block border-t border-slate-800 px-4 py-2.5 text-center text-xs font-semibold text-indigo-300 transition hover:bg-slate-800/50 hover:text-indigo-200">
+                                Ver todas las notificaciones &rarr;
+                            </a>
+                        </div>
+                    </div>
 
                     <div class="hidden items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold ring-1 sm:flex {{ $systemHealthy ? 'bg-emerald-500/15 text-emerald-200 ring-emerald-500/40' : 'bg-rose-500/15 text-rose-200 ring-rose-500/40' }}">
                         <span class="inline-flex h-2 w-2 rounded-full {{ $systemHealthy ? 'bg-emerald-400' : 'bg-rose-400' }}"></span>

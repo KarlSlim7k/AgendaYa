@@ -68,7 +68,12 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info('✅ Seeding completo (FASE 1 + FASE 2) exitoso!');
         $this->command->newLine();
-        
+
+        // Usuario de panel de negocio para testing/producción
+        $this->command->info('🔑 Paso 11: Usuario Negocio Admin');
+        $this->call(NegocioAdminSeeder::class);
+        $this->command->newLine();
+
         $this->displaySummary();
     }
 
@@ -99,6 +104,7 @@ class DatabaseSeeder extends Seeder
         $this->command->newLine();
         $this->command->info('🔑 CREDENCIALES DE ACCESO:');
         $this->command->line('  Superadmin: admin@citasempresariales.com / password');
+        $this->command->line('  Negocio Admin: negocio@agendaya.mx / password123');
         $this->command->line('  Usuarios: carlos.martinez@example.com / password (y similares)');
         $this->command->newLine();
     }

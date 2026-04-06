@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Employees;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Employee;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -9,6 +10,7 @@ use Livewire\WithPagination;
 class EmployeesList extends Component
 {
     use WithPagination;
+    use UsesBusinessLayout;
 
     public $search = '';
     public $showModal = false;
@@ -88,8 +90,8 @@ class EmployeesList extends Component
 
         $employees = $query->orderBy('nombre')->paginate(15);
 
-        return view('livewire.employees.employees-list', [
+        return $this->renderInBusinessLayout('livewire.employees.employees-list', [
             'employees' => $employees
-        ]);
+        ], 'Empleados', 'Principal');
     }
 }

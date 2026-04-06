@@ -18,7 +18,7 @@
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
             <div class="border-b border-gray-200 dark:border-gray-700">
                 <div class="flex">
-                    <a href="{{ route('schedules.index') }}" class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent">
+                    <a href="{{ route('business.schedules.index') }}" class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent">
                         Horarios Base
                     </a>
                     <button class="px-6 py-3 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600">
@@ -77,19 +77,39 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Inicio</label>
-                                    <input type="date" wire:model="fecha_inicio" 
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha</label>
+                                    <input type="date" wire:model="fecha" 
                                         class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                    @error('fecha_inicio') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                                    @error('fecha') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Fin</label>
-                                    <input type="date" wire:model="fecha_fin" 
-                                        class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                    @error('fecha_fin') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <input type="checkbox" wire:model.live="todo_el_dia"
+                                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                        Todo el día
+                                    </label>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Desactiva esta opción si quieres bloquear sólo un rango horario.</p>
                                 </div>
                             </div>
+
+                            @if(!$todo_el_dia)
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hora Inicio</label>
+                                        <input type="time" wire:model="hora_inicio"
+                                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                        @error('hora_inicio') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hora Fin</label>
+                                        <input type="time" wire:model="hora_fin"
+                                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                        @error('hora_fin') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                            @endif
 
                             <div class="flex justify-end space-x-3">
                                 <button wire:click="cancelForm" type="button"
@@ -113,8 +133,8 @@
                                         <tr>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Tipo</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Motivo</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Fecha Inicio</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Fecha Fin</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Fecha</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Horario</th>
                                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Acciones</th>
                                         </tr>
                                     </thead>
@@ -133,10 +153,10 @@
                                                     {{ $exception->motivo }}
                                                 </td>
                                                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $exception->fecha_inicio->format('d/m/Y') }}
+                                                    {{ $exception->fecha->format('d/m/Y') }}
                                                 </td>
                                                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                                    {{ $exception->fecha_fin->format('d/m/Y') }}
+                                                    {{ $exception->todo_el_dia ? 'Todo el día' : $exception->hora_inicio . ' - ' . $exception->hora_fin }}
                                                 </td>
                                                 <td class="px-6 py-4 text-right text-sm font-medium">
                                                     <button wire:click="edit({{ $exception->id }})" class="text-blue-600 hover:text-blue-900 mr-3">
@@ -167,7 +187,7 @@
                 @else
                     <div class="text-center py-8">
                         <p class="text-gray-500 dark:text-gray-400 mb-4">No hay sucursales configuradas</p>
-                        <a href="{{ route('dashboard') }}" class="text-indigo-600 hover:text-indigo-800">
+                        <a href="{{ route('business.dashboard') }}" class="text-indigo-600 hover:text-indigo-800">
                             Ir al Dashboard
                         </a>
                     </div>
@@ -199,21 +219,4 @@
     </div>
     @endif
 
-    <!-- Modal de confirmación de eliminación -->
-    @if($confirmingDeletion)
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmar eliminación</h3>
-            <p class="text-sm text-gray-500 mb-6">¿Estás seguro de que deseas eliminar esta excepción? Esta acción no se puede deshacer.</p>
-            <div class="flex justify-end space-x-3">
-                <button wire:click="cancelDelete" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
-                    Cancelar
-                </button>
-                <button wire:click="delete" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                    Eliminar
-                </button>
-            </div>
-        </div>
-    </div>
-    @endif
 </div>

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Schedule;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\BusinessLocation;
 use App\Models\ScheduleException;
 use Livewire\Component;
@@ -10,6 +11,7 @@ use Livewire\WithPagination;
 class ManageExceptions extends Component
 {
     use WithPagination;
+    use UsesBusinessLayout;
 
     public $locations = [];
     public $selectedLocationId = null;
@@ -19,12 +21,14 @@ class ManageExceptions extends Component
     public $exceptionId = null;
     public $tipo = 'feriado';
     public $motivo = '';
-    public $fecha_inicio = '';
-    public $fecha_fin = '';
+    public $fecha = '';
+    public $todo_el_dia = true;
+    public $hora_inicio = '';
+    public $hora_fin = '';
 
     public function mount()
     {
-        $this->locations = BusinessLocation::orderBy('nombre')->get();
+        $this->locations = BusinessLocation::active()->orderBy('nombre')->get();
         
         if ($this->locations->count() > 0) {
             $this->selectedLocationId = $this->locations->first()->id;
@@ -39,6 +43,7 @@ class ManageExceptions extends Component
     public function showCreateForm()
     {
         $this->resetForm();
+        $this->fecha = now()->format('Y-m-d');
         $this->showForm = true;
     }
 
@@ -46,7 +51,7 @@ class ManageExceptions extends Component
     {
         $exception = ScheduleException::findOrFail($exceptionId);
         
-        if ($exception->location_id !== (int)$this->selectedLocationId) {
+        if ($exception->business_location_id !== (int) $this->selectedLocationId) {
             session()->flash('error', 'No autorizado');
             return;
         }
@@ -54,8 +59,10 @@ class ManageExceptions extends Component
         $this->exceptionId = $exception->id;
         $this->tipo = $exception->tipo;
         $this->motivo = $exception->motivo;
-        $this->fecha_inicio = $exception->fecha_inicio->format('Y-m-d');
-        $this->fecha_fin = $exception->fecha_fin->format('Y-m-d');
+        $this->fecha = $exception->fecha->format('Y-m-d');
+        $this->todo_el_dia = (bool) $exception->todo_el_dia;
+        $this->hora_inicio = $exception->hora_inicio ?? '';
+        $this->hora_fin = $exception->hora_fin ?? '';
         $this->showForm = true;
     }
 
@@ -63,17 +70,21 @@ class ManageExceptions extends Component
     {
         $this->validate([
             'tipo' => 'required|in:feriado,vacaciones,cierre',
-            'motivo' => 'required|string|max:255',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'motivo' => 'nullable|string|max:255',
+            'fecha' => 'required|date',
+            'todo_el_dia' => 'boolean',
+            'hora_inicio' => 'nullable|date_format:H:i|required_if:todo_el_dia,false',
+            'hora_fin' => 'nullable|date_format:H:i|after:hora_inicio|required_if:todo_el_dia,false',
         ]);
 
         $data = [
-            'location_id' => $this->selectedLocationId,
+            'business_location_id' => $this->selectedLocationId,
             'tipo' => $this->tipo,
             'motivo' => $this->motivo,
-            'fecha_inicio' => $this->fecha_inicio,
-            'fecha_fin' => $this->fecha_fin,
+            'fecha' => $this->fecha,
+            'todo_el_dia' => $this->todo_el_dia,
+            'hora_inicio' => $this->todo_el_dia ? null : $this->hora_inicio,
+            'hora_fin' => $this->todo_el_dia ? null : $this->hora_fin,
         ];
 
         if ($this->exceptionId) {
@@ -109,7 +120,7 @@ class ManageExceptions extends Component
 
         $exception = ScheduleException::findOrFail($this->exceptionToDelete);
         
-        if ($exception->location_id !== (int)$this->selectedLocationId) {
+        if ($exception->business_location_id !== (int) $this->selectedLocationId) {
             session()->flash('error', 'No autorizado');
             $this->cancelDelete();
             return;
@@ -131,8 +142,10 @@ class ManageExceptions extends Component
         $this->exceptionId = null;
         $this->tipo = 'feriado';
         $this->motivo = '';
-        $this->fecha_inicio = '';
-        $this->fecha_fin = '';
+        $this->fecha = '';
+        $this->todo_el_dia = true;
+        $this->hora_inicio = '';
+        $this->hora_fin = '';
     }
 
     public function render()
@@ -140,13 +153,13 @@ class ManageExceptions extends Component
         $exceptions = collect();
         
         if ($this->selectedLocationId) {
-            $exceptions = ScheduleException::where('location_id', $this->selectedLocationId)
-                ->orderBy('fecha_inicio', 'desc')
+            $exceptions = ScheduleException::where('business_location_id', $this->selectedLocationId)
+                ->orderBy('fecha', 'desc')
                 ->paginate(15);
         }
 
-        return view('livewire.schedule.manage-exceptions', [
+        return $this->renderInBusinessLayout('livewire.schedule.manage-exceptions', [
             'exceptions' => $exceptions
-        ]);
+        ], 'Excepciones de Horario', 'Gestion');
     }
 }

@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="mb-6 flex justify-between items-center">
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">Empleados</h2>
-            <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
+            <a href="{{ route('business.employees.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
                 + Nuevo Empleado
             </a>
         </div>
@@ -67,7 +67,7 @@
                                     <button wire:click="viewDetails({{ $employee->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">
                                         Ver
                                     </button>
-                                    <a href="{{ route('employees.edit', $employee->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <a href="{{ route('business.employees.edit', $employee->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
                                         Editar
                                     </a>
                                     <button wire:click="confirmDelete({{ $employee->id }})" class="text-red-600 hover:text-red-900">

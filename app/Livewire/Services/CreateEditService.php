@@ -2,11 +2,14 @@
 
 namespace App\Livewire\Services;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Service;
 use Livewire\Component;
 
 class CreateEditService extends Component
 {
+    use UsesBusinessLayout;
+
     public $serviceId = null;
     public $nombre = '';
     public $descripcion = '';
@@ -77,16 +80,21 @@ class CreateEditService extends Component
             session()->flash('message', 'Servicio creado correctamente');
         }
 
-        return redirect()->route('services.index');
+        return redirect()->route('business.services.index');
     }
 
     public function cancel()
     {
-        return redirect()->route('services.index');
+        return redirect()->route('business.services.index');
     }
 
     public function render()
     {
-        return view('livewire.services.create-edit-service');
+        return $this->renderInBusinessLayout(
+            'livewire.services.create-edit-service',
+            [],
+            $this->serviceId ? 'Editar Servicio' : 'Nuevo Servicio',
+            'Principal'
+        );
     }
 }

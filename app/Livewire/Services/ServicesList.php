@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Services;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Service;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -9,6 +10,7 @@ use Livewire\WithPagination;
 class ServicesList extends Component
 {
     use WithPagination;
+    use UsesBusinessLayout;
 
     public $search = '';
     public $filterActivo = '';
@@ -108,8 +110,8 @@ class ServicesList extends Component
 
         $services = $query->orderBy('nombre')->paginate(15);
 
-        return view('livewire.services.services-list', [
+        return $this->renderInBusinessLayout('livewire.services.services-list', [
             'services' => $services
-        ]);
+        ], 'Servicios', 'Principal');
     }
 }

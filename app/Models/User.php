@@ -85,7 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function businesses()
     {
         return $this->belongsToMany(Business::class, 'business_user_roles')
-            ->withPivot('role_id', 'asignado_el')
+            ->withPivot('role_id')
             ->withTimestamps();
     }
 
@@ -102,11 +102,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function currentBusiness()
     {
-        if (!$this->current_business_id) {
-            return null;
-        }
-
-        return Business::find($this->current_business_id);
+        return $this->belongsTo(Business::class, 'current_business_id');
     }
 
     /**

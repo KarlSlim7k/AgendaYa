@@ -59,7 +59,7 @@
                             </div>
                         @else
                             <p class="text-gray-500 dark:text-gray-400 text-sm">
-                                No hay servicios activos. <a href="{{ route('services.create') }}" class="text-indigo-600 hover:text-indigo-800">Crear uno ahora</a>
+                                No hay servicios activos. <a href="{{ route('business.services.create') }}" class="text-indigo-600 hover:text-indigo-800">Crear uno ahora</a>
                             </p>
                         @endif
                     </div>

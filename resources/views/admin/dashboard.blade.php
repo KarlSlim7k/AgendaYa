@@ -87,6 +87,44 @@
             4 => 'bg-amber-500/20 text-amber-200',
         ];
 
+        $roleOptionsForAssignments = collect($roles_list ?? collect())
+            ->map(function ($role) {
+                $label = $role->display_name_ui
+                    ?? $role->display_name
+                    ?? $role->nombre_ui
+                    ?? $role->nombre
+                    ?? $role->name
+                    ?? 'Sin nombre';
+
+                return [
+                    'id' => (int) ($role->id ?? 0),
+                    'label' => (string) $label,
+                ];
+            })
+            ->filter(fn (array $option) => $option['id'] > 0)
+            ->values()
+            ->all();
+
+        $roleDrawerPayloads = collect($roles_list ?? collect())
+            ->mapWithKeys(function ($role) {
+                $roleLevel = (int) ($role->nivel_jerarquia_ui ?? $role->nivel_jerarquia ?? 0);
+                $roleDisplayName = (string) ($role->display_name_ui ?? $role->display_name ?? $role->nombre_ui ?? $role->nombre ?? $role->name ?? 'Sin nombre');
+                $roleSystemName = (string) ($role->nombre_ui ?? $role->nombre ?? $role->name ?? 'N/A');
+                $roleAssignments = is_array($role->asignados_ui ?? null) ? $role->asignados_ui : [];
+
+                return [
+                    (int) ($role->id ?? 0) => [
+                        'id' => (int) ($role->id ?? 0),
+                        'display_name' => $roleDisplayName,
+                        'system_name' => $roleSystemName,
+                        'nivel_jerarquia' => $roleLevel,
+                        'asignaciones' => $roleAssignments,
+                    ],
+                ];
+            })
+            ->filter(fn ($payload, $roleId) => (int) $roleId > 0)
+            ->all();
+
         $healthDriverBadge = fn($v) => match(true) {
             in_array($v, ['redis', 'memcached', 'database']) => 'bg-emerald-500/15 text-emerald-200',
             default => 'bg-slate-700/60 text-slate-300',
@@ -99,9 +137,13 @@
             settingsUrl: @js(route('admin.settings.update')),
             approveRouteTemplate: @js(route('admin.businesses.approve', ['id' => '__ID__'])),
             suspendRouteTemplate: @js(route('admin.businesses.suspend', ['id' => '__ID__'])),
+            roleAssignmentUpdateRouteTemplate: @js(route('admin.role-assignments.update', ['id' => '__ID__'])),
+            roleAssignmentDestroyRouteTemplate: @js(route('admin.role-assignments.destroy', ['id' => '__ID__'])),
             csrfToken: @js(csrf_token()),
             selectedEstado: @js($selected_estado_filter ?? 'all'),
             initialSettings: @js($initialSettings),
+            roleOptions: @js($roleOptionsForAssignments),
+            roleDrawerPayloads: @js($roleDrawerPayloads),
             planesData: @js($planesData),
             citasData: @js($citas_chart_data),
         })"
@@ -310,35 +352,58 @@
             {{-- Negocios pendientes de aprobacion --}}
             <section aria-label="Negocios pendientes de aprobacion">
                 <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/40">
-                    <h3 class="text-lg font-bold text-white">Negocios pendientes de aprobacion</h3>
-                    <p class="text-sm text-slate-400">Negocios en estado pending listos para revision.</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Negocios pendientes de aprobacion</h3>
+                            <p class="text-sm text-slate-400">Negocios en estado pending listos para revision.</p>
+                        </div>
+                        @if ($pending_businesses->count() > 0)
+                            <span class="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-200">{{ $pending_businesses->count() }} pendientes</span>
+                        @endif
+                    </div>
 
                     @if ($pending_businesses->count() > 0)
-                        <ul class="mt-4 space-y-3">
+                        <div class="mt-4 grid gap-3 sm:grid-cols-2">
                             @foreach ($pending_businesses as $pendingBusiness)
-                                <li class="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+                                <div class="group rounded-xl border border-slate-800 bg-slate-950/60 p-4 transition hover:border-amber-500/30 hover:bg-slate-950/80">
                                     <div class="flex items-start justify-between gap-3">
-                                        <div class="min-w-0">
-                                            <p class="truncate text-sm font-semibold text-white">{{ $pendingBusiness->nombre }}</p>
-                                            <p class="text-xs text-slate-400">{{ strtoupper($pendingBusiness->categoria ?? '') }} | {{ optional($pendingBusiness->created_at)->format('d/m/Y H:i') }}</p>
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-sm font-bold text-amber-300 ring-1 ring-amber-500/20">
+                                                {{ strtoupper(mb_substr($pendingBusiness->nombre, 0, 1)) }}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="truncate text-sm font-semibold text-white">{{ $pendingBusiness->nombre }}</p>
+                                                <p class="text-xs text-slate-500">{{ strtoupper($pendingBusiness->categoria ?? 'Sin categoria') }}</p>
+                                            </div>
                                         </div>
                                         <span class="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200">Pending</span>
                                     </div>
 
+                                    <div class="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd" /></svg>
+                                        {{ optional($pendingBusiness->created_at)->format('d/m/Y H:i') }}
+                                    </div>
+
                                     @can('platform-admin')
                                         <div class="mt-3 flex items-center gap-2">
-                                            <button type="button" @click="openBusinessModal('approve', {{ $pendingBusiness->id }}, @js($pendingBusiness->nombre))" class="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/25">Aprobar</button>
-                                            <button type="button" @click="openBusinessModal('suspend', {{ $pendingBusiness->id }}, @js($pendingBusiness->nombre))" class="rounded-lg bg-rose-500/15 px-3 py-1.5 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/25">Rechazar</button>
+                                            <button type="button" @click="openBusinessModal('approve', {{ $pendingBusiness->id }}, @js($pendingBusiness->nombre))" class="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-500/40 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/10">
+                                                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" /></svg>
+                                                Aprobar
+                                            </button>
+                                            <button type="button" @click="openBusinessModal('suspend', {{ $pendingBusiness->id }}, @js($pendingBusiness->nombre))" class="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border border-rose-500/40 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/10">
+                                                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>
+                                                Rechazar
+                                            </button>
                                         </div>
                                     @endcan
-                                </li>
+                                </div>
                             @endforeach
-                        </ul>
+                        </div>
                     @else
-                        <div class="mt-4 rounded-xl border border-dashed border-slate-700 bg-slate-950/40 p-6 text-center">
+                        <div class="mt-4 rounded-xl border border-dashed border-emerald-500/30 bg-emerald-500/10 p-6 text-center">
                             <svg class="mx-auto h-10 w-10 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                            <p class="mt-2 text-sm font-semibold text-slate-200">Sin pendientes por aprobar.</p>
-                            <p class="mt-1 text-xs text-slate-400">Todos los negocios estan al dia en este momento.</p>
+                            <p class="mt-2 text-sm font-semibold text-emerald-200">Sin pendientes por aprobar.</p>
+                            <p class="mt-1 text-xs text-emerald-100/60">Todos los negocios estan al dia en este momento.</p>
                         </div>
                     @endif
                 </article>
@@ -670,18 +735,24 @@
                             <div class="mt-4 space-y-3">
                                 @foreach($roles_list as $role)
                                     @php
-                                        $levelColor = $roleBadgeColors[$role->nivel_jerarquia] ?? 'bg-slate-600/20 text-slate-300';
-                                        $barWidth   = ($role->nivel_jerarquia + 1) * 20;
+                                        $roleLevel = (int) ($role->nivel_jerarquia_ui ?? $role->nivel_jerarquia ?? 0);
+                                        $roleDisplayName = $role->display_name_ui ?? $role->display_name ?? $role->nombre_ui ?? $role->nombre ?? $role->name ?? 'Sin nombre';
+                                        $roleSystemName = $role->nombre_ui ?? $role->nombre ?? $role->name ?? 'N/A';
+                                        $roleDescription = $role->descripcion_ui ?? $role->descripcion ?? $role->description;
+                                        $rolePermissions = $role->permissions ?? collect();
+                                        $roleAssignments = $role->asignados_ui ?? [];
+                                        $levelColor = $roleBadgeColors[$roleLevel] ?? 'bg-slate-600/20 text-slate-300';
+                                        $barWidth   = min(100, max(10, ($roleLevel + 1) * 20));
                                     @endphp
                                     <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
                                         <div class="flex flex-wrap items-start justify-between gap-3">
                                             <div class="flex items-center gap-3">
                                                 <span class="flex h-9 w-9 items-center justify-center rounded-lg {{ $levelColor }} text-sm font-extrabold">
-                                                    {{ $role->nivel_jerarquia }}
+                                                    {{ $roleLevel }}
                                                 </span>
                                                 <div>
-                                                    <p class="font-semibold text-white">{{ $role->display_name ?? $role->nombre }}</p>
-                                                    <p class="text-xs text-slate-500 font-mono">{{ $role->nombre }}</p>
+                                                    <p class="font-semibold text-white">{{ $roleDisplayName }}</p>
+                                                    <p class="text-xs text-slate-500 font-mono">{{ $roleSystemName }}</p>
                                                 </div>
                                             </div>
                                             <div class="flex items-center gap-3">
@@ -689,13 +760,20 @@
                                                     {{ $role->asignaciones_count }} asignaciones
                                                 </span>
                                                 <span class="rounded-full bg-slate-700/60 px-2.5 py-1 text-xs font-semibold text-slate-300">
-                                                    {{ $role->permissions->count() }} permisos
+                                                    {{ $rolePermissions->count() }} permisos
                                                 </span>
+                                                <button
+                                                    type="button"
+                                                    @click="openRoleAssignmentsDrawerById({{ (int) $role->id }})"
+                                                    class="rounded-lg border border-indigo-400/30 bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-200 transition hover:border-indigo-300/40 hover:bg-indigo-500/25"
+                                                >
+                                                    Ver asignados
+                                                </button>
                                             </div>
                                         </div>
 
-                                        @if($role->descripcion)
-                                            <p class="mt-2 text-xs text-slate-400">{{ $role->descripcion }}</p>
+                                        @if($roleDescription)
+                                            <p class="mt-2 text-xs text-slate-400">{{ $roleDescription }}</p>
                                         @endif
 
                                         {{-- Nivel bar --}}
@@ -705,13 +783,13 @@
                                             </div>
                                         </div>
 
-                                        @if($role->permissions->count() > 0)
+                                        @if($rolePermissions->count() > 0)
                                             <div class="mt-3 flex flex-wrap gap-1.5">
-                                                @foreach($role->permissions->take(10) as $perm)
-                                                    <span class="rounded-md bg-slate-800 px-2 py-0.5 font-mono text-[10px] text-slate-300">{{ $perm->nombre }}</span>
+                                                @foreach($rolePermissions->take(10) as $perm)
+                                                    <span class="rounded-md bg-slate-800 px-2 py-0.5 font-mono text-[10px] text-slate-300">{{ $perm->nombre_ui ?? $perm->nombre ?? $perm->name }}</span>
                                                 @endforeach
-                                                @if($role->permissions->count() > 10)
-                                                    <span class="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] text-slate-500">+{{ $role->permissions->count() - 10 }} mas</span>
+                                                @if($rolePermissions->count() > 10)
+                                                    <span class="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] text-slate-500">+{{ $rolePermissions->count() - 10 }} mas</span>
                                                 @endif
                                             </div>
                                         @endif
@@ -921,6 +999,279 @@
             </section>
         @endif
 
+        @if($activeSection === 'roles')
+            <div
+                x-show="roleAssignmentsDrawer.open"
+                x-transition.opacity.duration.200ms
+                class="fixed inset-0 z-[85] flex items-center justify-center bg-slate-950/80 p-3 backdrop-blur-sm sm:p-5"
+                @keydown.escape.window="confirmCloseRoleAssignmentsDrawer()"
+                x-cloak
+            >
+                <div
+                    x-show="roleAssignmentsDrawer.open"
+                    x-transition:enter="transition ease-out duration-250"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-180"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-3"
+                    class="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-slate-950/70"
+                    @click.outside="confirmCloseRoleAssignmentsDrawer()"
+                    @click.stop
+                    x-cloak
+                >
+                    <header class="border-b border-slate-800 px-4 py-3">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-indigo-300">Asignaciones por rol</p>
+                                <h4 class="mt-0.5 truncate text-base font-bold text-white" x-text="roleAssignmentsDrawer.role.displayName || 'Rol sin nombre'"></h4>
+                                <p class="truncate text-[11px] font-mono text-slate-500" x-text="roleAssignmentsDrawer.role.systemName || ''"></p>
+                            </div>
+                            <button
+                                type="button"
+                                @click="confirmCloseRoleAssignmentsDrawer()"
+                                aria-label="Cerrar ventana de asignaciones"
+                                class="shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                            >
+                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>
+                            </button>
+                        </div>
+                    </header>
+
+                    <div class="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1fr)_260px]">
+                        <div class="overflow-y-auto px-4 py-3">
+                            <template x-if="roleAssignmentsDrawer.error">
+                                <div class="mb-3 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-200" x-text="roleAssignmentsDrawer.error"></div>
+                            </template>
+
+                            <template x-if="roleAssignmentsDrawer.assignments.length === 0">
+                                <div class="rounded-xl border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center">
+                                    <p class="text-sm font-semibold text-slate-200">Este rol no tiene usuarios asignados.</p>
+                                    <p class="mt-1 text-xs text-slate-400">Cuando existan asignaciones apareceran aqui.</p>
+                                </div>
+                            </template>
+
+                            <div class="space-y-3" x-show="roleAssignmentsDrawer.assignments.length > 0">
+                                <template x-for="assignment in roleAssignmentsDrawer.assignments" :key="assignment.id">
+                                    <article class="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p class="text-sm font-semibold text-white" x-text="assignment.user_name"></p>
+                                                <p class="text-xs text-slate-400" x-text="assignment.user_email || 'Sin email registrado'"></p>
+                                                <p class="mt-1 text-[11px] text-slate-500">
+                                                    Negocio: <span class="font-semibold text-slate-300" x-text="assignment.business_name"></span>
+                                                </p>
+                                                <p class="text-[11px] text-slate-500">
+                                                    Asignado: <span class="font-semibold text-slate-300" x-text="formatAssignedDate(assignment.asignado_el)"></span>
+                                                </p>
+                                            </div>
+
+                                            <div class="flex flex-col items-end gap-2">
+                                                <button
+                                                    type="button"
+                                                    @click="viewAssignmentDetails(assignment)"
+                                                    class="rounded-lg border border-slate-700 px-2.5 py-1 text-[11px] font-semibold text-slate-200 transition hover:bg-slate-800"
+                                                >
+                                                    Ver
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="startEditAssignment(assignment)"
+                                                    class="rounded-lg border border-indigo-400/30 bg-indigo-500/15 px-2.5 py-1 text-[11px] font-semibold text-indigo-200 transition hover:bg-indigo-500/25"
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="deleteAssignment(assignment)"
+                                                    class="rounded-lg border border-rose-400/30 bg-rose-500/15 px-2.5 py-1 text-[11px] font-semibold text-rose-200 transition hover:bg-rose-500/25"
+                                                >
+                                                    Borrar
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div x-show="roleAssignmentsDrawer.editAssignmentId === assignment.id" x-transition class="mt-3 rounded-lg border border-slate-800 bg-slate-900/70 p-3">
+                                            <label class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Cambiar rol</label>
+                                            <div class="mt-2 flex items-center gap-2">
+                                                <select
+                                                    x-model="roleAssignmentsDrawer.editRoleId"
+                                                    class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-200 focus:border-indigo-400 focus:outline-none"
+                                                >
+                                                    <template x-for="roleOption in roleOptions" :key="roleOption.id">
+                                                        <option :value="roleOption.id" x-text="roleOption.label"></option>
+                                                    </template>
+                                                </select>
+                                                <button
+                                                    type="button"
+                                                    @click="submitEditAssignment()"
+                                                    class="rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-400"
+                                                >
+                                                    Guardar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="cancelEditAssignment()"
+                                                    class="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-800"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="overflow-y-auto border-t border-slate-800 bg-slate-950/70 px-4 py-3 lg:border-l lg:border-t-0">
+                            <h5 class="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Detalle</h5>
+
+                            <template x-if="!roleAssignmentsDrawer.selectedAssignment">
+                                <p class="mt-2 text-[11px] text-slate-500">Selecciona una asignacion para ver su detalle.</p>
+                            </template>
+
+                            <template x-if="roleAssignmentsDrawer.selectedAssignment">
+                                <div class="mt-2 space-y-1.5 rounded-xl border border-slate-800 bg-slate-900/70 p-2.5 text-[11px] text-slate-300">
+                                    <p><span class="font-semibold text-slate-100">Usuario:</span> <span x-text="roleAssignmentsDrawer.selectedAssignment.user_name"></span></p>
+                                    <p><span class="font-semibold text-slate-100">Email:</span> <span x-text="roleAssignmentsDrawer.selectedAssignment.user_email || 'Sin email registrado'"></span></p>
+                                    <p><span class="font-semibold text-slate-100">Negocio:</span> <span x-text="roleAssignmentsDrawer.selectedAssignment.business_name"></span></p>
+                                    <p><span class="font-semibold text-slate-100">Rol actual:</span> <span x-text="roleLabelById(roleAssignmentsDrawer.selectedAssignment.role_id)"></span></p>
+                                    <p><span class="font-semibold text-slate-100">Fecha:</span> <span x-text="formatAssignedDate(roleAssignmentsDrawer.selectedAssignment.asignado_el)"></span></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Modal de detalle de negocio (ventana flotante) --}}
+        @if(in_array($activeSection, ['negocios', 'dashboard']))
+            <div x-show="businessDetailModal.open" x-transition.opacity.duration.200ms class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/85 p-3 backdrop-blur-sm sm:p-4" @keydown.escape.window="closeBusinessDetailModal()">
+                <div x-show="businessDetailModal.open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0" class="w-full max-w-xs rounded-2xl border border-slate-700/50 bg-slate-900 shadow-2xl shadow-slate-950/80 sm:max-w-sm md:max-w-md" @click.outside="closeBusinessDetailModal()">
+                    {{-- Header --}}
+                    <div class="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15 text-xs font-bold text-indigo-200 ring-1 ring-indigo-500/20" x-text="businessDetailModal.data.nombre ? businessDetailModal.data.nombre.charAt(0).toUpperCase() : 'N'"></div>
+                            <div class="min-w-0">
+                                <h4 class="truncate text-sm font-bold text-white" x-text="businessDetailModal.data.nombre || 'Cargando...'"></h4>
+                                <p class="truncate text-[11px] text-slate-400" x-text="businessDetailModal.data.categoria || ''"></p>
+                            </div>
+                        </div>
+                        <button type="button" @click="closeBusinessDetailModal()" class="shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-slate-800 hover:text-white">
+                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>
+                        </button>
+                    </div>
+
+                    {{-- Content --}}
+                    <div class="max-h-[55vh] overflow-y-auto px-4 py-3">
+                        {{-- Loading --}}
+                        <div x-show="businessDetailModal.loading" class="flex flex-col items-center justify-center py-10">
+                            <svg class="h-7 w-7 animate-spin text-indigo-400" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <p class="mt-2 text-xs text-slate-400">Cargando detalle...</p>
+                        </div>
+
+                        {{-- Error --}}
+                        <div x-show="businessDetailModal.error && !businessDetailModal.loading" class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-center">
+                            <svg class="mx-auto h-6 w-6 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>
+                            <p class="mt-1.5 text-xs font-semibold text-rose-200" x-text="businessDetailModal.error"></p>
+                        </div>
+
+                        {{-- Data --}}
+                        <div x-show="!businessDetailModal.loading && !businessDetailModal.error && businessDetailModal.data.id">
+                            {{-- Estado y Plan badges --}}
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold" :class="{
+                                    'bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/30': businessDetailModal.data.estado === 'approved',
+                                    'bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/30': businessDetailModal.data.estado === 'pending',
+                                    'bg-rose-500/15 text-rose-200 ring-1 ring-rose-400/30': businessDetailModal.data.estado === 'suspended',
+                                    'bg-slate-600/20 text-slate-200 ring-1 ring-slate-500/30': businessDetailModal.data.estado === 'inactive'
+                                }">
+                                    <span class="h-1 w-1 rounded-full" :class="{
+                                        'bg-emerald-400': businessDetailModal.data.estado === 'approved',
+                                        'bg-amber-400': businessDetailModal.data.estado === 'pending',
+                                        'bg-rose-400': businessDetailModal.data.estado === 'suspended',
+                                        'bg-slate-400': businessDetailModal.data.estado === 'inactive'
+                                    }"></span>
+                                    <span x-text="businessDetailModal.data.estado ? businessDetailModal.data.estado.charAt(0).toUpperCase() + businessDetailModal.data.estado.slice(1) : ''"></span>
+                                </span>
+                                <span class="inline-flex rounded-full bg-indigo-500/15 px-2 py-0.5 text-[10px] font-semibold text-indigo-200 ring-1 ring-indigo-400/30" x-text="'Plan ' + (businessDetailModal.data.plan || 'Basic').charAt(0).toUpperCase() + (businessDetailModal.data.plan || 'Basic').slice(1)"></span>
+                            </div>
+
+                            {{-- Info grid --}}
+                            <div class="mt-3 grid grid-cols-2 gap-2">
+                                <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
+                                    <p class="text-[9px] uppercase tracking-wide text-slate-500">Email</p>
+                                    <p class="mt-0.5 truncate text-xs font-medium text-slate-200" x-text="businessDetailModal.data.email || '—'"></p>
+                                </div>
+                                <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
+                                    <p class="text-[9px] uppercase tracking-wide text-slate-500">Telefono</p>
+                                    <p class="mt-0.5 text-xs font-medium text-slate-200" x-text="businessDetailModal.data.telefono || '—'"></p>
+                                </div>
+                                <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
+                                    <p class="text-[9px] uppercase tracking-wide text-slate-500">Sucursales</p>
+                                    <p class="mt-0.5 text-lg font-bold text-white" x-text="businessDetailModal.data.locations_count ?? 0"></p>
+                                </div>
+                                <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
+                                    <p class="text-[9px] uppercase tracking-wide text-slate-500">Empleados</p>
+                                    <p class="mt-0.5 text-lg font-bold text-white" x-text="businessDetailModal.data.employees_count ?? 0"></p>
+                                </div>
+                                <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
+                                    <p class="text-[9px] uppercase tracking-wide text-slate-500">Citas mes</p>
+                                    <p class="mt-0.5 text-lg font-bold text-indigo-200" x-text="businessDetailModal.data.citas_mes ?? 0"></p>
+                                </div>
+                                <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
+                                    <p class="text-[9px] uppercase tracking-wide text-slate-500">Citas total</p>
+                                    <p class="mt-0.5 text-lg font-bold text-white" x-text="businessDetailModal.data.citas_totales ?? 0"></p>
+                                </div>
+                            </div>
+
+                            {{-- Fechas --}}
+                            <div class="mt-3 rounded-lg border border-slate-800 bg-slate-950/50 p-2.5">
+                                <div class="flex items-center justify-between text-[11px]">
+                                    <div>
+                                        <p class="text-slate-500">Registrado</p>
+                                        <p class="mt-0.5 font-medium text-slate-300" x-text="businessDetailModal.data.created_at || '—'"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-slate-500">Actualizado</p>
+                                        <p class="mt-0.5 font-medium text-slate-300" x-text="businessDetailModal.data.updated_at || '—'"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Razon social / RFC (si existen) --}}
+                            <template x-if="businessDetailModal.data.razon_social || businessDetailModal.data.rfc">
+                                <div class="mt-2 rounded-lg border border-slate-800 bg-slate-950/50 p-2.5">
+                                    <div class="space-y-0.5 text-[11px]">
+                                        <template x-if="businessDetailModal.data.razon_social">
+                                            <p><span class="text-slate-500">Razon social:</span> <span class="font-medium text-slate-300" x-text="businessDetailModal.data.razon_social"></span></p>
+                                        </template>
+                                        <template x-if="businessDetailModal.data.rfc">
+                                            <p><span class="text-slate-500">RFC:</span> <span class="font-medium text-slate-300" x-text="businessDetailModal.data.rfc"></span></p>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                            {{-- Descripcion --}}
+                            <template x-if="businessDetailModal.data.descripcion">
+                                <div class="mt-2 rounded-lg border border-slate-800 bg-slate-950/50 p-2.5">
+                                    <p class="text-[9px] uppercase tracking-wide text-slate-500">Descripcion</p>
+                                    <p class="mt-0.5 text-xs leading-relaxed text-slate-300" x-text="businessDetailModal.data.descripcion"></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- Footer --}}
+                    <div class="flex items-center justify-end border-t border-slate-800 px-4 py-2.5">
+                        <button type="button" @click="closeBusinessDetailModal()" class="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- Modal de confirmacion de negocios (disponible en negocios y dashboard) --}}
         @if(in_array($activeSection, ['negocios', 'dashboard']))
             @can('platform-admin')
@@ -952,10 +1303,14 @@
                 settingsUrl: config.settingsUrl,
                 approveRouteTemplate: config.approveRouteTemplate,
                 suspendRouteTemplate: config.suspendRouteTemplate,
+                roleAssignmentUpdateRouteTemplate: config.roleAssignmentUpdateRouteTemplate,
+                roleAssignmentDestroyRouteTemplate: config.roleAssignmentDestroyRouteTemplate,
                 csrfToken: config.csrfToken,
                 selectedEstado: config.selectedEstado && config.selectedEstado !== '' ? config.selectedEstado : 'all',
                 businessesLoading: false,
                 settings: { ...config.initialSettings },
+                roleOptions: Array.isArray(config.roleOptions) ? config.roleOptions : [],
+                roleDrawerPayloads: (config.roleDrawerPayloads && typeof config.roleDrawerPayloads === 'object') ? config.roleDrawerPayloads : {},
                 settingsSaved: false,
                 settingsError: '',
                 selectedRange: 30,
@@ -970,11 +1325,40 @@
                     message: '',
                     confirmClass: 'bg-indigo-500 hover:bg-indigo-400',
                 },
+                businessDetailModal: {
+                    open: false,
+                    loading: false,
+                    error: '',
+                    data: {},
+                },
+                roleAssignmentsDrawer: {
+                    open: false,
+                    role: {
+                        id: null,
+                        displayName: '',
+                        systemName: '',
+                    },
+                    assignments: [],
+                    selectedAssignment: null,
+                    editAssignmentId: null,
+                    editRoleId: null,
+                    loading: false,
+                    error: '',
+                },
 
                 init() {
                     this.initCharts();
                     this.bindBusinessActionButtons();
                     this.bindBusinessesPagination();
+
+                    window.addEventListener('beforeunload', (event) => {
+                        if (!this.roleAssignmentsDrawer.open || !this.hasPendingRoleAssignmentChanges()) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        event.returnValue = '';
+                    });
                 },
 
                 estadoBtnClass(estado) {
@@ -1019,12 +1403,15 @@
 
                     const buttons = this.$refs.businessesTable.querySelectorAll('.js-business-action');
                     buttons.forEach((button) => {
-                        button.addEventListener('click', () => {
+                        button.removeEventListener('click', button._businessClickHandler);
+                        const handler = () => {
                             const action = button.dataset.action;
                             const businessId = button.dataset.businessId;
                             const businessName = button.dataset.businessName;
                             this.openBusinessModal(action, businessId, businessName);
-                        });
+                        };
+                        button._businessClickHandler = handler;
+                        button.addEventListener('click', handler);
                     });
                 },
 
@@ -1067,13 +1454,21 @@
                     if (action === 'approve') {
                         this.businessModal.actionUrl = this.approveRouteTemplate.replace('__ID__', id);
                         this.businessModal.title = 'Aprobar negocio';
-                        this.businessModal.message = `Se aprobara ${businessName} y quedara habilitado en la plataforma.`;
+                        this.businessModal.message = `Se aprobara "${businessName}" y quedara habilitado en la plataforma.`;
                         this.businessModal.confirmClass = 'bg-emerald-500 hover:bg-emerald-400';
-                    } else {
+                    } else if (action === 'suspend') {
                         this.businessModal.actionUrl = this.suspendRouteTemplate.replace('__ID__', id);
                         this.businessModal.title = 'Suspender negocio';
-                        this.businessModal.message = `Se suspendera ${businessName}. Esta accion afecta su operacion en la plataforma.`;
+                        this.businessModal.message = `Se suspendera "${businessName}". Esta accion afectara su operacion en la plataforma.`;
                         this.businessModal.confirmClass = 'bg-rose-500 hover:bg-rose-400';
+                    } else if (action === 'reactivate') {
+                        this.businessModal.actionUrl = this.approveRouteTemplate.replace('__ID__', id);
+                        this.businessModal.title = 'Reactivar negocio';
+                        this.businessModal.message = `Se reactivara "${businessName}" y volvera a estar disponible en la plataforma.`;
+                        this.businessModal.confirmClass = 'bg-emerald-500 hover:bg-emerald-400';
+                    } else if (action === 'view') {
+                        this.openBusinessDetailModal(id);
+                        return;
                     }
 
                     this.businessModal.open = true;
@@ -1081,6 +1476,245 @@
 
                 closeBusinessModal() {
                     this.businessModal.open = false;
+                },
+
+                async openBusinessDetailModal(id) {
+                    this.businessDetailModal.open = true;
+                    this.businessDetailModal.loading = true;
+                    this.businessDetailModal.error = '';
+                    this.businessDetailModal.data = {};
+
+                    try {
+                        const response = await fetch(`/admin/businesses/${id}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('No se pudo cargar la informacion del negocio.');
+                        }
+
+                        const data = await response.json();
+                        this.businessDetailModal.data = data;
+                    } catch (error) {
+                        this.businessDetailModal.error = error.message || 'Error desconocido.';
+                    } finally {
+                        this.businessDetailModal.loading = false;
+                    }
+                },
+
+                closeBusinessDetailModal() {
+                    this.businessDetailModal.open = false;
+                    this.businessDetailModal.data = {};
+                    this.businessDetailModal.error = '';
+                },
+
+                openRoleAssignmentsDrawer(rolePayload) {
+                    const roleInfo = rolePayload || {};
+                    const assignments = Array.isArray(roleInfo.asignaciones) ? roleInfo.asignaciones : [];
+
+                    this.roleAssignmentsDrawer.role = {
+                        id: roleInfo.id || null,
+                        displayName: roleInfo.display_name || 'Rol sin nombre',
+                        systemName: roleInfo.system_name || '',
+                    };
+                    this.roleAssignmentsDrawer.assignments = assignments.map((assignment) => ({
+                        id: Number(assignment.id || 0),
+                        user_id: Number(assignment.user_id || 0),
+                        user_name: assignment.user_name || 'Usuario sin nombre',
+                        user_email: assignment.user_email || '',
+                        business_id: assignment.business_id !== null ? Number(assignment.business_id || 0) : null,
+                        business_name: assignment.business_name || 'N/A',
+                        role_id: Number(assignment.role_id || roleInfo.id || 0),
+                        role_name: assignment.role_name || roleInfo.display_name || 'N/A',
+                        asignado_el: assignment.asignado_el || null,
+                    }));
+                    this.roleAssignmentsDrawer.selectedAssignment = null;
+                    this.roleAssignmentsDrawer.editAssignmentId = null;
+                    this.roleAssignmentsDrawer.editRoleId = null;
+                    this.roleAssignmentsDrawer.loading = false;
+                    this.roleAssignmentsDrawer.error = '';
+                    this.roleAssignmentsDrawer.open = true;
+                },
+
+                openRoleAssignmentsDrawerById(roleId) {
+                    const payload = this.roleDrawerPayloads[String(roleId)] || this.roleDrawerPayloads[Number(roleId)] || null;
+                    if (!payload) {
+                        this.roleAssignmentsDrawer.error = 'No se pudo cargar el detalle del rol seleccionado.';
+
+                        return;
+                    }
+
+                    this.openRoleAssignmentsDrawer(payload);
+                },
+
+                closeRoleAssignmentsDrawer() {
+                    this.roleAssignmentsDrawer.open = false;
+                    this.roleAssignmentsDrawer.selectedAssignment = null;
+                    this.roleAssignmentsDrawer.editAssignmentId = null;
+                    this.roleAssignmentsDrawer.editRoleId = null;
+                    this.roleAssignmentsDrawer.loading = false;
+                    this.roleAssignmentsDrawer.error = '';
+                },
+
+                hasPendingRoleAssignmentChanges() {
+                    const editAssignmentId = Number(this.roleAssignmentsDrawer.editAssignmentId || 0);
+                    if (!editAssignmentId) {
+                        return false;
+                    }
+
+                    const assignment = this.roleAssignmentsDrawer.assignments.find((item) => Number(item.id) === editAssignmentId);
+                    if (!assignment) {
+                        return true;
+                    }
+
+                    const selectedRoleId = Number(this.roleAssignmentsDrawer.editRoleId || 0);
+                    const originalRoleId = Number(assignment.role_id || 0);
+
+                    return selectedRoleId !== originalRoleId;
+                },
+
+                confirmCloseRoleAssignmentsDrawer() {
+                    if (!this.roleAssignmentsDrawer.open) {
+                        return;
+                    }
+
+                    if (!this.hasPendingRoleAssignmentChanges()) {
+                        this.closeRoleAssignmentsDrawer();
+
+                        return;
+                    }
+
+                    const confirmed = window.confirm('Hay cambios sin guardar. Verifica que ya se hayan guardado. ¿Deseas cerrar esta ventana?');
+                    if (confirmed) {
+                        this.closeRoleAssignmentsDrawer();
+                    }
+                },
+
+                roleLabelById(roleId) {
+                    const role = this.roleOptions.find((option) => Number(option.id) === Number(roleId));
+
+                    return role ? role.label : `Rol #${roleId}`;
+                },
+
+                formatAssignedDate(value) {
+                    if (!value) {
+                        return 'Sin fecha';
+                    }
+
+                    const date = new Date(value);
+                    if (Number.isNaN(date.getTime())) {
+                        return 'Sin fecha';
+                    }
+
+                    return date.toLocaleString('es-MX', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    });
+                },
+
+                viewAssignmentDetails(assignment) {
+                    this.roleAssignmentsDrawer.selectedAssignment = assignment;
+                    this.roleAssignmentsDrawer.editAssignmentId = null;
+                    this.roleAssignmentsDrawer.editRoleId = null;
+                    this.roleAssignmentsDrawer.error = '';
+                },
+
+                startEditAssignment(assignment) {
+                    this.roleAssignmentsDrawer.selectedAssignment = assignment;
+                    this.roleAssignmentsDrawer.editAssignmentId = assignment.id;
+                    this.roleAssignmentsDrawer.editRoleId = Number(assignment.role_id || this.roleAssignmentsDrawer.role.id || 0);
+                    this.roleAssignmentsDrawer.error = '';
+                },
+
+                cancelEditAssignment() {
+                    this.roleAssignmentsDrawer.editAssignmentId = null;
+                    this.roleAssignmentsDrawer.editRoleId = null;
+                    this.roleAssignmentsDrawer.error = '';
+                },
+
+                async submitEditAssignment() {
+                    const assignmentId = this.roleAssignmentsDrawer.editAssignmentId;
+                    if (!assignmentId) {
+                        return;
+                    }
+
+                    const roleId = Number(this.roleAssignmentsDrawer.editRoleId || 0);
+                    if (!roleId) {
+                        this.roleAssignmentsDrawer.error = 'Selecciona un rol valido.';
+
+                        return;
+                    }
+
+                    this.roleAssignmentsDrawer.loading = true;
+                    this.roleAssignmentsDrawer.error = '';
+
+                    try {
+                        const endpoint = this.roleAssignmentUpdateRouteTemplate.replace('__ID__', assignmentId);
+                        const response = await fetch(endpoint, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: JSON.stringify({ role_id: roleId }),
+                        });
+
+                        const payload = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            throw new Error(payload.message || 'No se pudo actualizar la asignacion.');
+                        }
+
+                        window.location.reload();
+                    } catch (error) {
+                        this.roleAssignmentsDrawer.error = error.message || 'No se pudo actualizar la asignacion.';
+                    } finally {
+                        this.roleAssignmentsDrawer.loading = false;
+                    }
+                },
+
+                async deleteAssignment(assignment) {
+                    if (!assignment || !assignment.id) {
+                        return;
+                    }
+
+                    const confirmed = window.confirm(`Se eliminara la asignacion de ${assignment.user_name}.`);
+                    if (!confirmed) {
+                        return;
+                    }
+
+                    this.roleAssignmentsDrawer.loading = true;
+                    this.roleAssignmentsDrawer.error = '';
+
+                    try {
+                        const endpoint = this.roleAssignmentDestroyRouteTemplate.replace('__ID__', assignment.id);
+                        const response = await fetch(endpoint, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+
+                        const payload = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            throw new Error(payload.message || 'No se pudo eliminar la asignacion.');
+                        }
+
+                        window.location.reload();
+                    } catch (error) {
+                        this.roleAssignmentsDrawer.error = error.message || 'No se pudo eliminar la asignacion.';
+                    } finally {
+                        this.roleAssignmentsDrawer.loading = false;
+                    }
                 },
 
                 async saveSettings() {

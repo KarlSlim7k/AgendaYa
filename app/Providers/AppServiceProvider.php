@@ -105,12 +105,20 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
-            if (empty($user->email) || !Schema::hasTable('platform_admins')) {
+            if (!Schema::hasTable('platform_admins')) {
                 return false;
             }
 
-            $platformAdminQuery = DB::table('platform_admins')
-                ->where('email', $user->email);
+            // La tabla platform_admins puede usar email o user_id según el esquema del servidor
+            $platformAdminQuery = DB::table('platform_admins');
+
+            if (Schema::hasColumn('platform_admins', 'email')) {
+                $platformAdminQuery->where('email', $user->email);
+            } elseif (Schema::hasColumn('platform_admins', 'user_id')) {
+                $platformAdminQuery->where('user_id', $user->id);
+            } else {
+                return false;
+            }
 
             if (Schema::hasColumn('platform_admins', 'activo')) {
                 $platformAdminQuery->where('activo', true);

@@ -2,12 +2,15 @@
 
 namespace App\Livewire\Schedule;
 
+use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\BusinessLocation;
 use App\Models\ScheduleTemplate;
 use Livewire\Component;
 
 class ManageSchedule extends Component
 {
+    use UsesBusinessLayout;
+
     public $locations = [];
     public $selectedLocationId = null;
     public $templates = [];
@@ -23,7 +26,7 @@ class ManageSchedule extends Component
 
     public function mount()
     {
-        $this->locations = BusinessLocation::orderBy('nombre')->get();
+        $this->locations = BusinessLocation::active()->orderBy('nombre')->get();
         
         if ($this->locations->count() > 0) {
             $this->selectedLocationId = $this->locations->first()->id;
@@ -43,7 +46,7 @@ class ManageSchedule extends Component
             return;
         }
 
-        $existing = ScheduleTemplate::where('location_id', $this->selectedLocationId)
+        $existing = ScheduleTemplate::where('business_location_id', $this->selectedLocationId)
             ->get()
             ->keyBy('dia_semana');
 
@@ -70,13 +73,22 @@ class ManageSchedule extends Component
         $this->validate([
             'selectedLocationId' => 'required|exists:business_locations,id',
             'templates.*.hora_apertura' => 'required|date_format:H:i',
-            'templates.*.hora_cierre' => 'required|date_format:H:i|after:templates.*.hora_apertura',
+            'templates.*.hora_cierre' => 'required|date_format:H:i',
         ]);
 
         foreach ($this->templates as $template) {
+            if ($template['activo'] && $template['hora_cierre'] <= $template['hora_apertura']) {
+                $this->addError(
+                    "templates.{$template['dia_semana']}.hora_cierre",
+                    'La hora de cierre debe ser posterior a la hora de apertura.'
+                );
+
+                return;
+            }
+
             ScheduleTemplate::updateOrCreate(
                 [
-                    'location_id' => $this->selectedLocationId,
+                    'business_location_id' => $this->selectedLocationId,
                     'dia_semana' => $template['dia_semana'],
                 ],
                 [
@@ -92,6 +104,6 @@ class ManageSchedule extends Component
 
     public function render()
     {
-        return view('livewire.schedule.manage-schedule');
+        return $this->renderInBusinessLayout('livewire.schedule.manage-schedule', [], 'Horarios', 'Gestion');
     }
 }

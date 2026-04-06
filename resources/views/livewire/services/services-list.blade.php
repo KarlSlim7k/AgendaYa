@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="mb-6 flex justify-between items-center">
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">Servicios</h2>
-            <a href="{{ route('services.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
+            <a href="{{ route('business.services.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
                 + Nuevo Servicio
             </a>
         </div>
@@ -94,7 +94,7 @@
                                     <button wire:click="viewDetails({{ $service->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">
                                         Ver
                                     </button>
-                                    <a href="{{ route('services.edit', $service->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <a href="{{ route('business.services.edit', $service->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">
                                         Editar
                                     </a>
                                     <button wire:click="delete({{ $service->id }})" wire:confirm="¿Estás seguro de eliminar este servicio?" class="text-red-600 hover:text-red-900">
