@@ -15,7 +15,7 @@
     @livewireStyles
     @stack('head')
 </head>
-<body class="bg-slate-900 text-slate-100 antialiased [font-family:Inter,sans-serif]">
+<body class="bg-[#0b0f1a] text-slate-100 antialiased [font-family:Inter,sans-serif]">
 @php
     $currentSection = request()->routeIs('business.dashboard') ? 'dashboard' : (request()->routeIs('business.appointments.*') ? 'appointments' : (request()->routeIs('business.services.*') ? 'services' : (request()->routeIs('business.employees.*') ? 'employees' : (request()->routeIs('business.schedules.*') ? 'schedules' : (request()->routeIs('business.reports.*') ? 'reports' : (request()->routeIs('business.profile') ? 'profile' : 'dashboard'))))));
 
@@ -33,26 +33,35 @@
         ->map(fn ($part) => strtoupper(mb_substr($part, 0, 1)))
         ->implode('');
 
-    $activeLinkClass = 'flex items-center gap-3 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20';
-    $baseLinkClass = 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white';
+    $activeLinkClass = 'flex items-center gap-3 rounded-xl bg-emerald-600/20 px-3 py-2.5 text-sm font-semibold text-emerald-300 ring-1 ring-emerald-500/30';
+    $baseLinkClass = 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-slate-800/60 hover:text-slate-200';
 @endphp
 
 <div x-data="{ open: false }" class="min-h-screen">
     <aside
         :class="open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
-        class="fixed inset-y-0 left-0 z-50 w-60 border-r border-slate-800 bg-slate-950/95 backdrop-blur transition-transform duration-300"
+        class="fixed inset-y-0 left-0 z-50 w-60 border-r border-slate-800/80 bg-slate-950 transition-transform duration-300"
         aria-label="Sidebar del negocio"
     >
         <div class="flex h-full flex-col">
-            <div class="border-b border-slate-800 px-5 py-6">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Panel Negocio</p>
-                <h1 class="mt-2 text-lg font-bold tracking-tight text-white">{{ $businessName }}</h1>
+            <div class="border-b border-slate-800/80 px-5 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 shadow-lg shadow-emerald-600/30">
+                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400">Panel Negocio</p>
+                        <h1 class="truncate text-sm font-bold text-white">{{ $businessName }}</h1>
+                    </div>
+                </div>
             </div>
 
-            <nav class="flex-1 space-y-6 overflow-y-auto px-4 py-5" tabindex="0" aria-label="Navegacion principal">
+            <nav class="flex-1 space-y-5 overflow-y-auto px-3 py-4" tabindex="0" aria-label="Navegacion principal">
                 <section>
-                    <p class="px-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Principal</p>
-                    <div class="mt-3 space-y-1">
+                    <p class="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">Principal</p>
+                    <div class="mt-2 space-y-0.5">
                         <a href="{{ route('business.dashboard') }}" class="{{ $currentSection === 'dashboard' ? $activeLinkClass : $baseLinkClass }}">
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v5.5h-5.5a.75.75 0 0 0 0 1.5h5.5v5.5a.75.75 0 0 0 1.5 0v-5.5h5.5a.75.75 0 0 0 0-1.5h-5.5v-5.5Z" />
@@ -84,8 +93,8 @@
                 </section>
 
                 <section>
-                    <p class="px-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Gestion</p>
-                    <div class="mt-3 space-y-1">
+                    <p class="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">Gestion</p>
+                    <div class="mt-2 space-y-0.5">
                         <a href="{{ route('business.schedules.index') }}" class="{{ $currentSection === 'schedules' ? $activeLinkClass : $baseLinkClass }}">
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.75A2.25 2.25 0 0 1 18 6.25v9.5A2.25 2.25 0 0 1 15.75 18h-9.5A2.25 2.25 0 0 1 4 15.75v-9.5A2.25 2.25 0 0 1 6.25 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1.75 4.25v9.5c0 .414.336.75.75.75h9.5a.75.75 0 0 0 .75-.75v-9.5a.75.75 0 0 0-.75-.75h-9.5a.75.75 0 0 0-.75.75Z" clip-rule="evenodd" />
@@ -110,30 +119,33 @@
                 </section>
             </nav>
 
-            <div class="border-t border-slate-800 px-4 py-4">
+            <div class="border-t border-slate-800/80 px-3 py-4 space-y-3">
                 @auth
-                    <div class="flex items-center gap-3 rounded-lg bg-slate-900 px-3 py-2">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-200">
+                    <div class="flex items-center gap-3 rounded-xl bg-slate-900 px-3 py-2.5 ring-1 ring-slate-800">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-600/20 text-sm font-bold text-emerald-300">
                             {{ $initials !== '' ? $initials : 'AD' }}
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-semibold text-white">{{ $userName }}</p>
-                            <p class="truncate text-xs text-slate-400">NEGOCIO_ADMIN</p>
+                            <p class="truncate text-[10px] uppercase tracking-wide text-slate-500">Administrador</p>
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                    <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button
                             type="submit"
-                            class="w-full rounded-lg border border-slate-700 px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:bg-slate-800"
+                            class="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-800 px-3 py-2 text-xs font-medium text-slate-400 transition hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-300"
                         >
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
                             Cerrar sesion
                         </button>
                     </form>
                 @endauth
 
-                <p class="mt-3 text-center text-xs text-slate-500">Version {{ config('app.version', env('APP_VERSION', '1.0.0')) }}</p>
+                <p class="text-center text-[10px] text-slate-700">v{{ config('app.version', env('APP_VERSION', '1.0.0')) }}</p>
             </div>
         </div>
     </aside>
@@ -141,12 +153,12 @@
     <div x-show="open" x-transition.opacity class="fixed inset-0 z-40 bg-slate-950/70 md:hidden" @click="open = false" aria-hidden="true"></div>
 
     <div class="md:pl-60">
-        <header class="sticky top-0 z-30 border-b border-slate-800 bg-slate-900/90 backdrop-blur">
-            <div class="flex items-start justify-between gap-4 px-4 py-4 md:px-8">
-                <div class="flex items-start gap-3">
+        <header class="sticky top-0 z-30 border-b border-slate-800/70 bg-[#0b0f1a]/90 backdrop-blur">
+            <div class="flex items-center justify-between gap-4 px-4 py-3.5 md:px-8">
+                <div class="flex items-center gap-3">
                     <button
                         type="button"
-                        class="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-200 transition hover:bg-slate-800 md:hidden"
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 text-slate-400 transition hover:bg-slate-800 hover:text-white md:hidden"
                         @click="open = !open"
                     >
                         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -155,14 +167,14 @@
                     </button>
 
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">@yield('section_label', $sectionLabel ?? 'Mi Negocio')</p>
-                        <h2 class="mt-1 text-xl font-bold tracking-tight text-white">@yield('title', $title ?? 'Dashboard')</h2>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">@yield('section_label', $sectionLabel ?? 'Mi Negocio')</p>
+                        <h2 class="text-lg font-bold tracking-tight text-white">@yield('title', $title ?? 'Dashboard')</h2>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="px-4 pb-10 pt-6 md:px-8">
+        <main class="px-4 pb-12 pt-6 md:px-8">
             {{ $slot ?? '' }}
             @yield('content')
         </main>
