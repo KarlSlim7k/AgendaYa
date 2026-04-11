@@ -1,160 +1,170 @@
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Perfil del Negocio</h2>
-                    <p class="mt-1 text-sm text-gray-600">Administra la información de tu negocio.</p>
+<div class="space-y-6">
+
+    @if (session()->has('message'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
+             class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+            {{ session('message') }}
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (!$business)
+        <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-6 py-10 text-center text-sm text-slate-500">
+            Cargando información del negocio...
+        </div>
+    @else
+
+    <form wire:submit="save" class="space-y-6">
+
+        {{-- Main Info Card --}}
+        <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+            <h3 class="mb-5 text-sm font-semibold uppercase tracking-widest text-slate-400">Información General</h3>
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                {{-- Nombre --}}
+                <div class="md:col-span-2">
+                    <label for="nombre" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                        Nombre del Negocio <span class="text-rose-400">*</span>
+                    </label>
+                    <input type="text" id="nombre" wire:model="nombre"
+                           class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    @error('nombre')
+                        <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                @if (session()->has('message'))
-                    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
-                         class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
-                        {{ session('message') }}
-                    </div>
-                @endif
-
-                @if (session()->has('error'))
-                    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                @if (!$business)
-                    <p class="text-gray-500">Cargando información del negocio...</p>
-                @else
-
-                <form wire:submit="save">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Nombre del Negocio -->
-                        <div class="md:col-span-2">
-                            <label for="nombre" class="block text-sm font-medium text-gray-700">
-                                Nombre del Negocio <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="nombre" wire:model="nombre"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            @error('nombre')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Razón Social -->
-                        <div>
-                            <label for="razon_social" class="block text-sm font-medium text-gray-700">
-                                Razón Social
-                            </label>
-                            <input type="text" id="razon_social" wire:model="razon_social"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            @error('razon_social')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- RFC -->
-                        <div>
-                            <label for="rfc" class="block text-sm font-medium text-gray-700">
-                                RFC
-                            </label>
-                            <input type="text" id="rfc" wire:model="rfc" placeholder="ABC123456XYZ"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm uppercase">
-                            @error('rfc')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700">
-                                Email <span class="text-red-500">*</span>
-                            </label>
-                            <input type="email" id="email" wire:model="email"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            @error('email')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Teléfono -->
-                        <div>
-                            <label for="telefono" class="block text-sm font-medium text-gray-700">
-                                Teléfono <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="telefono" wire:model="telefono" placeholder="+52 55 1234 5678"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            @error('telefono')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Categoría -->
-                        <div class="md:col-span-2">
-                            <label for="categoria" class="block text-sm font-medium text-gray-700">
-                                Categoría <span class="text-red-500">*</span>
-                            </label>
-                            <select id="categoria" wire:model="categoria"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                <option value="">Selecciona una categoría</option>
-                                <option value="peluqueria">Peluquería</option>
-                                <option value="clinica">Clínica</option>
-                                <option value="taller">Taller</option>
-                                <option value="spa">Spa</option>
-                                <option value="consultorio">Consultorio</option>
-                                <option value="gimnasio">Gimnasio</option>
-                                <option value="restaurante">Restaurante</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                            @error('categoria')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Descripción -->
-                        <div class="md:col-span-2">
-                            <label for="descripcion" class="block text-sm font-medium text-gray-700">
-                                Descripción
-                            </label>
-                            <textarea id="descripcion" wire:model="descripcion" rows="4"
-                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                      placeholder="Describe tu negocio..."></textarea>
-                            @error('descripcion')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-1 text-sm text-gray-500">Máximo 1000 caracteres</p>
-                        </div>
-                    </div>
-
-                    <!-- Botones de acción -->
-                    <div class="mt-6 flex items-center justify-end space-x-3">
-                        <button type="button" onclick="window.location.href='{{ route('business.dashboard') }}'"
-                                class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Cancelar
-                        </button>
-                        <button type="submit"
-                                class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Guardar Cambios
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Información adicional -->
-                <div class="mt-8 pt-8 border-t border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Sucursales</h3>
-                    <div class="space-y-2">
-                        @forelse ($business->locations as $location)
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ $location->nombre }}</p>
-                                    <p class="text-sm text-gray-600">{{ $location->direccion }}, {{ $location->ciudad }}</p>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-sm text-gray-500">No hay sucursales registradas.</p>
-                        @endforelse
-                    </div>
+                {{-- Razón Social --}}
+                <div>
+                    <label for="razon_social" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                        Razón Social
+                    </label>
+                    <input type="text" id="razon_social" wire:model="razon_social"
+                           class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    @error('razon_social')
+                        <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                @endif
+                {{-- RFC --}}
+                <div>
+                    <label for="rfc" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                        RFC
+                    </label>
+                    <input type="text" id="rfc" wire:model="rfc" placeholder="ABC123456XYZ"
+                           class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm uppercase text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    @error('rfc')
+                        <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Email --}}
+                <div>
+                    <label for="email" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                        Email <span class="text-rose-400">*</span>
+                    </label>
+                    <input type="email" id="email" wire:model="email"
+                           class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    @error('email')
+                        <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Teléfono --}}
+                <div>
+                    <label for="telefono" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                        Teléfono <span class="text-rose-400">*</span>
+                    </label>
+                    <input type="text" id="telefono" wire:model="telefono" placeholder="+52 55 1234 5678"
+                           class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    @error('telefono')
+                        <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Categoría --}}
+                <div class="md:col-span-2">
+                    <label for="categoria" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                        Categoría <span class="text-rose-400">*</span>
+                    </label>
+                    <select id="categoria" wire:model="categoria"
+                            class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <option value="" class="bg-slate-900">Selecciona una categoría</option>
+                        <option value="peluqueria" class="bg-slate-900">Peluquería</option>
+                        <option value="clinica" class="bg-slate-900">Clínica</option>
+                        <option value="taller" class="bg-slate-900">Taller</option>
+                        <option value="spa" class="bg-slate-900">Spa</option>
+                        <option value="consultorio" class="bg-slate-900">Consultorio</option>
+                        <option value="gimnasio" class="bg-slate-900">Gimnasio</option>
+                        <option value="restaurante" class="bg-slate-900">Restaurante</option>
+                        <option value="otro" class="bg-slate-900">Otro</option>
+                    </select>
+                    @error('categoria')
+                        <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Descripción --}}
+                <div class="md:col-span-2">
+                    <label for="descripcion" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                        Descripción
+                    </label>
+                    <textarea id="descripcion" wire:model="descripcion" rows="4"
+                              placeholder="Describe tu negocio..."
+                              class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+                    @error('descripcion')
+                        <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-slate-600">Máximo 1000 caracteres</p>
+                </div>
             </div>
         </div>
+
+        {{-- Action Buttons --}}
+        <div class="flex items-center justify-end gap-3">
+            <button type="button"
+                    onclick="window.location.href='{{ route('business.dashboard') }}'"
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white">
+                Cancelar
+            </button>
+            <button type="submit"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
+                <span wire:loading.remove>Guardar Cambios</span>
+                <span wire:loading>Guardando...</span>
+            </button>
+        </div>
+    </form>
+
+    {{-- Sucursales --}}
+    <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
+        <div class="border-b border-slate-800 px-6 py-4">
+            <h3 class="font-bold text-white">Sucursales</h3>
+            <p class="text-xs text-slate-500">Ubicaciones registradas para este negocio</p>
+        </div>
+        <div class="divide-y divide-slate-800/60">
+            @forelse ($business->locations as $location)
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <p class="text-sm font-semibold text-white">{{ $location->nombre }}</p>
+                        <p class="text-xs text-slate-400">{{ $location->direccion }}, {{ $location->ciudad }}</p>
+                    </div>
+                    <span class="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300 ring-1 ring-emerald-500/30">
+                        Activa
+                    </span>
+                </div>
+            @empty
+                <div class="px-6 py-8 text-center text-sm text-slate-500">
+                    No hay sucursales registradas.
+                </div>
+            @endforelse
+        </div>
     </div>
+
+    @endif
 </div>

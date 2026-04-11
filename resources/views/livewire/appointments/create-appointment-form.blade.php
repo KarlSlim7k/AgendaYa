@@ -1,176 +1,218 @@
-<div class="py-12">
-    <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Nueva Cita</h2>
+<div class="space-y-6">
 
-                @if (session()->has('error'))
-                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        {{ session('error') }}
+    @if (session()->has('error'))
+        <div class="rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- Progress Steps --}}
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div class="flex items-center gap-2">
+            @foreach(['Servicio', 'Empleado', 'Fecha y Hora', 'Cliente', 'Notas'] as $index => $step)
+                <div class="flex items-center {{ $index < 4 ? 'flex-1' : '' }}">
+                    <div class="flex shrink-0 items-center gap-2">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold
+                            {{ $currentStep > $index + 1 ? 'bg-emerald-600 text-white' : ($currentStep === $index + 1 ? 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50' : 'bg-slate-800 text-slate-500') }}">
+                            @if($currentStep > $index + 1)
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            @else
+                                {{ $index + 1 }}
+                            @endif
+                        </div>
+                        <span class="hidden text-xs font-medium sm:block {{ $currentStep === $index + 1 ? 'text-emerald-300' : 'text-slate-500' }}">
+                            {{ $step }}
+                        </span>
                     </div>
-                @endif
+                    @if($index < 4)
+                        <div class="mx-2 flex-1 h-px {{ $currentStep > $index + 1 ? 'bg-emerald-600/40' : 'bg-slate-800' }}"></div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
 
-                <!-- Progress Steps -->
-                <div class="mb-8">
-                    <div class="flex justify-between items-center">
-                        @foreach(['Servicio', 'Empleado', 'Fecha y Hora', 'Cliente', 'Confirmación'] as $index => $step)
-                            <div class="flex-1 {{ $index < 4 ? 'mr-2' : '' }}">
-                                <div class="flex items-center">
-                                    <div class="flex items-center justify-center w-10 h-10 rounded-full {{ $currentStep > $index + 1 ? 'bg-green-500' : ($currentStep === $index + 1 ? 'bg-indigo-600' : 'bg-gray-300') }} text-white font-semibold">
-                                        {{ $index + 1 }}
+    {{-- Form Card --}}
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <form wire:submit="createAppointment">
+
+            {{-- Step 1: Service --}}
+            @if($currentStep === 1)
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold uppercase tracking-widest text-slate-400">Selecciona un Servicio</h3>
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        @foreach($services as $service)
+                            <div wire:click="$set('selectedService', {{ $service->id }})"
+                                 class="cursor-pointer rounded-xl border-2 p-4 transition
+                                        {{ $selectedService === $service->id
+                                            ? 'border-emerald-500/60 bg-emerald-500/10'
+                                            : 'border-slate-800 bg-slate-800/30 hover:border-slate-700' }}">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-white">{{ $service->nombre }}</h4>
+                                        @if($service->descripcion)
+                                            <p class="mt-1 text-xs text-slate-400">{{ $service->descripcion }}</p>
+                                        @endif
+                                        <div class="mt-2 flex items-center gap-4">
+                                            <span class="text-xs text-slate-500">{{ $service->duracion_minutos }} min</span>
+                                            <span class="text-sm font-bold text-emerald-400">${{ number_format($service->precio, 2) }}</span>
+                                        </div>
                                     </div>
-                                    <div class="ml-2 text-sm font-medium {{ $currentStep === $index + 1 ? 'text-indigo-600' : 'text-gray-500' }}">
-                                        {{ $step }}
-                                    </div>
+                                    @if($selectedService === $service->id)
+                                        <div class="ml-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600">
+                                            <svg class="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
                     </div>
+                    @error('selectedService') <p class="text-xs text-rose-400">{{ $message }}</p> @enderror
                 </div>
+            @endif
 
-                <form wire:submit="createAppointment">
-                    <!-- Step 1: Service Selection -->
-                    @if($currentStep === 1)
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-900">Selecciona un Servicio</h3>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach($services as $service)
-                                    <div wire:click="$set('selectedService', {{ $service->id }})" 
-                                         class="cursor-pointer border-2 rounded-lg p-4 {{ $selectedService === $service->id ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200 hover:border-gray-300' }}">
-                                        <h4 class="font-semibold text-gray-900">{{ $service->nombre }}</h4>
-                                        <p class="text-sm text-gray-600 mt-1">{{ $service->descripcion }}</p>
-                                        <div class="mt-2 flex justify-between text-sm">
-                                            <span class="text-gray-500">{{ $service->duracion_minutos }} min</span>
-                                            <span class="font-semibold text-indigo-600">${{ number_format($service->precio, 2) }}</span>
-                                        </div>
+            {{-- Step 2: Employee --}}
+            @if($currentStep === 2)
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold uppercase tracking-widest text-slate-400">Selecciona un Empleado</h3>
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        @foreach($employees as $employee)
+                            <div wire:click="$set('selectedEmployee', {{ $employee->id }})"
+                                 class="cursor-pointer rounded-xl border-2 p-4 transition
+                                        {{ $selectedEmployee === $employee->id
+                                            ? 'border-emerald-500/60 bg-emerald-500/10'
+                                            : 'border-slate-800 bg-slate-800/30 hover:border-slate-700' }}">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-sm font-bold text-blue-300">
+                                        {{ strtoupper(substr($employee->nombre, 0, 1)) }}
                                     </div>
-                                @endforeach
-                            </div>
-                            @error('selectedService') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                        </div>
-                    @endif
-
-                    <!-- Step 2: Employee Selection -->
-                    @if($currentStep === 2)
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-900">Selecciona un Empleado</h3>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach($employees as $employee)
-                                    <div wire:click="$set('selectedEmployee', {{ $employee->id }})" 
-                                         class="cursor-pointer border-2 rounded-lg p-4 {{ $selectedEmployee === $employee->id ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200 hover:border-gray-300' }}">
-                                        <h4 class="font-semibold text-gray-900">{{ $employee->nombre }}</h4>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-white">{{ $employee->nombre }}</h4>
                                         @if($employee->cargo)
-                                            <p class="text-sm text-gray-600">{{ $employee->cargo }}</p>
+                                            <p class="text-xs text-slate-400">{{ $employee->cargo }}</p>
                                         @endif
                                     </div>
+                                    @if($selectedEmployee === $employee->id)
+                                        <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600">
+                                            <svg class="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    @error('selectedEmployee') <p class="text-xs text-rose-400">{{ $message }}</p> @enderror
+                </div>
+            @endif
+
+            {{-- Step 3: Date & Time --}}
+            @if($currentStep === 3)
+                <div class="space-y-5">
+                    <h3 class="text-sm font-semibold uppercase tracking-widest text-slate-400">Selecciona Fecha y Hora</h3>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Fecha</label>
+                        <input type="date" wire:model.live="selectedDate"
+                               class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 [color-scheme:dark]">
+                        @error('selectedDate') <p class="mt-1 text-xs text-rose-400">{{ $message }}</p> @enderror
+                    </div>
+
+                    @if(count($availableSlots) > 0)
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Horarios Disponibles</label>
+                            <div class="grid grid-cols-4 gap-2 md:grid-cols-6">
+                                @foreach($availableSlots as $slot)
+                                    <button type="button"
+                                            wire:click="$set('selectedSlot', '{{ $slot['fecha_hora_inicio'] }}')"
+                                            class="rounded-lg px-3 py-2 text-sm font-medium transition
+                                                   {{ $selectedSlot === $slot['fecha_hora_inicio']
+                                                       ? 'bg-emerald-600 text-white'
+                                                       : 'border border-slate-700 text-slate-400 hover:border-emerald-500/40 hover:text-emerald-300' }}">
+                                        {{ \Carbon\Carbon::parse($slot['fecha_hora_inicio'])->format('H:i') }}
+                                    </button>
                                 @endforeach
                             </div>
-                            @error('selectedEmployee') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
+                    @elseif($selectedDate)
+                        <p class="text-sm text-slate-500">No hay horarios disponibles para esta fecha.</p>
                     @endif
+                    @error('selectedSlot') <p class="text-xs text-rose-400">{{ $message }}</p> @enderror
+                </div>
+            @endif
 
-                    <!-- Step 3: Date and Time -->
-                    @if($currentStep === 3)
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-900">Selecciona Fecha y Hora</h3>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
-                                <input type="date" wire:model.live="selectedDate" 
-                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                @error('selectedDate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                            </div>
+            {{-- Step 4: Customer --}}
+            @if($currentStep === 4)
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold uppercase tracking-widest text-slate-400">Selecciona Cliente</h3>
 
-                            @if(count($availableSlots) > 0)
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Horarios Disponibles</label>
-                                    <div class="grid grid-cols-4 md:grid-cols-6 gap-2">
-                                        @foreach($availableSlots as $slot)
-                                            <button type="button" wire:click="$set('selectedSlot', '{{ $slot['fecha_hora_inicio'] }}')"
-                                                    class="px-3 py-2 text-sm rounded-md {{ $selectedSlot === $slot['fecha_hora_inicio'] ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                                                {{ \Carbon\Carbon::parse($slot['fecha_hora_inicio'])->format('H:i') }}
-                                            </button>
-                                        @endforeach
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Buscar Cliente</label>
+                        <input type="text" wire:model.live="customerSearch"
+                               placeholder="Nombre o email del cliente..."
+                               class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+
+                        @if(count($searchResults) > 0)
+                            <div class="mt-2 overflow-hidden rounded-xl border border-slate-700">
+                                @foreach($searchResults as $customer)
+                                    <div wire:click="selectCustomer({{ $customer['id'] }})"
+                                         class="cursor-pointer border-b border-slate-800/60 px-4 py-3 transition last:border-0 hover:bg-slate-800/50">
+                                        <p class="text-sm font-semibold text-white">{{ $customer['nombre'] }}</p>
+                                        <p class="text-xs text-slate-400">{{ $customer['email'] }}</p>
                                     </div>
-                                </div>
-                            @else
-                                <p class="text-gray-500 text-sm">No hay horarios disponibles para esta fecha.</p>
-                            @endif
-                            @error('selectedSlot') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                        </div>
-                    @endif
-
-                    <!-- Step 4: Customer Selection -->
-                    @if($currentStep === 4)
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-900">Selecciona Cliente</h3>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Buscar Cliente</label>
-                                <input type="text" wire:model.live="customerSearch" 
-                                       placeholder="Nombre o email del cliente..."
-                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                
-                                @if(count($searchResults) > 0)
-                                    <div class="mt-2 border border-gray-200 rounded-md divide-y">
-                                        @foreach($searchResults as $customer)
-                                            <div wire:click="selectCustomer({{ $customer['id'] }})" 
-                                                 class="p-3 cursor-pointer hover:bg-gray-50">
-                                                <p class="font-medium text-gray-900">{{ $customer['nombre'] }}</p>
-                                                <p class="text-sm text-gray-500">{{ $customer['email'] }}</p>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
+                                @endforeach
                             </div>
-                            @error('selectedCustomer') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                        </div>
-                    @endif
-
-                    <!-- Step 5: Confirmation -->
-                    @if($currentStep === 5)
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-900">Notas</h3>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Notas del Cliente (opcional)</label>
-                                <textarea wire:model="notasCliente" rows="3"
-                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                          placeholder="Preferencias, alergias, etc."></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Notas Internas (opcional)</label>
-                                <textarea wire:model="notasInternas" rows="3"
-                                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                          placeholder="Notas privadas del negocio..."></textarea>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Navigation Buttons -->
-                    <div class="mt-8 flex justify-between">
-                        <button type="button" wire:click="previousStep" 
-                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 {{ $currentStep === 1 ? 'invisible' : '' }}">
-                            Anterior
-                        </button>
-
-                        @if($currentStep < 5)
-                            <button type="button" wire:click="nextStep" 
-                                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                                Siguiente
-                            </button>
-                        @else
-                            <button type="submit" 
-                                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                                Crear Cita
-                            </button>
                         @endif
                     </div>
-                </form>
+                    @error('selectedCustomer') <p class="text-xs text-rose-400">{{ $message }}</p> @enderror
+                </div>
+            @endif
+
+            {{-- Step 5: Notes --}}
+            @if($currentStep === 5)
+                <div class="space-y-5">
+                    <h3 class="text-sm font-semibold uppercase tracking-widest text-slate-400">Notas (Opcional)</h3>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Notas del Cliente</label>
+                        <textarea wire:model="notasCliente" rows="3"
+                                  placeholder="Preferencias, alergias, etc."
+                                  class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Notas Internas</label>
+                        <textarea wire:model="notasInternas" rows="3"
+                                  placeholder="Notas privadas del negocio..."
+                                  class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Navigation --}}
+            <div class="mt-6 flex justify-between">
+                <button type="button" wire:click="previousStep"
+                        class="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white {{ $currentStep === 1 ? 'invisible' : '' }}">
+                    ← Anterior
+                </button>
+
+                @if($currentStep < 5)
+                    <button type="button" wire:click="nextStep"
+                            class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                        Siguiente →
+                    </button>
+                @else
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                        Crear Cita
+                    </button>
+                @endif
             </div>
-        </div>
+        </form>
     </div>
 </div>

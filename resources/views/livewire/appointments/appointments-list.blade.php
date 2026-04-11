@@ -1,189 +1,161 @@
 <div class="space-y-6">
-    <!-- Encabezado con acciones -->
-    <div class="sm:flex sm:items-center sm:justify-between">
+
+    {{-- Header --}}
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900">Gestión de Citas</h2>
-            <p class="mt-1 text-sm text-gray-600">Lista completa de citas del negocio</p>
+            <h2 class="text-lg font-bold text-white">Gestión de Citas</h2>
+            <p class="text-sm text-slate-400">Lista completa de citas del negocio</p>
         </div>
-        <div class="mt-4 sm:mt-0">
-            <a href="{{ route('business.appointments.create') }}" 
-               class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Nueva Cita
-            </a>
-        </div>
+        <a href="{{ route('business.appointments.create') }}"
+           class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nueva Cita
+        </a>
     </div>
 
-    <!-- Panel de Filtros -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Búsqueda -->
+    {{-- Filters --}}
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
             <div>
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Buscar cliente</label>
-                <input type="text" 
-                       wire:model.live.debounce.300ms="search" 
+                <label for="search" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Buscar cliente</label>
+                <input type="text"
+                       wire:model.live.debounce.300ms="search"
                        id="search"
                        placeholder="Nombre o email..."
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                       class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
             </div>
 
-            <!-- Filtro Estado -->
             <div>
-                <label for="estadoFilter" class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                <select wire:model.live="estadoFilter" 
+                <label for="estadoFilter" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Estado</label>
+                <select wire:model.live="estadoFilter"
                         id="estadoFilter"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">Todos los estados</option>
+                        class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <option value="" class="bg-slate-900">Todos los estados</option>
                     @foreach($estados as $key => $label)
-                        <option value="{{ $key }}">{{ $label }}</option>
+                        <option value="{{ $key }}" class="bg-slate-900">{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Filtro Servicio -->
             <div>
-                <label for="servicioFilter" class="block text-sm font-medium text-gray-700 mb-2">Servicio</label>
-                <select wire:model.live="servicioFilter" 
+                <label for="servicioFilter" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Servicio</label>
+                <select wire:model.live="servicioFilter"
                         id="servicioFilter"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">Todos los servicios</option>
+                        class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <option value="" class="bg-slate-900">Todos los servicios</option>
                     @foreach($servicios as $servicio)
-                        <option value="{{ $servicio->id }}">{{ $servicio->nombre }}</option>
+                        <option value="{{ $servicio->id }}" class="bg-slate-900">{{ $servicio->nombre }}</option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Filtro Empleado -->
             <div>
-                <label for="empleadoFilter" class="block text-sm font-medium text-gray-700 mb-2">Empleado</label>
-                <select wire:model.live="empleadoFilter" 
+                <label for="empleadoFilter" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Empleado</label>
+                <select wire:model.live="empleadoFilter"
                         id="empleadoFilter"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">Todos los empleados</option>
+                        class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <option value="" class="bg-slate-900">Todos los empleados</option>
                     @foreach($empleados as $empleado)
-                        <option value="{{ $empleado->id }}">{{ $empleado->nombre }}</option>
+                        <option value="{{ $empleado->id }}" class="bg-slate-900">{{ $empleado->nombre }}</option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Fecha Desde -->
             <div>
-                <label for="fechaDesde" class="block text-sm font-medium text-gray-700 mb-2">Desde</label>
-                <input type="date" 
-                       wire:model.live="fechaDesde" 
+                <label for="fechaDesde" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Desde</label>
+                <input type="date"
+                       wire:model.live="fechaDesde"
                        id="fechaDesde"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                       class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 [color-scheme:dark]">
             </div>
 
-            <!-- Fecha Hasta -->
             <div>
-                <label for="fechaHasta" class="block text-sm font-medium text-gray-700 mb-2">Hasta</label>
-                <input type="date" 
-                       wire:model.live="fechaHasta" 
+                <label for="fechaHasta" class="block text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">Hasta</label>
+                <input type="date"
+                       wire:model.live="fechaHasta"
                        id="fechaHasta"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                       class="w-full rounded-lg border border-slate-700 bg-slate-900/40 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 [color-scheme:dark]">
             </div>
 
-            <!-- Botón Limpiar -->
             <div class="flex items-end md:col-span-2">
-                <button wire:click="resetFilters" 
+                <button wire:click="resetFilters"
                         type="button"
-                        class="w-full px-4 py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:outline-none focus:border-gray-400 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white">
                     Limpiar Filtros
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Tabla de Citas -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    {{-- Table --}}
+    <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Cliente
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Servicio
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Empleado
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Fecha y Hora
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Estado
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Acciones
-                        </th>
+            <table class="min-w-full">
+                <thead>
+                    <tr class="border-b border-slate-800">
+                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Cliente</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Servicio</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Empleado</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Fecha y Hora</th>
+                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Estado</th>
+                        <th class="px-6 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-500">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody>
                     @forelse($appointments as $appointment)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                                            <span class="text-indigo-600 font-medium text-sm">
-                                                {{ strtoupper(substr(($appointment->user->nombre ?? 'U') . ($appointment->user->apellidos ?? ''), 0, 2)) }}
-                                            </span>
-                                        </div>
+                        <tr class="border-b border-slate-800/60 transition hover:bg-slate-800/30">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-300 ring-1 ring-emerald-500/20">
+                                        {{ strtoupper(substr(($appointment->user->nombre ?? 'U') . ($appointment->user->apellidos ?? ''), 0, 2)) }}
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">
                                             {{ trim(($appointment->user->nombre ?? '') . ' ' . ($appointment->user->apellidos ?? '')) }}
-                                        </div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ $appointment->user->email }}
-                                        </div>
+                                        </p>
+                                        <p class="text-xs text-slate-500">{{ $appointment->user->email }}</p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $appointment->service->nombre }}</div>
-                                <div class="text-sm text-gray-500">{{ $appointment->service->duracion_minutos }} min</div>
+                            <td class="px-6 py-4">
+                                <p class="text-sm text-slate-300">{{ $appointment->service->nombre }}</p>
+                                <p class="text-xs text-slate-500">{{ $appointment->service->duracion_minutos }} min</p>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 text-sm text-slate-300">
                                 {{ $appointment->employee->nombre }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
-                                    {{ $appointment->fecha_hora_inicio->format('d/m/Y') }}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {{ $appointment->fecha_hora_inicio->format('H:i') }} - 
-                                    {{ $appointment->fecha_hora_fin->format('H:i') }}
-                                </div>
+                            <td class="px-6 py-4">
+                                <p class="text-sm text-white">{{ $appointment->fecha_hora_inicio->format('d/m/Y') }}</p>
+                                <p class="text-xs text-slate-500">
+                                    {{ $appointment->fecha_hora_inicio->format('H:i') }} — {{ $appointment->fecha_hora_fin->format('H:i') }}
+                                </p>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4">
                                 @php
                                     $statusClasses = [
-                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                        'confirmed' => 'bg-blue-100 text-blue-800',
-                                        'completed' => 'bg-green-100 text-green-800',
-                                        'cancelled' => 'bg-red-100 text-red-800',
-                                        'no_show' => 'bg-gray-100 text-gray-800',
+                                        'pending'   => 'bg-amber-500/15 text-amber-200 ring-1 ring-amber-500/30',
+                                        'confirmed' => 'bg-blue-500/15 text-blue-200 ring-1 ring-blue-500/30',
+                                        'completed' => 'bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-500/30',
+                                        'cancelled' => 'bg-rose-500/15 text-rose-200 ring-1 ring-rose-500/30',
+                                        'no_show'   => 'bg-slate-500/15 text-slate-300 ring-1 ring-slate-500/30',
                                     ];
                                 @endphp
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses[$appointment->estado] ?? 'bg-gray-100 text-gray-800' }}">
+                                <span class="rounded-full px-2.5 py-0.5 text-[10px] font-bold {{ $statusClasses[$appointment->estado] ?? 'bg-slate-700/40 text-slate-400' }}">
                                     {{ $estados[$appointment->estado] }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button wire:click="viewDetail({{ $appointment->id }})" 
-                                        class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <td class="px-6 py-4 text-right">
+                                <button wire:click="viewDetail({{ $appointment->id }})"
+                                        class="text-xs font-semibold text-emerald-400 transition hover:text-emerald-300 mr-3">
                                     Ver
                                 </button>
                                 @if(in_array($appointment->estado, ['pending', 'confirmed']))
-                                    <button wire:click="cancelAppointment({{ $appointment->id }})" 
+                                    <button wire:click="cancelAppointment({{ $appointment->id }})"
                                             wire:confirm="¿Está seguro de cancelar esta cita?"
-                                            class="text-red-600 hover:text-red-900">
+                                            class="text-xs font-semibold text-rose-400 transition hover:text-rose-300">
                                         Cancelar
                                     </button>
                                 @endif
@@ -191,12 +163,16 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">No hay citas</h3>
-                                <p class="mt-1 text-sm text-gray-500">No se encontraron citas con los filtros seleccionados.</p>
+                            <td colspan="6" class="px-6 py-14 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="rounded-full bg-slate-800/60 p-5">
+                                        <svg class="h-10 w-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                    <p class="mt-4 text-sm font-semibold text-slate-300">No hay citas</p>
+                                    <p class="mt-1 text-xs text-slate-500">No se encontraron citas con los filtros seleccionados.</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -204,95 +180,71 @@
             </table>
         </div>
 
-        <!-- Paginación -->
         @if($appointments->hasPages())
-            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="border-t border-slate-800 px-6 py-3">
                 {{ $appointments->links() }}
             </div>
         @endif
     </div>
 
-    <!-- Modal de Detalle (si existe cita seleccionada) -->
+    {{-- Detail Modal --}}
     @if($showDetailModal && $selectedAppointment)
-        <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <!-- Overlay -->
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-                     wire:click="closeDetailModal"></div>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm"
+             wire:click.self="closeDetailModal">
+            <div class="relative w-full max-w-lg rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl mx-4">
 
-                <!-- Centrar modal -->
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="font-bold text-white">Detalle de Cita #{{ $selectedAppointment->id }}</h3>
+                    <button wire:click="closeDetailModal"
+                            class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-800 hover:text-white">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
 
-                <!-- Panel del modal -->
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
-                                    Detalle de Cita #{{ $selectedAppointment->id }}
-                                </h3>
-                                
-                                <dl class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <dt class="text-sm font-medium text-gray-500">Cliente:</dt>
-                                        <dd class="text-sm text-gray-900">{{ trim(($selectedAppointment->user->nombre ?? '') . ' ' . ($selectedAppointment->user->apellidos ?? '')) }}</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="text-sm font-medium text-gray-500">Email:</dt>
-                                        <dd class="text-sm text-gray-900">{{ $selectedAppointment->user->email }}</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="text-sm font-medium text-gray-500">Servicio:</dt>
-                                        <dd class="text-sm text-gray-900">{{ $selectedAppointment->service->nombre }}</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="text-sm font-medium text-gray-500">Empleado:</dt>
-                                        <dd class="text-sm text-gray-900">{{ $selectedAppointment->employee->nombre }}</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="text-sm font-medium text-gray-500">Fecha:</dt>
-                                        <dd class="text-sm text-gray-900">{{ $selectedAppointment->fecha_hora_inicio->format('d/m/Y H:i') }}</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="text-sm font-medium text-gray-500">Duración:</dt>
-                                        <dd class="text-sm text-gray-900">{{ $selectedAppointment->service->duracion_minutos }} minutos</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="text-sm font-medium text-gray-500">Estado:</dt>
-                                        <dd class="text-sm text-gray-900">{{ $estados[$selectedAppointment->estado] }}</dd>
-                                    </div>
-                                    @if($selectedAppointment->notas_cliente)
-                                        <div>
-                                            <dt class="text-sm font-medium text-gray-500 mb-1">Notas del cliente:</dt>
-                                            <dd class="text-sm text-gray-900 bg-gray-50 p-2 rounded">{{ $selectedAppointment->notas_cliente }}</dd>
-                                        </div>
-                                    @endif
-                                    @if($selectedAppointment->notas_internas)
-                                        <div>
-                                            <dt class="text-sm font-medium text-gray-500 mb-1">Notas internas:</dt>
-                                            <dd class="text-sm text-gray-900 bg-yellow-50 p-2 rounded">{{ $selectedAppointment->notas_internas }}</dd>
-                                        </div>
-                                    @endif
-                                </dl>
-                            </div>
+                <dl class="space-y-3">
+                    @foreach([
+                        ['Cliente',   trim(($selectedAppointment->user->nombre ?? '') . ' ' . ($selectedAppointment->user->apellidos ?? ''))],
+                        ['Email',     $selectedAppointment->user->email],
+                        ['Servicio',  $selectedAppointment->service->nombre],
+                        ['Empleado',  $selectedAppointment->employee->nombre],
+                        ['Fecha',     $selectedAppointment->fecha_hora_inicio->format('d/m/Y H:i')],
+                        ['Duración',  $selectedAppointment->service->duracion_minutos . ' minutos'],
+                        ['Estado',    $estados[$selectedAppointment->estado]],
+                    ] as [$label, $value])
+                        <div class="flex items-center justify-between rounded-lg bg-slate-800/40 px-4 py-2.5">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $label }}</dt>
+                            <dd class="text-sm font-medium text-white">{{ $value }}</dd>
                         </div>
-                    </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button wire:click="closeDetailModal" 
-                                type="button" 
-                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                            Cerrar
-                        </button>
-                    </div>
+                    @endforeach
+
+                    @if($selectedAppointment->notas_cliente)
+                        <div class="rounded-lg bg-slate-800/40 px-4 py-3">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Notas del cliente</dt>
+                            <dd class="text-sm text-slate-300">{{ $selectedAppointment->notas_cliente }}</dd>
+                        </div>
+                    @endif
+                    @if($selectedAppointment->notas_internas)
+                        <div class="rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-amber-400 mb-1">Notas internas</dt>
+                            <dd class="text-sm text-amber-200">{{ $selectedAppointment->notas_internas }}</dd>
+                        </div>
+                    @endif
+                </dl>
+
+                <div class="mt-5 flex justify-end">
+                    <button wire:click="closeDetailModal"
+                            class="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white">
+                        Cerrar
+                    </button>
                 </div>
             </div>
         </div>
     @endif
 
-    <!-- Loading Indicator -->
-    <div wire:loading class="fixed top-0 left-0 right-0 z-50">
-        <div class="bg-indigo-600 text-white px-4 py-2 text-center text-sm font-medium">
-            Cargando...
-        </div>
+    {{-- Loading --}}
+    <div wire:loading class="fixed top-4 right-4 z-50 rounded-lg bg-emerald-600/90 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur">
+        Cargando...
     </div>
 </div>

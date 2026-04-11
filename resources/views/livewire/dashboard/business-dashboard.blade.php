@@ -1,177 +1,201 @@
 <div class="space-y-6">
-    <!-- Period Selector -->
-    <div class="bg-white rounded-lg shadow p-4">
-        <div class="flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-gray-900">Panel de Control</h2>
-            <div class="flex gap-2">
-                <button wire:click="$set('selectedPeriod', 'today')" 
-                        class="px-4 py-2 rounded {{ $selectedPeriod === 'today' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
-                    Hoy
+
+    {{-- Period Selector --}}
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-lg font-bold text-white">Resumen general</h2>
+        </div>
+        <div class="flex gap-1.5 rounded-xl border border-slate-800 bg-slate-950/60 p-1.5">
+            @foreach(['today' => 'Hoy', 'week' => 'Semana', 'month' => 'Mes', 'year' => 'Año'] as $key => $label)
+                <button wire:click="$set('selectedPeriod', '{{ $key }}')"
+                        class="rounded-lg px-4 py-1.5 text-sm font-medium transition-all duration-200
+                               {{ $selectedPeriod === $key
+                                   ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25'
+                                   : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    {{ $label }}
                 </button>
-                <button wire:click="$set('selectedPeriod', 'week')" 
-                        class="px-4 py-2 rounded {{ $selectedPeriod === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
-                    Semana
-                </button>
-                <button wire:click="$set('selectedPeriod', 'month')" 
-                        class="px-4 py-2 rounded {{ $selectedPeriod === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
-                    Mes
-                </button>
-                <button wire:click="$set('selectedPeriod', 'year')" 
-                        class="px-4 py-2 rounded {{ $selectedPeriod === 'year' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
-                    Año
-                </button>
-            </div>
+            @endforeach
         </div>
     </div>
 
-    <!-- KPIs Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Total Appointments -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
+    {{-- KPIs --}}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="group relative overflow-hidden rounded-xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-6 transition hover:border-indigo-500/40">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 transition group-hover:opacity-100"></div>
+            <div class="relative flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-600">Total Citas</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $totalAppointments }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Total Citas</p>
+                    <p class="mt-2 text-4xl font-extrabold tracking-tight text-white">{{ $totalAppointments }}</p>
                 </div>
-                <div class="bg-blue-100 rounded-full p-3">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <div class="rounded-xl bg-indigo-500/15 p-3 ring-1 ring-indigo-500/30">
+                    <svg class="h-6 w-6 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <!-- Confirmed -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
+        <div class="group relative overflow-hidden rounded-xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-6 transition hover:border-blue-500/40">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 transition group-hover:opacity-100"></div>
+            <div class="relative flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-600">Confirmadas</p>
-                    <p class="text-3xl font-bold text-blue-600">{{ $confirmedAppointments }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Confirmadas</p>
+                    <p class="mt-2 text-4xl font-extrabold tracking-tight text-blue-300">{{ $confirmedAppointments }}</p>
                 </div>
-                <div class="bg-blue-100 rounded-full p-3">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <div class="rounded-xl bg-blue-500/15 p-3 ring-1 ring-blue-500/30">
+                    <svg class="h-6 w-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <!-- Completed -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
+        <div class="group relative overflow-hidden rounded-xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-6 transition hover:border-emerald-500/40">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 transition group-hover:opacity-100"></div>
+            <div class="relative flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-600">Completadas</p>
-                    <p class="text-3xl font-bold text-green-600">{{ $completedAppointments }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Completadas</p>
+                    <p class="mt-2 text-4xl font-extrabold tracking-tight text-emerald-300">{{ $completedAppointments }}</p>
                 </div>
-                <div class="bg-green-100 rounded-full p-3">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                <div class="rounded-xl bg-emerald-500/15 p-3 ring-1 ring-emerald-500/30">
+                    <svg class="h-6 w-6 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
             </div>
         </div>
 
-        <!-- Revenue -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
+        <div class="group relative overflow-hidden rounded-xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-6 transition hover:border-emerald-500/40">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 transition group-hover:opacity-100"></div>
+            <div class="relative flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-600">Ingresos</p>
-                    <p class="text-3xl font-bold text-green-600">${{ number_format($revenue, 2) }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Ingresos</p>
+                    <p class="mt-2 text-4xl font-extrabold tracking-tight text-emerald-300">${{ number_format($revenue, 0) }}</p>
+                    <p class="mt-1 text-xs text-slate-500">MXN</p>
                 </div>
-                <div class="bg-green-100 rounded-full p-3">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <div class="rounded-xl bg-emerald-500/15 p-3 ring-1 ring-emerald-500/30">
+                    <svg class="h-6 w-6 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Top Services -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Servicios Más Solicitados</h3>
+    {{-- Charts Row --}}
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+
+        {{-- Top Services --}}
+        <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+            <h3 class="mb-5 text-sm font-semibold uppercase tracking-widest text-slate-400">Servicios Más Solicitados</h3>
             @if(count($topServices) > 0)
-                <div class="space-y-3">
-                    @foreach($topServices as $service)
+                @php $maxService = max(array_column($topServices, 'total')); @endphp
+                <div class="space-y-4">
+                    @foreach($topServices as $i => $service)
                         <div>
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="text-gray-700">{{ $service['nombre'] }}</span>
-                                <span class="font-semibold text-gray-900">{{ $service['total'] }} citas</span>
+                            <div class="mb-1.5 flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[10px] font-bold text-emerald-300">{{ $i + 1 }}</span>
+                                    <span class="text-slate-300">{{ $service['nombre'] }}</span>
+                                </div>
+                                <span class="font-bold text-white">{{ $service['total'] }}</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ ($service['total'] / max(array_column($topServices, 'total'))) * 100 }}%"></div>
+                            <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                                <div class="h-1.5 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-500"
+                                     style="width: {{ ($service['total'] / $maxService) * 100 }}%"></div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @else
-                <p class="text-gray-500 text-center py-8">No hay datos disponibles</p>
+                <div class="flex flex-col items-center py-10 text-center">
+                    <div class="rounded-full bg-slate-800 p-4">
+                        <svg class="h-8 w-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                        </svg>
+                    </div>
+                    <p class="mt-3 text-sm text-slate-500">Sin datos disponibles</p>
+                </div>
             @endif
         </div>
 
-        <!-- Employee Performance -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Rendimiento por Empleado</h3>
+        {{-- Employee Performance --}}
+        <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+            <h3 class="mb-5 text-sm font-semibold uppercase tracking-widest text-slate-400">Rendimiento por Empleado</h3>
             @if(count($employeePerformance) > 0)
-                <div class="space-y-3">
-                    @foreach($employeePerformance as $emp)
+                @php $maxEmp = max(array_column($employeePerformance, 'total')); @endphp
+                <div class="space-y-4">
+                    @foreach($employeePerformance as $i => $emp)
                         <div>
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="text-gray-700">{{ $emp['nombre'] }}</span>
-                                <span class="font-semibold text-gray-900">{{ $emp['total'] }} citas</span>
+                            <div class="mb-1.5 flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-[10px] font-bold text-blue-300">
+                                        {{ strtoupper(substr($emp['nombre'], 0, 1)) }}
+                                    </div>
+                                    <span class="text-slate-300">{{ $emp['nombre'] }}</span>
+                                </div>
+                                <span class="font-bold text-white">{{ $emp['total'] }}</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ ($emp['total'] / max(array_column($employeePerformance, 'total'))) * 100 }}%"></div>
+                            <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                                <div class="h-1.5 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
+                                     style="width: {{ ($emp['total'] / $maxEmp) * 100 }}%"></div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @else
-                <p class="text-gray-500 text-center py-8">No hay datos disponibles</p>
+                <div class="flex flex-col items-center py-10 text-center">
+                    <div class="rounded-full bg-slate-800 p-4">
+                        <svg class="h-8 w-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <p class="mt-3 text-sm text-slate-500">Sin datos disponibles</p>
+                </div>
             @endif
         </div>
     </div>
 
-    <!-- Upcoming Appointments -->
-    <div class="bg-white rounded-lg shadow">
-        <div class="p-6 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Próximas Citas</h3>
+    {{-- Upcoming Appointments --}}
+    <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
+        <div class="border-b border-slate-800 px-6 py-4">
+            <h3 class="font-bold text-white">Próximas Citas</h3>
         </div>
-        <div class="divide-y divide-gray-200">
+        <div class="divide-y divide-slate-800/60">
             @forelse($upcomingAppointments as $appointment)
-                <div class="p-4 hover:bg-gray-50 transition">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <span class="text-blue-600 font-semibold text-lg">
-                                        {{ substr($appointment['user']['nombre'], 0, 1) }}{{ substr($appointment['user']['apellidos'] ?? '', 0, 1) }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">
-                                    {{ $appointment['user']['nombre'] }} {{ $appointment['user']['apellidos'] }}
-                                </p>
-                                <p class="text-sm text-gray-500">{{ $appointment['service']['nombre'] }}</p>
-                                <p class="text-xs text-gray-400">con {{ $appointment['employee']['nombre'] }}</p>
-                            </div>
+                <div class="flex items-center justify-between gap-4 px-6 py-4 transition hover:bg-slate-800/30">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500/20 to-blue-600/10 text-sm font-bold text-blue-300 ring-1 ring-blue-500/20">
+                            {{ strtoupper(substr($appointment['user']['nombre'], 0, 1) . substr($appointment['user']['apellidos'] ?? '', 0, 1)) }}
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900">
-                                {{ \Carbon\Carbon::parse($appointment['fecha_hora_inicio'])->format('d/m/Y') }}
+                        <div>
+                            <p class="text-sm font-semibold text-white">
+                                {{ $appointment['user']['nombre'] }} {{ $appointment['user']['apellidos'] }}
                             </p>
-                            <p class="text-sm text-gray-500">
-                                {{ \Carbon\Carbon::parse($appointment['fecha_hora_inicio'])->format('H:i') }}
-                            </p>
+                            <p class="text-xs text-slate-400">{{ $appointment['service']['nombre'] }}</p>
+                            @if(!empty($appointment['employee']))
+                                <p class="text-xs text-slate-500">con {{ $appointment['employee']['nombre'] }}</p>
+                            @endif
                         </div>
+                    </div>
+                    <div class="flex shrink-0 flex-col items-end gap-1">
+                        <p class="text-sm font-bold text-white">
+                            {{ \Carbon\Carbon::parse($appointment['fecha_hora_inicio'])->format('H:i') }}
+                        </p>
+                        <p class="text-xs text-slate-400">
+                            {{ \Carbon\Carbon::parse($appointment['fecha_hora_inicio'])->format('d/m/Y') }}
+                        </p>
                     </div>
                 </div>
             @empty
-                <div class="p-8 text-center text-gray-500">
-                    No hay citas próximas
+                <div class="flex flex-col items-center justify-center px-6 py-14 text-center">
+                    <div class="rounded-full bg-slate-800/60 p-5">
+                        <svg class="h-10 w-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="mt-4 text-sm font-semibold text-slate-300">Sin citas próximas</p>
                 </div>
             @endforelse
         </div>
