@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls *)"
+      "Bash(ls *)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(mv *)",
+      "Bash(php *)"
     ]
   },
   "$version": 3

@@ -75,10 +75,12 @@ class ClientsList extends Component
         $businessId = auth()->user()->current_business_id;
 
         // Get unique clients who have appointments with this business
-        $query = User::select('users.*')
+        $query = User::select('users.id', 'users.nombre', 'users.apellidos', 'users.email', 
+                              'users.telefono', 'users.created_at')
             ->join('appointments', 'users.id', '=', 'appointments.user_id')
             ->where('appointments.business_id', $businessId)
-            ->groupBy('users.id');
+            ->groupBy('users.id', 'users.nombre', 'users.apellidos', 'users.email', 
+                      'users.telefono', 'users.created_at');
 
         if ($this->search) {
             $query->where(function($q) {
