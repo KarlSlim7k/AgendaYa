@@ -44,6 +44,7 @@ class BusinessProfile extends Component
             return;
         }
 
+        // Try to load the business directly by ID instead of using the relation
         $this->business = Business::with('locations')->find($businessId);
 
         if (!$this->business) {

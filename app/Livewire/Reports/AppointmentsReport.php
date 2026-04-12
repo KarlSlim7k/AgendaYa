@@ -82,10 +82,9 @@ class AppointmentsReport extends Component
         
         $business = $user->currentBusiness;
 
-        if (!$business) {
-            session()->flash('error', 'No tienes un negocio activo asignado. Contacta al administrador.');
-            $this->redirect(route('business.dashboard'));
-            return null;
+        // If still no business, try to get it directly with the ID (bypassing relation)
+        if (!$business && $user->current_business_id) {
+            $business = \App\Models\Business::find($user->current_business_id);
         }
 
         return $business;

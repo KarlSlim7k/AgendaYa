@@ -262,11 +262,7 @@ class ReportsService
         ?int $employeeId = null,
         ?string $estado = null
     ) {
-        if (!$business) {
-            return collect([]);
-        }
-
-        $query = Appointment::where('appointments.business_id', $business->id)
+        $query = Appointment::where('appointments.business_id', $business?->id ?? 0)
             ->with(['user:id,nombre,email', 'service:id,nombre,precio', 'employee:id,nombre']);
 
         if ($fechaInicio) {
