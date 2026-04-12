@@ -4,7 +4,6 @@ namespace App\Livewire\Business;
 
 use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Business;
-use App\Models\BusinessUserRole;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -42,7 +41,12 @@ class BusinessProfile extends Component
 
         // If no current_business_id, try to get first business from roles
         if (!$businessId) {
-            $firstRole = BusinessUserRole::where('user_id', $user->id)->first();
+            // Use DB query to avoid SoftDeletes issue on BusinessUserRole
+            $firstRole = \Illuminate\Support\Facades\DB::table('business_user_roles')
+                ->where('user_id', $user->id)
+                ->select('business_id')
+                ->first();
+            
             if ($firstRole) {
                 $businessId = $firstRole->business_id;
             }
