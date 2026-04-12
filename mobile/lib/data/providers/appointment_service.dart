@@ -5,7 +5,10 @@ import 'package:agenda_ya/data/models/appointment.dart';
 import 'api_client.dart';
 
 class AppointmentService {
-  final ApiClient _apiClient = ApiClient();
+  AppointmentService({ApiClient? apiClient})
+      : _apiClient = apiClient ?? ApiClient();
+
+  final ApiClient _apiClient;
 
   Future<Appointment> createAppointment({
     required int businessId,

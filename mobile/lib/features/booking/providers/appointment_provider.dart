@@ -7,10 +7,18 @@ import 'package:agenda_ya/features/booking/services/slot_cache_service.dart';
 import 'package:agenda_ya/features/notifications/services/notification_coordinator_service.dart';
 
 class AppointmentProvider with ChangeNotifier {
-  final AppointmentService _appointmentService = AppointmentService();
-  final SlotCacheService _slotCacheService = SlotCacheService();
-  final NotificationCoordinatorService _notificationCoordinatorService =
-      NotificationCoordinatorService();
+  AppointmentProvider({
+    AppointmentService? appointmentService,
+    SlotCacheService? slotCacheService,
+    NotificationCoordinatorService? notificationCoordinatorService,
+  })  : _appointmentService = appointmentService ?? AppointmentService(),
+        _slotCacheService = slotCacheService ?? SlotCacheService(),
+        _notificationCoordinatorService =
+            notificationCoordinatorService ?? NotificationCoordinatorService();
+
+  final AppointmentService _appointmentService;
+  final SlotCacheService _slotCacheService;
+  final NotificationCoordinatorService _notificationCoordinatorService;
   
   List<Appointment> _appointments = [];
   List<AvailableSlot> _availableSlots = [];

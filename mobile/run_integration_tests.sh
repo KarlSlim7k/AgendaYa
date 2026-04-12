@@ -42,19 +42,10 @@ echo ""
 echo "Running integration tests..."
 echo ""
 
-# Ejecutar tests de integración
-# Opción 1: Ejecutar todos los tests juntos
-flutter test integration_test/
-
-# Opción 2: Ejecutar tests individuales (comentadas)
-# echo "Running Auth Flow Tests..."
-# flutter test integration_test/auth_flow_test.dart
-# 
-# echo "Running Booking Flow Tests..."
-# flutter test integration_test/booking_flow_test.dart
-# 
-# echo "Running Profile Flow Tests..."
-# flutter test integration_test/profile_flow_test.dart
+# Ejecutar suite estable de integración con mock API (Fase 6)
+flutter test integration_test/phase6_booking_mock_api_test.dart
+flutter test integration_test/phase6_profile_mock_api_test.dart
+flutter test integration_test/phase6_notifications_mock_api_test.dart
 
 echo ""
 echo "✓ Integration tests completed!"

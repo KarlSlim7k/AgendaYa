@@ -6,15 +6,43 @@ import 'package:agenda_ya/core/constants/api_constants.dart';
 import 'package:agenda_ya/core/constants/app_constants.dart';
 
 class ApiClient {
-  static final ApiClient _instance = ApiClient._internal();
-  factory ApiClient() => _instance;
-  ApiClient._internal();
+  static ApiClient? _sharedInstance;
 
+  factory ApiClient({
+    http.Client? httpClient,
+    bool usePersistentStorage = true,
+  }) {
+    if (httpClient != null || !usePersistentStorage) {
+      return ApiClient._internal(
+        httpClient: httpClient ?? http.Client(),
+        usePersistentStorage: usePersistentStorage,
+      );
+    }
+
+    _sharedInstance ??= ApiClient._internal(
+      httpClient: http.Client(),
+      usePersistentStorage: true,
+    );
+    return _sharedInstance!;
+  }
+
+  ApiClient._internal({
+    required http.Client httpClient,
+    required bool usePersistentStorage,
+  })  : _httpClient = httpClient,
+        _usePersistentStorage = usePersistentStorage;
+
+  final http.Client _httpClient;
+  final bool _usePersistentStorage;
   final _storage = const FlutterSecureStorage();
   String? _token;
 
   Future<void> setToken(String token, {bool persist = true}) async {
     _token = token;
+    if (!_usePersistentStorage) {
+      return;
+    }
+
     if (persist) {
       await _storage.write(key: AppConstants.authTokenKey, value: token);
       return;
@@ -24,16 +52,32 @@ class ApiClient {
   }
 
   Future<String?> getToken() async {
+    if (_token != null) {
+      return _token;
+    }
+
+    if (!_usePersistentStorage) {
+      return _token;
+    }
+
     _token ??= await _storage.read(key: AppConstants.authTokenKey);
     return _token;
   }
 
   Future<void> clearToken() async {
     _token = null;
+    if (!_usePersistentStorage) {
+      return;
+    }
+
     await _storage.delete(key: AppConstants.authTokenKey);
   }
 
   Future<bool> hasPersistedToken() async {
+    if (!_usePersistentStorage) {
+      return _token != null && _token!.isNotEmpty;
+    }
+
     final token = await _storage.read(key: AppConstants.authTokenKey);
     return token != null && token.isNotEmpty;
   }
@@ -45,14 +89,14 @@ class ApiClient {
         : uri;
 
     final headers = await _getHeaders();
-    return await http.get(uriWithParams, headers: headers);
+    return await _httpClient.get(uriWithParams, headers: headers);
   }
 
   Future<http.Response> post(String endpoint, {Map<String, dynamic>? body}) async {
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _getHeaders();
     
-    return await http.post(
+    return await _httpClient.post(
       uri,
       headers: headers,
       body: body != null ? jsonEncode(body) : null,
@@ -63,7 +107,7 @@ class ApiClient {
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _getHeaders();
     
-    return await http.patch(
+    return await _httpClient.patch(
       uri,
       headers: headers,
       body: body != null ? jsonEncode(body) : null,
@@ -74,7 +118,7 @@ class ApiClient {
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _getHeaders();
 
-    return await http.put(
+    return await _httpClient.put(
       uri,
       headers: headers,
       body: body != null ? jsonEncode(body) : null,
@@ -85,7 +129,7 @@ class ApiClient {
     final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     final headers = await _getHeaders();
     
-    return await http.delete(uri, headers: headers);
+    return await _httpClient.delete(uri, headers: headers);
   }
 
   Future<Map<String, String>> _getHeaders() async {

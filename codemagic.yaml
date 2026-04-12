@@ -1,0 +1,50 @@
+workflows:
+  agendaya_android_beta:
+    name: AgendaYa Android Beta
+    max_build_duration: 90
+    environment:
+      flutter: stable
+      xcode: latest
+      vars:
+        PROJECT_DIR: mobile
+    scripts:
+      - name: Install dependencies
+        script: |
+          cd "$PROJECT_DIR"
+          flutter pub get
+      - name: Run tests
+        script: |
+          cd "$PROJECT_DIR"
+          flutter test test/
+          flutter test integration_test/phase6_booking_mock_api_test.dart
+          flutter test integration_test/phase6_profile_mock_api_test.dart
+      - name: Build Android AAB
+        script: |
+          cd "$PROJECT_DIR"
+          flutter build appbundle --release
+    artifacts:
+      - mobile/build/**/outputs/**/*.aab
+
+  agendaya_ios_beta:
+    name: AgendaYa iOS Beta
+    max_build_duration: 120
+    environment:
+      flutter: stable
+      xcode: latest
+      vars:
+        PROJECT_DIR: mobile
+    scripts:
+      - name: Install dependencies
+        script: |
+          cd "$PROJECT_DIR"
+          flutter pub get
+      - name: Run tests
+        script: |
+          cd "$PROJECT_DIR"
+          flutter test test/
+      - name: Build iOS IPA (no codesign)
+        script: |
+          cd "$PROJECT_DIR"
+          flutter build ipa --release --no-codesign
+    artifacts:
+      - mobile/build/ios/ipa/*.ipa

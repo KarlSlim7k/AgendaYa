@@ -6,6 +6,6 @@ import 'package:integration_test/integration_test_driver.dart';
 /// Ejecutar con:
 /// flutter drive \
 ///   --driver=test_driver/integration_test.dart \
-///   --target=integration_test/auth_flow_test.dart
+///   --target=integration_test/phase6_booking_mock_api_test.dart
 
 Future<void> main() => integrationDriver();
