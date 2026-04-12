@@ -88,6 +88,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/reports/appointments', [ReportsController::class, 'appointments']);
             Route::get('/reports/services', [ReportsController::class, 'topServices']);
             Route::get('/reports/chart-data', [ReportsController::class, 'chartData']);
+            
+            // Bulk operations
+            Route::post('/appointments/bulk-cancel', [AppointmentController::class, 'bulkCancel']);
+            Route::post('/appointments/bulk-confirm', [AppointmentController::class, 'bulkConfirm']);
+            
+            // Export
+            Route::get('/export/appointments', [ReportsController::class, 'exportAppointments']);
+            Route::get('/export/employees', [EmployeeController::class, 'exportEmployees']);
         });
     });
 });

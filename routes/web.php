@@ -3,9 +3,13 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Business\BusinessDashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Livewire\Appointments\AppointmentCalendar;
 use App\Livewire\Appointments\AppointmentsList;
 use App\Livewire\Appointments\CreateAppointmentForm;
 use App\Livewire\Business\BusinessProfile;
+use App\Livewire\Clients\ClientsList;
+use App\Livewire\Holidays\HolidaysList;
+use App\Livewire\Locations\LocationsList;
 use App\Livewire\Reports\AppointmentsReport;
 use App\Livewire\Services\ServicesList;
 use App\Livewire\Services\CreateEditService;
@@ -20,6 +24,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Public booking route
+Route::get('/booking/{businessSlug}', \App\Livewire\PublicBooking\BookingPage::class)->name('public.booking');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard principal - redirige segun rol
@@ -38,7 +45,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->group(function () {
             Route::get('/dashboard', [BusinessDashboardController::class, 'index'])->name('dashboard');
             Route::get('/profile', BusinessProfile::class)->name('profile');
+            Route::get('/clients', ClientsList::class)->name('clients.index');
             Route::get('/appointments', AppointmentsList::class)->name('appointments.index');
+            Route::get('/appointments/calendar', AppointmentCalendar::class)->name('appointments.calendar');
             Route::get('/appointments/create', CreateAppointmentForm::class)->name('appointments.create');
             Route::get('/services', ServicesList::class)->name('services.index');
             Route::get('/services/create', CreateEditService::class)->name('services.create');
@@ -48,6 +57,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/employees/{employeeId}/edit', CreateEditEmployee::class)->name('employees.edit');
             Route::get('/schedules', ManageSchedule::class)->name('schedules.index');
             Route::get('/schedules/exceptions', ManageExceptions::class)->name('schedules.exceptions');
+            Route::get('/holidays', HolidaysList::class)->name('holidays.index');
+            Route::get('/locations', LocationsList::class)->name('locations.index');
             Route::get('/reports', AppointmentsReport::class)->name('reports.index');
         });
 

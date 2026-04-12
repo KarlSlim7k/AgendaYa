@@ -96,11 +96,81 @@
             <table class="min-w-full">
                 <thead>
                     <tr class="border-b border-slate-800">
-                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Cliente</th>
-                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Servicio</th>
-                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Empleado</th>
-                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Fecha y Hora</th>
-                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">Estado</th>
+                        <th wire:click="sortByField('user')" class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500 cursor-pointer hover:text-emerald-400 transition">
+                            <div class="flex items-center gap-1">
+                                <span>Cliente</span>
+                                @if($sortBy === 'user')
+                                    <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                    @if($sortDirection === 'desc')
+                                        <svg class="h-3.5 w-3.5 rotate-180" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
+                        <th wire:click="sortByField('service')" class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500 cursor-pointer hover:text-emerald-400 transition">
+                            <div class="flex items-center gap-1">
+                                <span>Servicio</span>
+                                @if($sortBy === 'service')
+                                    <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                    @if($sortDirection === 'desc')
+                                        <svg class="h-3.5 w-3.5 rotate-180" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
+                        <th wire:click="sortByField('employee')" class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500 cursor-pointer hover:text-emerald-400 transition">
+                            <div class="flex items-center gap-1">
+                                <span>Empleado</span>
+                                @if($sortBy === 'employee')
+                                    <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                    @if($sortDirection === 'desc')
+                                        <svg class="h-3.5 w-3.5 rotate-180" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
+                        <th wire:click="sortByField('fecha_hora_inicio')" class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500 cursor-pointer hover:text-emerald-400 transition">
+                            <div class="flex items-center gap-1">
+                                <span>Fecha y Hora</span>
+                                @if($sortBy === 'fecha_hora_inicio')
+                                    <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                    @if($sortDirection === 'desc')
+                                        <svg class="h-3.5 w-3.5 rotate-180" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
+                        <th wire:click="sortByField('estado')" class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500 cursor-pointer hover:text-emerald-400 transition">
+                            <div class="flex items-center gap-1">
+                                <span>Estado</span>
+                                @if($sortBy === 'estado')
+                                    <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                    @if($sortDirection === 'desc')
+                                        <svg class="h-3.5 w-3.5 rotate-180" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
                         <th class="px-6 py-3 text-right text-[10px] font-bold uppercase tracking-widest text-slate-500">Acciones</th>
                     </tr>
                 </thead>

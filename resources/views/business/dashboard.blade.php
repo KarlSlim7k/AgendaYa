@@ -24,6 +24,53 @@
 
 <div class="space-y-6">
 
+    {{-- Notifications --}}
+    @if(session('message'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+             class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+            {{ session('message') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+             class="rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(isset($notifications) && count($notifications) > 0)
+        <div class="space-y-3">
+            @foreach($notifications as $notification)
+                @php
+                    $colors = match($notification['type']) {
+                        'warning' => 'border-amber-500/20 bg-amber-500/10 text-amber-300',
+                        'error' => 'border-rose-500/20 bg-rose-500/10 text-rose-300',
+                        'success' => 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300',
+                        default => 'border-blue-500/20 bg-blue-500/10 text-blue-300',
+                    };
+                    $icons = match($notification['icon']) {
+                        'calendar' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
+                        'conflict' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
+                        default => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+                    };
+                @endphp
+                <div x-data="{ show: true }" x-show="show" x-transition
+                     class="flex items-center gap-3 rounded-xl border bg-slate-900/60 px-4 py-3 {{ $colors }}">
+                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {!! $icons !!}
+                    </svg>
+                    <p class="flex-1 text-sm font-medium">{{ $notification['message'] }}</p>
+                    <button @click="show = false" class="shrink-0 text-slate-500 transition hover:text-slate-300">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     {{-- Period Selector --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

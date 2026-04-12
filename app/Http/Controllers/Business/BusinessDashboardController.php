@@ -9,6 +9,7 @@ use App\Models\Employee;
 use App\Models\BusinessLocation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -35,6 +36,10 @@ class BusinessDashboardController extends Controller
         }
 
         $selectedPeriod = $request->query('periodo', 'week');
+        $cacheKey = "business.dashboard.{$businessId}.{$selectedPeriod}";
+        $cacheDuration = 300; // 5 minutos
+
+        $dashboardData = Cache::remember($cacheKey, $cacheDuration, function () use ($businessId, $selectedPeriod) {
         $now = Carbon::now();
 
         match ($selectedPeriod) {
@@ -119,6 +124,46 @@ class BusinessDashboardController extends Controller
             'cancelled' => $cancelledAppointments,
         ];
 
+        // Get notifications for the user
+        $notifications = [];
+        
+        // Check for appointments in the next hour
+        $upcomingInHour = Appointment::where('business_id', $businessId)
+            ->where('estado', 'confirmed')
+            ->whereBetween('fecha_hora_inicio', [Carbon::now(), Carbon::now()->addHour()])
+            ->with(['user', 'service', 'employee'])
+            ->count();
+        
+        if ($upcomingInHour > 0) {
+            $notifications[] = [
+                'type' => 'info',
+                'message' => "Tienes {$upcomingInHour} cita(s) confirmadas en la próxima hora",
+                'icon' => 'calendar'
+            ];
+        }
+
+        // Check for schedule conflicts (same employee, overlapping times today)
+        $todayConflicts = DB::table('appointments as a1')
+            ->join('appointments as a2', function($join) {
+                $join->on('a1.employee_id', '=', 'a2.employee_id')
+                     ->on('a1.id', '!=', 'a2.id')
+                     ->on('a1.fecha_hora_inicio', '<', 'a2.fecha_hora_fin')
+                     ->on('a1.fecha_hora_fin', '>', 'a2.fecha_hora_inicio');
+            })
+            ->where('a1.business_id', $businessId)
+            ->whereDate('a1.fecha_hora_inicio', Carbon::today())
+            ->select('a1.id')
+            ->distinct()
+            ->count();
+
+        if ($todayConflicts > 0) {
+            $notifications[] = [
+                'type' => 'warning',
+                'message' => "Se detectaron {$todayConflicts} conflicto(s) de horario para hoy",
+                'icon' => 'conflict'
+            ];
+        }
+
         return view('business.dashboard', compact(
             'selectedPeriod',
             'totalAppointments',
@@ -138,6 +183,16 @@ class BusinessDashboardController extends Controller
             'appointmentsByStatus',
             'startDate',
             'endDate',
-        ));
+            'notifications',
+        ]);
+    });
+
+    // Clear cache when entering dashboard
+    Cache::forget("business.dashboard.{$businessId}.today");
+    Cache::forget("business.dashboard.{$businessId}.week");
+    Cache::forget("business.dashboard.{$businessId}.month");
+    Cache::forget("business.dashboard.{$businessId}.year");
+
+    return $dashboardData;
     }
 }

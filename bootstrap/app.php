@@ -15,6 +15,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant.isolation' => \App\Http\Middleware\TenantIsolation::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'permission' => \App\Http\Middleware\PermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
