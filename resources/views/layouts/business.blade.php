@@ -152,9 +152,9 @@
 
     <div x-show="open" x-transition.opacity class="fixed inset-0 z-40 bg-slate-950/70 md:hidden" @click="open = false" aria-hidden="true"></div>
 
-    <div class="md:pl-60">
+    <div class="flex min-h-screen flex-col md:pl-60">
         <header class="sticky top-0 z-30 border-b border-slate-800/70 bg-[#0b0f1a]/90 backdrop-blur">
-            <div class="flex items-center justify-between gap-4 px-4 py-3.5 md:px-8">
+            <div class="flex items-center justify-between gap-4 px-4 py-3.5 md:px-6">
                 <div class="flex items-center gap-3">
                     <button
                         type="button"
@@ -174,7 +174,7 @@
             </div>
         </header>
 
-        <main class="px-4 pb-12 pt-6 md:px-8">
+        <main class="w-full max-w-7xl px-4 pb-12 pt-6 md:mx-auto md:px-6">
             {{ $slot ?? '' }}
             @yield('content')
         </main>
