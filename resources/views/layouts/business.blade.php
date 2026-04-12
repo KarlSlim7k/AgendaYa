@@ -102,6 +102,13 @@
                             <span>Horarios</span>
                         </a>
 
+                        <a href="{{ route('business.schedules.exceptions') }}" class="{{ $currentSection === 'schedules' && request()->routeIs('business.schedules.exceptions') ? $activeLinkClass : $baseLinkClass }}">
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.75A2.25 2.25 0 0 1 18 6.25v9.5A2.25 2.25 0 0 1 15.75 18h-9.5A2.25 2.25 0 0 1 4 15.75v-9.5A2.25 2.25 0 0 1 6.25 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1.75 4.25v9.5c0 .414.336.75.75.75h9.5a.75.75 0 0 0 .75-.75v-9.5a.75.75 0 0 0-.75-.75h-9.5a.75.75 0 0 0-.75.75Z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Excepciones</span>
+                        </a>
+
                         <a href="{{ route('business.reports.index') }}" class="{{ $currentSection === 'reports' ? $activeLinkClass : $baseLinkClass }}">
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M2 5.75A2.75 2.75 0 0 1 4.75 3h10.5A2.75 2.75 0 0 1 18 5.75v8.5A2.75 2.75 0 0 1 15.25 17H4.75A2.75 2.75 0 0 1 2 14.25v-8.5Zm5.25 1.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5h-5.5Zm0 3a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z" />
