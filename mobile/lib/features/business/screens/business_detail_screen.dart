@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/business_provider.dart';
-import '../../core/routes/app_routes.dart';
+
+import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/features/business/providers/business_provider.dart';
 
 class BusinessDetailScreen extends StatefulWidget {
   final int businessId;
@@ -73,24 +74,21 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                         Text(business.descripcion!),
                       ],
                       const SizedBox(height: 16),
-                      if (business.telefono != null)
-                        Row(
-                          children: [
-                            const Icon(Icons.phone, size: 20),
-                            const SizedBox(width: 8),
-                            Text(business.telefono!),
-                          ],
-                        ),
-                      if (business.email != null) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.email, size: 20),
-                            const SizedBox(width: 8),
-                            Text(business.email!),
-                          ],
-                        ),
-                      ],
+                      Row(
+                        children: [
+                          const Icon(Icons.phone, size: 20),
+                          const SizedBox(width: 8),
+                          Text(business.telefono),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.email, size: 20),
+                          const SizedBox(width: 8),
+                          Text(business.email),
+                        ],
+                      ),
                     ],
                   ),
                 ),

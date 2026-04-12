@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../features/auth/providers/auth_provider.dart';
-import '../core/routes/app_routes.dart';
+
+import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/features/auth/providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

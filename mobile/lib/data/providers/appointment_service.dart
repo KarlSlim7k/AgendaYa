@@ -1,5 +1,6 @@
-import '../core/constants/api_constants.dart';
-import '../models/appointment.dart';
+import 'package:agenda_ya/core/constants/api_constants.dart';
+import 'package:agenda_ya/data/models/appointment.dart';
+
 import 'api_client.dart';
 
 class AppointmentService {
@@ -26,7 +27,8 @@ class AppointmentService {
     );
 
     final data = _apiClient.handleResponse(response);
-    return Appointment.fromJson(data['data']);
+    final payload = _extractPayload(data);
+    return Appointment.fromJson(payload);
   }
 
   Future<List<Appointment>> getMyAppointments({
@@ -46,8 +48,8 @@ class AppointmentService {
     );
 
     final data = _apiClient.handleResponse(response);
-    
-    return (data['data'] as List)
+
+    return _extractList(data)
         .map((json) => Appointment.fromJson(json))
         .toList();
   }
@@ -64,7 +66,8 @@ class AppointmentService {
     );
 
     final data = _apiClient.handleResponse(response);
-    return Appointment.fromJson(data['data']);
+    final payload = _extractPayload(data);
+    return Appointment.fromJson(payload);
   }
 
   Future<List<Map<String, dynamic>>> getAvailableSlots({
@@ -87,6 +90,35 @@ class AppointmentService {
     );
 
     final data = _apiClient.handleResponse(response);
-    return List<Map<String, dynamic>>.from(data['data']);
+    return _extractList(data);
+  }
+
+  List<Map<String, dynamic>> _extractList(Map<String, dynamic> data) {
+    if (data['data'] is List) {
+      return (data['data'] as List)
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    }
+
+    final payload = data['data'];
+    if (payload is Map<String, dynamic> && payload['data'] is List) {
+      return (payload['data'] as List)
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    }
+
+    return <Map<String, dynamic>>[];
+  }
+
+  Map<String, dynamic> _extractPayload(Map<String, dynamic> data) {
+    final payload = data['data'];
+    if (payload is Map<String, dynamic>) {
+      if (payload['data'] is Map<String, dynamic>) {
+        return payload['data'] as Map<String, dynamic>;
+      }
+      return payload;
+    }
+
+    return data;
   }
 }

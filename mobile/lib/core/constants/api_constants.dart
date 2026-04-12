@@ -1,6 +1,7 @@
+import 'package:agenda_ya/core/config/app_environment.dart';
+
 class ApiConstants {
-  // Base URL - Cambiar según entorno
-  static const String baseUrl = 'http://127.0.0.1:8000/api/v1';
+  static String get baseUrl => AppEnvironmentConfig.apiBaseUrl;
   
   // Auth endpoints
   static const String register = '/auth/register';

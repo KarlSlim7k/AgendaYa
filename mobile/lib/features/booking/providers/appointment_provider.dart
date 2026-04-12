@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../data/models/appointment.dart';
-import '../../data/providers/appointment_service.dart';
+
+import 'package:agenda_ya/data/models/appointment.dart';
+import 'package:agenda_ya/data/providers/appointment_service.dart';
 
 class AppointmentProvider with ChangeNotifier {
   final AppointmentService _appointmentService = AppointmentService();
@@ -8,12 +9,14 @@ class AppointmentProvider with ChangeNotifier {
   List<Appointment> _appointments = [];
   List<Map<String, dynamic>> _availableSlots = [];
   bool _isLoading = false;
+  bool _isLoadingSlots = false;
   String? _errorMessage;
   String? _successMessage;
 
   List<Appointment> get appointments => _appointments;
   List<Map<String, dynamic>> get availableSlots => _availableSlots;
   bool get isLoading => _isLoading;
+  bool get isLoadingSlots => _isLoadingSlots;
   String? get errorMessage => _errorMessage;
   String? get successMessage => _successMessage;
 
@@ -121,7 +124,7 @@ class AppointmentProvider with ChangeNotifier {
     required DateTime fecha,
     int? employeeId,
   }) async {
-    _isLoading = true;
+    _isLoadingSlots = true;
     _errorMessage = null;
     notifyListeners();
 
@@ -135,7 +138,7 @@ class AppointmentProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
-      _isLoading = false;
+      _isLoadingSlots = false;
       notifyListeners();
     }
   }

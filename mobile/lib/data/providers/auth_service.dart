@@ -1,5 +1,6 @@
-import '../core/constants/api_constants.dart';
-import '../models/user.dart';
+import 'package:agenda_ya/core/constants/api_constants.dart';
+import 'package:agenda_ya/data/models/user.dart';
+
 import 'api_client.dart';
 
 class AuthService {
@@ -24,13 +25,19 @@ class AuthService {
     );
 
     final data = _apiClient.handleResponse(response);
-    
-    // Guardar token
-    final token = data['token'] as String;
+
+    final payload = _extractPayload(data);
+    final token = payload['token'] as String?;
+    final userJson = payload['user'];
+
+    if (token == null || userJson is! Map<String, dynamic>) {
+      throw const FormatException('Respuesta de registro inválida.');
+    }
+
     await _apiClient.setToken(token);
-    
+
     return {
-      'user': User.fromJson(data['user']),
+      'user': User.fromJson(userJson),
       'token': token,
     };
   }
@@ -48,13 +55,19 @@ class AuthService {
     );
 
     final data = _apiClient.handleResponse(response);
-    
-    // Guardar token
-    final token = data['token'] as String;
+
+    final payload = _extractPayload(data);
+    final token = payload['token'] as String?;
+    final userJson = payload['user'];
+
+    if (token == null || userJson is! Map<String, dynamic>) {
+      throw const FormatException('Respuesta de login inválida.');
+    }
+
     await _apiClient.setToken(token);
-    
+
     return {
-      'user': User.fromJson(data['user']),
+      'user': User.fromJson(userJson),
       'token': token,
     };
   }
@@ -70,12 +83,27 @@ class AuthService {
   Future<User> getProfile() async {
     final response = await _apiClient.get(ApiConstants.profile);
     final data = _apiClient.handleResponse(response);
-    
-    return User.fromJson(data['user']);
+
+    final payload = _extractPayload(data);
+    final userJson = payload['user'] ?? payload;
+    if (userJson is! Map<String, dynamic>) {
+      throw const FormatException('Respuesta de perfil inválida.');
+    }
+
+    return User.fromJson(userJson);
   }
 
   Future<bool> isAuthenticated() async {
     final token = await _apiClient.getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  Map<String, dynamic> _extractPayload(Map<String, dynamic> data) {
+    final payload = data['data'];
+    if (payload is Map<String, dynamic>) {
+      return payload;
+    }
+
+    return data;
   }
 }

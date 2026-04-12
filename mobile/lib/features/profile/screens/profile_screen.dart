@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../auth/providers/auth_provider.dart';
-import '../../booking/providers/appointment_provider.dart';
-import '../../core/routes/app_routes.dart';
+
+import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/features/auth/providers/auth_provider.dart';
+import 'package:agenda_ya/features/booking/providers/appointment_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -80,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     if (confirmed == true && mounted) {
       final success = await context.read<AppointmentProvider>().cancelAppointment(
             appointmentId,
-            motivoCancelacion: 'Cancelado por el usuario',
+            motivo: 'Cancelado por el usuario',
           );
 
       if (mounted) {

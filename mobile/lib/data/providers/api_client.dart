@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../core/constants/api_constants.dart';
-import '../core/constants/app_constants.dart';
+
+import 'package:agenda_ya/core/constants/api_constants.dart';
+import 'package:agenda_ya/core/constants/app_constants.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
@@ -81,15 +82,57 @@ class ApiClient {
   }
 
   Map<String, dynamic> handleResponse(http.Response response) {
+    final decodedBody = _decodeResponseBody(response.body);
+
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      return jsonDecode(response.body);
+      if (decodedBody is Map<String, dynamic>) {
+        return decodedBody;
+      }
+
+      throw const FormatException('La respuesta de API no es un objeto JSON válido.');
     } else if (response.statusCode == 401) {
       throw Exception(AppConstants.unauthorizedError);
     } else if (response.statusCode >= 500) {
       throw Exception(AppConstants.serverError);
     } else {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['message'] ?? 'Error desconocido');
+      if (decodedBody is Map<String, dynamic>) {
+        throw Exception(_extractErrorMessage(decodedBody));
+      }
+
+      throw Exception('Error desconocido');
     }
+  }
+
+  dynamic _decodeResponseBody(String body) {
+    if (body.trim().isEmpty) {
+      return <String, dynamic>{};
+    }
+
+    try {
+      return jsonDecode(body);
+    } on FormatException {
+      throw const FormatException('La respuesta del servidor no contiene JSON válido.');
+    }
+  }
+
+  String _extractErrorMessage(Map<String, dynamic> errorBody) {
+    final message = errorBody['message'];
+    if (message is String && message.isNotEmpty) {
+      return message;
+    }
+
+    final errors = errorBody['errors'];
+    if (errors is Map<String, dynamic>) {
+      for (final value in errors.values) {
+        if (value is List && value.isNotEmpty && value.first is String) {
+          return value.first as String;
+        }
+        if (value is String && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    return 'Error desconocido';
   }
 }

@@ -1,6 +1,7 @@
-import '../core/constants/api_constants.dart';
-import '../models/business.dart';
-import '../models/service.dart';
+import 'package:agenda_ya/core/constants/api_constants.dart';
+import 'package:agenda_ya/data/models/business.dart';
+import 'package:agenda_ya/data/models/service.dart';
+
 import 'api_client.dart';
 
 class BusinessService {
@@ -26,14 +27,15 @@ class BusinessService {
     );
 
     final data = _apiClient.handleResponse(response);
-    
-    final businesses = (data['data'] as List)
+
+    final collection = _extractList(data);
+    final businesses = collection
         .map((json) => Business.fromJson(json))
         .toList();
-    
+
     return {
       'data': businesses,
-      'meta': data['meta'],
+      'meta': _extractMeta(data),
     };
   }
 
@@ -43,7 +45,8 @@ class BusinessService {
     );
 
     final data = _apiClient.handleResponse(response);
-    return Business.fromJson(data['data']);
+    final payload = _extractPayload(data);
+    return Business.fromJson(payload);
   }
 
   Future<List<Service>> getBusinessServices(int businessId) async {
@@ -52,9 +55,48 @@ class BusinessService {
     );
 
     final data = _apiClient.handleResponse(response);
-    
-    return (data['data'] as List)
+
+    return _extractList(data)
         .map((json) => Service.fromJson(json))
         .toList();
+  }
+
+  List<Map<String, dynamic>> _extractList(Map<String, dynamic> data) {
+    if (data['data'] is List) {
+      return (data['data'] as List)
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    }
+
+    final payload = data['data'];
+    if (payload is Map<String, dynamic> && payload['data'] is List) {
+      return (payload['data'] as List)
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    }
+
+    return <Map<String, dynamic>>[];
+  }
+
+  Map<String, dynamic> _extractMeta(Map<String, dynamic> data) {
+    if (data['meta'] is Map<String, dynamic>) {
+      return data['meta'] as Map<String, dynamic>;
+    }
+
+    final payload = data['data'];
+    if (payload is Map<String, dynamic> && payload['meta'] is Map<String, dynamic>) {
+      return payload['meta'] as Map<String, dynamic>;
+    }
+
+    return <String, dynamic>{};
+  }
+
+  Map<String, dynamic> _extractPayload(Map<String, dynamic> data) {
+    final payload = data['data'];
+    if (payload is Map<String, dynamic>) {
+      return payload;
+    }
+
+    return data;
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../data/models/business.dart';
-import '../../data/models/service.dart';
-import '../../data/providers/business_service.dart';
+
+import 'package:agenda_ya/data/models/business.dart';
+import 'package:agenda_ya/data/models/service.dart';
+import 'package:agenda_ya/data/providers/business_service.dart';
 
 class BusinessProvider with ChangeNotifier {
   final BusinessService _businessService = BusinessService();

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/business_provider.dart';
-import '../../core/routes/app_routes.dart';
+
+import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/features/business/providers/business_provider.dart';
+import 'package:agenda_ya/shared/widgets/app_state_view.dart';
 
 class BusinessListScreen extends StatefulWidget {
   const BusinessListScreen({super.key});
@@ -83,12 +85,28 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
             child: Consumer<BusinessProvider>(
               builder: (context, provider, child) {
                 if (provider.businesses.isEmpty && provider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const AppLoadingView(label: 'Cargando negocios...');
+                }
+
+                if (provider.businesses.isEmpty && provider.errorMessage != null) {
+                  return AppErrorView(
+                    message: provider.errorMessage!,
+                    onRetry: () {
+                      provider.searchBusinesses(
+                        search: _searchController.text.trim().isNotEmpty
+                            ? _searchController.text.trim()
+                            : null,
+                        refresh: true,
+                      );
+                    },
+                  );
                 }
 
                 if (provider.businesses.isEmpty) {
-                  return const Center(
-                    child: Text('No se encontraron negocios'),
+                  return const AppEmptyView(
+                    title: 'No se encontraron negocios',
+                    message: 'Intenta con otro término de búsqueda o categoría.',
+                    icon: Icons.storefront_outlined,
                   );
                 }
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../providers/appointment_provider.dart';
-import '../../core/routes/app_routes.dart';
+
+import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/features/booking/providers/appointment_provider.dart';
 
 class BookingScreen extends StatefulWidget {
   final int businessId;
@@ -20,7 +21,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   DateTime _selectedDate = DateTime.now();
-  String? _selectedSlot;
+  DateTime? _selectedSlot;
   int? _selectedEmployeeId;
   final _notesController = TextEditingController();
 
@@ -40,7 +41,7 @@ class _BookingScreenState extends State<BookingScreen> {
     await context.read<AppointmentProvider>().loadAvailableSlots(
           businessId: widget.businessId,
           serviceId: widget.serviceId,
-          date: _selectedDate,
+          fecha: _selectedDate,
         );
   }
 
@@ -97,7 +98,7 @@ class _BookingScreenState extends State<BookingScreen> {
               onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  AppRoutes.home,
+                  AppRoutes.profile,
                   (route) => false,
                 );
               },
@@ -114,6 +115,14 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
       );
     }
+  }
+
+  DateTime? _parseSlot(dynamic slotRaw) {
+    if (slotRaw is! String) {
+      return null;
+    }
+
+    return DateTime.tryParse(slotRaw)?.toLocal();
   }
 
   @override
@@ -180,9 +189,15 @@ class _BookingScreenState extends State<BookingScreen> {
                     itemCount: provider.availableSlots.length,
                     itemBuilder: (context, index) {
                       final slot = provider.availableSlots[index];
-                      final slotTime = slot['slot'] as String;
-                      final employeeId = slot['employee_id'] as int;
-                      final isSelected = _selectedSlot == slotTime;
+                      final slotRaw = slot['slot'];
+                      final slotTime = _parseSlot(slotRaw);
+                      final employeeId = (slot['employee_id'] as num?)?.toInt();
+                      final isSelected =
+                          slotTime != null && _selectedSlot == slotTime;
+
+                      if (slotTime == null || employeeId == null) {
+                        return const SizedBox.shrink();
+                      }
 
                       return InkWell(
                         onTap: () {
@@ -200,7 +215,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              slotTime.substring(11, 16), // HH:mm
+                              DateFormat('HH:mm').format(slotTime),
                               style: TextStyle(
                                 color: isSelected ? Colors.white : Colors.black,
                                 fontWeight: isSelected
