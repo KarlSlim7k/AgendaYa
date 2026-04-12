@@ -1,4 +1,5 @@
 import 'package:agenda_ya/core/constants/api_constants.dart';
+import 'package:agenda_ya/data/models/available_slot.dart';
 import 'package:agenda_ya/data/models/appointment.dart';
 
 import 'api_client.dart';
@@ -70,17 +71,30 @@ class AppointmentService {
     return Appointment.fromJson(payload);
   }
 
-  Future<List<Map<String, dynamic>>> getAvailableSlots({
+  Future<List<AvailableSlot>> getAvailableSlots({
     required int businessId,
     required int serviceId,
-    required DateTime fecha,
+    required DateTime fechaInicio,
+    DateTime? fechaFin,
     int? employeeId,
   }) async {
+    final normalizedStart = DateTime(
+      fechaInicio.year,
+      fechaInicio.month,
+      fechaInicio.day,
+    );
+
+    final normalizedEnd = DateTime(
+      (fechaFin ?? fechaInicio).year,
+      (fechaFin ?? fechaInicio).month,
+      (fechaFin ?? fechaInicio).day,
+    );
+
     final queryParams = {
       'business_id': businessId.toString(),
       'service_id': serviceId.toString(),
-      'fecha_inicio': fecha.toIso8601String().split('T')[0],
-      'fecha_fin': fecha.toIso8601String().split('T')[0],
+      'fecha_inicio': normalizedStart.toIso8601String().split('T')[0],
+      'fecha_fin': normalizedEnd.toIso8601String().split('T')[0],
       if (employeeId != null) 'employee_id': employeeId.toString(),
     };
 
@@ -90,7 +104,11 @@ class AppointmentService {
     );
 
     final data = _apiClient.handleResponse(response);
-    return _extractList(data);
+    final timezoneHint = _extractTimezoneHint(data);
+
+    return _extractList(data)
+        .map((slot) => AvailableSlot.fromJson(slot, timezoneHint: timezoneHint))
+        .toList();
   }
 
   List<Map<String, dynamic>> _extractList(Map<String, dynamic> data) {
@@ -120,5 +138,31 @@ class AppointmentService {
     }
 
     return data;
+  }
+
+  String? _extractTimezoneHint(Map<String, dynamic> data) {
+    final directTimezone = data['timezone'] as String?;
+    if (directTimezone != null && directTimezone.isNotEmpty) {
+      return directTimezone;
+    }
+
+    final meta = data['meta'];
+    if (meta is Map<String, dynamic>) {
+      final metaTimezone =
+          meta['timezone'] as String? ??
+          meta['time_zone'] as String? ??
+          meta['zona_horaria'] as String?;
+
+      if (metaTimezone != null && metaTimezone.isNotEmpty) {
+        return metaTimezone;
+      }
+    }
+
+    final payload = data['data'];
+    if (payload is Map<String, dynamic>) {
+      return payload['timezone'] as String?;
+    }
+
+    return null;
   }
 }

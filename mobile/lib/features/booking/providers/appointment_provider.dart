@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 
+import 'package:agenda_ya/data/models/available_slot.dart';
 import 'package:agenda_ya/data/models/appointment.dart';
 import 'package:agenda_ya/data/providers/appointment_service.dart';
+import 'package:agenda_ya/features/booking/services/slot_cache_service.dart';
 
 class AppointmentProvider with ChangeNotifier {
   final AppointmentService _appointmentService = AppointmentService();
+  final SlotCacheService _slotCacheService = SlotCacheService();
   
   List<Appointment> _appointments = [];
-  List<Map<String, dynamic>> _availableSlots = [];
+  List<AvailableSlot> _availableSlots = [];
   bool _isLoading = false;
   bool _isLoadingSlots = false;
+  bool _slotsFromCache = false;
+  String? _slotsSourceTimezone;
   String? _errorMessage;
   String? _successMessage;
 
   List<Appointment> get appointments => _appointments;
-  List<Map<String, dynamic>> get availableSlots => _availableSlots;
+  List<AvailableSlot> get availableSlots => _availableSlots;
   bool get isLoading => _isLoading;
   bool get isLoadingSlots => _isLoadingSlots;
+  bool get slotsFromCache => _slotsFromCache;
+  String? get slotsSourceTimezone => _slotsSourceTimezone;
   String? get errorMessage => _errorMessage;
   String? get successMessage => _successMessage;
 
@@ -77,6 +84,17 @@ class AppointmentProvider with ChangeNotifier {
       );
 
       _appointments.insert(0, appointment);
+
+      await _slotCacheService.invalidateForBooking(
+        businessId: businessId,
+        serviceId: serviceId,
+        appointmentDate: fechaHoraInicio,
+      );
+      _removeBookedSlot(
+        appointmentStartAt: fechaHoraInicio,
+        employeeId: employeeId,
+      );
+
       _successMessage = 'Cita creada exitosamente';
       _isLoading = false;
       notifyListeners();
@@ -121,26 +139,92 @@ class AppointmentProvider with ChangeNotifier {
   Future<void> loadAvailableSlots({
     required int businessId,
     required int serviceId,
-    required DateTime fecha,
+    required DateTime fechaInicio,
+    DateTime? fechaFin,
     int? employeeId,
+    bool forceRefresh = false,
   }) async {
+    final rangeStart = DateTime(
+      fechaInicio.year,
+      fechaInicio.month,
+      fechaInicio.day,
+    );
+    final rangeEnd = DateTime(
+      (fechaFin ?? fechaInicio).year,
+      (fechaFin ?? fechaInicio).month,
+      (fechaFin ?? fechaInicio).day,
+    );
+
     _isLoadingSlots = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
+      if (!forceRefresh) {
+        final cached = await _slotCacheService.readSlots(
+          businessId: businessId,
+          serviceId: serviceId,
+          rangeStart: rangeStart,
+          rangeEnd: rangeEnd,
+          employeeId: employeeId,
+        );
+
+        if (cached != null) {
+          _availableSlots = cached.slots;
+          _slotsSourceTimezone = cached.sourceTimezone;
+          _slotsFromCache = true;
+          _isLoadingSlots = false;
+          notifyListeners();
+        }
+      }
+
       _availableSlots = await _appointmentService.getAvailableSlots(
         businessId: businessId,
         serviceId: serviceId,
-        fecha: fecha,
+        fechaInicio: rangeStart,
+        fechaFin: rangeEnd,
         employeeId: employeeId,
       );
+
+      _slotsSourceTimezone =
+          _availableSlots.isNotEmpty ? _availableSlots.first.sourceTimezone : null;
+      _slotsFromCache = false;
+
+      await _slotCacheService.writeSlots(
+        businessId: businessId,
+        serviceId: serviceId,
+        rangeStart: rangeStart,
+        rangeEnd: rangeEnd,
+        employeeId: employeeId,
+        sourceTimezone: _slotsSourceTimezone,
+        slots: _availableSlots,
+      );
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      if (_availableSlots.isEmpty) {
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
+      }
     } finally {
       _isLoadingSlots = false;
       notifyListeners();
     }
+  }
+
+  void _removeBookedSlot({
+    required DateTime appointmentStartAt,
+    required int employeeId,
+  }) {
+    if (_availableSlots.isEmpty) {
+      return;
+    }
+
+    final bookedAtLocal =
+        appointmentStartAt.isUtc ? appointmentStartAt.toLocal() : appointmentStartAt;
+
+    _availableSlots = _availableSlots.where((slot) {
+      final sameEmployee = slot.employeeId == employeeId;
+      final sameStart = slot.startAtLocal.compareTo(bookedAtLocal) == 0;
+      return !(sameEmployee && sameStart);
+    }).toList();
   }
 
   void clearMessages() {
