@@ -2,6 +2,7 @@
 
 @section('title', 'Dashboard')
 @section('section_label', 'Mi Negocio')
+@section('content')
 
 @php
     $periods = [
@@ -407,3 +408,4 @@
     </div>
 
 </div>
+@endsection
