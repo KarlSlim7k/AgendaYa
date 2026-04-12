@@ -25,11 +25,27 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     final authProvider = context.read<AuthProvider>();
+    await authProvider.initializeSecurityState();
     await authProvider.checkAuthStatus();
 
     if (!mounted) return;
 
     if (authProvider.isAuthenticated) {
+      final unlocked = await authProvider.requireBiometricUnlockIfNeeded();
+      if (!mounted) {
+        return;
+      }
+
+      if (!unlocked) {
+        await authProvider.logout();
+        if (!mounted) {
+          return;
+        }
+
+        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+        return;
+      }
+
       Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     } else {
       Navigator.of(context).pushReplacementNamed(AppRoutes.login);

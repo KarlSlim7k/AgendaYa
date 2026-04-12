@@ -13,9 +13,14 @@ class ApiClient {
   final _storage = const FlutterSecureStorage();
   String? _token;
 
-  Future<void> setToken(String token) async {
+  Future<void> setToken(String token, {bool persist = true}) async {
     _token = token;
-    await _storage.write(key: AppConstants.authTokenKey, value: token);
+    if (persist) {
+      await _storage.write(key: AppConstants.authTokenKey, value: token);
+      return;
+    }
+
+    await _storage.delete(key: AppConstants.authTokenKey);
   }
 
   Future<String?> getToken() async {
@@ -26,6 +31,11 @@ class ApiClient {
   Future<void> clearToken() async {
     _token = null;
     await _storage.delete(key: AppConstants.authTokenKey);
+  }
+
+  Future<bool> hasPersistedToken() async {
+    final token = await _storage.read(key: AppConstants.authTokenKey);
+    return token != null && token.isNotEmpty;
   }
 
   Future<http.Response> get(String endpoint, {Map<String, String>? queryParams}) async {
@@ -54,6 +64,17 @@ class ApiClient {
     final headers = await _getHeaders();
     
     return await http.patch(
+      uri,
+      headers: headers,
+      body: body != null ? jsonEncode(body) : null,
+    );
+  }
+
+  Future<http.Response> put(String endpoint, {Map<String, dynamic>? body}) async {
+    final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+    final headers = await _getHeaders();
+
+    return await http.put(
       uri,
       headers: headers,
       body: body != null ? jsonEncode(body) : null,

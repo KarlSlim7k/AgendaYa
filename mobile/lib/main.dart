@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 import 'package:agenda_ya/app.dart';
+import 'package:agenda_ya/core/services/local_notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,7 @@ Future<void> main() async {
 
   Intl.defaultLocale = 'es_MX';
   await initializeDateFormatting('es_MX', null);
+  await LocalNotificationService.instance.initialize();
 
   runApp(const AgendaYaApp());
 }

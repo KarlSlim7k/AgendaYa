@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/core/utils/input_validators.dart';
 import 'package:agenda_ya/features/auth/providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -20,6 +21,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthProvider>().initializeSecurityState();
+    });
+  }
 
   @override
   void dispose() {
@@ -42,8 +51,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       password: _passwordController.text,
       passwordConfirmation: _confirmPasswordController.text,
       telefono: _telefonoController.text.trim().isNotEmpty
-          ? _telefonoController.text.trim()
+          ? InputValidators.normalizeMexicanPhone(_telefonoController.text)
           : null,
+      rememberSession: authProvider.rememberSession,
     );
 
     if (success && mounted) {
@@ -100,36 +110,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.email),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresa tu email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Email inválido';
-                    }
-                    return null;
-                  },
+                  validator: InputValidators.email,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _telefonoController,
                   keyboardType: TextInputType.phone,
+                  autofillHints: const [AutofillHints.telephoneNumber],
                   decoration: const InputDecoration(
                     labelText: 'Teléfono (opcional)',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.phone),
-                    hintText: '+52 55 1234 5678',
+                    hintText: '+525512345678',
                   ),
+                  validator: (value) => InputValidators.mexicanPhone(value),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
+                  autofillHints: const [AutofillHints.newPassword],
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
                     border: const OutlineInputBorder(),
@@ -145,20 +151,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresa tu contraseña';
-                    }
-                    if (value.length < 8) {
-                      return 'Mínimo 8 caracteres';
-                    }
-                    return null;
-                  },
+                  validator: InputValidators.strongPassword,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
+                  autofillHints: const [AutofillHints.newPassword],
                   decoration: InputDecoration(
                     labelText: 'Confirmar contraseña',
                     border: const OutlineInputBorder(),
@@ -184,20 +183,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 8),
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return CheckboxListTile(
+                      value: authProvider.rememberSession,
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Recordarme en este dispositivo'),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      onChanged: authProvider.isLoading
+                          ? null
+                          : (value) {
+                              if (value == null) {
+                                return;
+                              }
+
+                              authProvider.setRememberSession(value);
+                            },
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tu cuenta requiere correo verificado para poder iniciar sesión.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
                 const SizedBox(height: 24),
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
-                    return ElevatedButton(
-                      onPressed: authProvider.isLoading ? null : _handleRegister,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: authProvider.isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text(
-                              'Registrarse',
-                              style: TextStyle(fontSize: 16),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ElevatedButton(
+                          onPressed:
+                              authProvider.isLoading ? null : _handleRegister,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: authProvider.isLoading
+                              ? const CircularProgressIndicator()
+                              : const Text(
+                                  'Registrarse',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                        ),
+                        if (authProvider.errorMessage != null) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            authProvider.errorMessage!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
                             ),
+                          ),
+                        ],
+                      ],
                     );
                   },
                 ),

@@ -8,6 +8,7 @@ class ApiConstants {
   static const String login = '/auth/login';
   static const String logout = '/auth/logout';
   static const String profile = '/user/profile';
+  static const String updateProfile = '/user/profile';
   
   // Business endpoints
   static const String businesses = '/businesses';

@@ -13,6 +13,24 @@ class User {
     this.emailVerifiedAt,
   });
 
+  bool get isEmailVerified => emailVerifiedAt != null;
+
+  User copyWith({
+    int? id,
+    String? name,
+    String? email,
+    String? telefono,
+    DateTime? emailVerifiedAt,
+  }) {
+    return User(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      telefono: telefono ?? this.telefono,
+      emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
+    );
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as int,

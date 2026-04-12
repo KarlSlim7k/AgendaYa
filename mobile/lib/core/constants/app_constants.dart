@@ -5,6 +5,8 @@ class AppConstants {
   // Storage Keys
   static const String authTokenKey = 'auth_token';
   static const String userDataKey = 'user_data';
+  static const String rememberSessionKey = 'remember_session';
+  static const String biometricEnabledKey = 'biometric_enabled';
   
   // Date Formats
   static const String dateFormat = 'dd/MM/yyyy';

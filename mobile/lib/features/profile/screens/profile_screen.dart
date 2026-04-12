@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/core/utils/input_validators.dart';
+import 'package:agenda_ya/data/models/appointment.dart';
+import 'package:agenda_ya/data/models/user.dart';
 import 'package:agenda_ya/features/auth/providers/auth_provider.dart';
 import 'package:agenda_ya/features/booking/providers/appointment_provider.dart';
 
@@ -13,7 +16,8 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -21,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthProvider>().initializeSecurityState();
       context.read<AppointmentProvider>().loadMyAppointments();
     });
   }
@@ -56,6 +61,141 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         Navigator.of(context).pushReplacementNamed(AppRoutes.login);
       }
     }
+  }
+
+  Future<void> _handleEditProfile() async {
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.user;
+    if (user == null) {
+      return;
+    }
+
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(text: user.name);
+    final phoneController = TextEditingController(text: user.telefono ?? '');
+
+    final shouldRefresh = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Editar Perfil'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre completo',
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  validator: (value) =>
+                      InputValidators.requiredField(value, label: 'tu nombre'),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Teléfono (+52)',
+                    hintText: '+525512345678',
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                  validator: (value) => InputValidators.mexicanPhone(value),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (!formKey.currentState!.validate()) {
+                  return;
+                }
+
+                final rawPhone = phoneController.text.trim();
+                final telefono = rawPhone.isEmpty
+                    ? null
+                    : InputValidators.normalizeMexicanPhone(rawPhone);
+
+                final updated = await authProvider.updateProfile(
+                  name: nameController.text.trim(),
+                  telefono: telefono,
+                );
+
+                if (!dialogContext.mounted) {
+                  return;
+                }
+
+                if (!updated) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        authProvider.errorMessage ??
+                            'No se pudo actualizar tu perfil',
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    nameController.dispose();
+    phoneController.dispose();
+
+    if (shouldRefresh == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Perfil actualizado correctamente'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _toggleBiometric(bool enabled) async {
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.toggleBiometric(enabled);
+
+    if (!mounted) {
+      return;
+    }
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            authProvider.errorMessage ??
+                'No se pudo actualizar la configuración biométrica',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          enabled
+              ? 'Acceso biométrico activado'
+              : 'Acceso biométrico desactivado',
+        ),
+      ),
+    );
   }
 
   Future<void> _handleCancelAppointment(int appointmentId) async {
@@ -97,9 +237,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     }
   }
 
-  Widget _buildAppointmentCard(appointment) {
+  Widget _buildAppointmentCard(Appointment appointment) {
     final dateFormat = DateFormat('dd MMM yyyy - HH:mm', 'es');
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -185,12 +325,64 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     }
   }
 
+  Widget _buildUserHeader(User? user) {
+    final isVerified = user?.isEmailVerified ?? false;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withOpacity(0.1),
+      ),
+      child: Column(
+        children: [
+          const CircleAvatar(
+            radius: 40,
+            child: Icon(Icons.person, size: 40),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            user?.name ?? 'Usuario',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(user?.email ?? ''),
+          if (user?.telefono != null) ...[
+            const SizedBox(height: 4),
+            Text(user!.telefono!),
+          ],
+          const SizedBox(height: 10),
+          Chip(
+            avatar: Icon(
+              isVerified ? Icons.verified : Icons.warning_amber_rounded,
+              size: 16,
+            ),
+            label: Text(
+              isVerified ? 'Correo verificado' : 'Correo no verificado',
+            ),
+            backgroundColor: isVerified
+                ? Colors.green.withOpacity(0.18)
+                : Colors.orange.withOpacity(0.18),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mi Perfil'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Editar perfil',
+            onPressed: _handleEditProfile,
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _handleLogout,
@@ -199,43 +391,27 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       ),
       body: Column(
         children: [
-          // Información del usuario
           Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
-              final user = authProvider.user;
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+              return _buildUserHeader(authProvider.user);
+            },
+          ),
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              return SwitchListTile.adaptive(
+                title: const Text('Acceso biométrico'),
+                subtitle: Text(
+                  authProvider.biometricAvailable
+                      ? 'Usar biometría para desbloquear sesión'
+                      : 'No disponible en este dispositivo',
                 ),
-                child: Column(
-                  children: [
-                    const CircleAvatar(
-                      radius: 40,
-                      child: Icon(Icons.person, size: 40),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      user?.name ?? 'Usuario',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(user?.email ?? ''),
-                    if (user?.telefono != null) ...[
-                      const SizedBox(height: 4),
-                      Text(user!.telefono!),
-                    ],
-                  ],
-                ),
+                value: authProvider.biometricEnabled,
+                onChanged: authProvider.biometricAvailable
+                    ? (value) => _toggleBiometric(value)
+                    : null,
               );
             },
           ),
-
-          // Tabs de citas
           TabBar(
             controller: _tabController,
             tabs: const [
@@ -243,8 +419,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               Tab(text: 'Pasadas'),
             ],
           ),
-
-          // Lista de citas
           Expanded(
             child: Consumer<AppointmentProvider>(
               builder: (context, provider, child) {
@@ -255,7 +429,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 return TabBarView(
                   controller: _tabController,
                   children: [
-                    // Próximas citas
                     provider.upcomingAppointments.isEmpty
                         ? const Center(
                             child: Text('No tienes citas próximas'),
@@ -268,8 +441,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               );
                             },
                           ),
-
-                    // Citas pasadas
                     provider.pastAppointments.isEmpty
                         ? const Center(
                             child: Text('No tienes citas pasadas'),
