@@ -28,21 +28,24 @@ class Business {
   });
 
   factory Business.fromJson(Map<String, dynamic> json) {
+    final locationsRaw = json['locations'];
+
     return Business(
-      id: json['id'] as int,
-      nombre: json['nombre'] as String,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      nombre: (json['nombre'] ?? 'Negocio') as String,
       descripcion: json['descripcion'] as String?,
-      telefono: json['telefono'] as String,
-      email: json['email'] as String,
-      categoria: json['categoria'] as String,
-      estado: json['estado'] as String,
-      locations: json['locations'] != null
-          ? (json['locations'] as List)
-              .map((loc) => BusinessLocation.fromJson(loc))
+      telefono: (json['telefono'] ?? '') as String,
+      email: (json['email'] ?? '') as String,
+      categoria: (json['categoria'] ?? 'otro') as String,
+      estado: (json['estado'] ?? 'pending') as String,
+      locations: locationsRaw is List
+        ? locationsRaw
+          .whereType<Map<String, dynamic>>()
+          .map(BusinessLocation.fromJson)
               .toList()
           : [],
-      totalServices: json['total_services'] as int?,
-      totalEmployees: json['total_employees'] as int?,
+      totalServices: (json['total_services'] as num?)?.toInt(),
+      totalEmployees: (json['total_employees'] as num?)?.toInt(),
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,

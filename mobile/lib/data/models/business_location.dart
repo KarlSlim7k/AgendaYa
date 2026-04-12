@@ -24,17 +24,21 @@ class BusinessLocation {
   });
 
   factory BusinessLocation.fromJson(Map<String, dynamic> json) {
+    final activoRaw = json['activo'];
+
     return BusinessLocation(
-      id: json['id'] as int,
-      nombre: json['nombre'] as String,
-      direccion: json['direccion'] as String,
-      ciudad: json['ciudad'] as String,
-      estado: json['estado'] as String,
-      codigoPostal: json['codigo_postal'] as String,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      nombre: (json['nombre'] ?? 'Sucursal') as String,
+      direccion: (json['direccion'] ?? '') as String,
+      ciudad: (json['ciudad'] ?? '') as String,
+      estado: (json['estado'] ?? '') as String,
+      codigoPostal: (json['codigo_postal'] ?? '') as String,
       telefono: json['telefono'] as String?,
       latitud: json['latitud'] != null ? (json['latitud'] as num).toDouble() : null,
       longitud: json['longitud'] != null ? (json['longitud'] as num).toDouble() : null,
-      activo: json['activo'] as bool,
+      activo: activoRaw is bool
+          ? activoRaw
+          : ((activoRaw as num?)?.toInt() ?? 1) == 1,
     );
   }
 

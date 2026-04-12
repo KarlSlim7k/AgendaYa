@@ -1,5 +1,6 @@
 import 'package:agenda_ya/core/constants/api_constants.dart';
 import 'package:agenda_ya/data/models/business.dart';
+import 'package:agenda_ya/data/models/employee.dart';
 import 'package:agenda_ya/data/models/service.dart';
 
 import 'api_client.dart';
@@ -61,21 +62,40 @@ class BusinessService {
         .toList();
   }
 
+  Future<List<Employee>> getBusinessEmployees(int businessId) async {
+    final response = await _apiClient.get(
+      ApiConstants.businessEmployees(businessId),
+    );
+
+    final data = _apiClient.handleResponse(response);
+
+    return _extractList(data)
+        .map((json) => Employee.fromJson(json))
+        .toList();
+  }
+
   List<Map<String, dynamic>> _extractList(Map<String, dynamic> data) {
     if (data['data'] is List) {
-      return (data['data'] as List)
-          .whereType<Map<String, dynamic>>()
-          .toList();
+      return _normalizeCollection(data['data']);
     }
 
     final payload = data['data'];
     if (payload is Map<String, dynamic> && payload['data'] is List) {
-      return (payload['data'] as List)
-          .whereType<Map<String, dynamic>>()
-          .toList();
+      return _normalizeCollection(payload['data']);
     }
 
     return <Map<String, dynamic>>[];
+  }
+
+  List<Map<String, dynamic>> _normalizeCollection(dynamic rawCollection) {
+    if (rawCollection is! List) {
+      return <Map<String, dynamic>>[];
+    }
+
+    return rawCollection
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
   }
 
   Map<String, dynamic> _extractMeta(Map<String, dynamic> data) {

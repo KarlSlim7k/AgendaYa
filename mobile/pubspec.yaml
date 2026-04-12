@@ -30,6 +30,9 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^17.2.4
+
+  # External actions
+  url_launcher: ^6.3.0
   
   # Date & Time
   intl: ^0.19.0

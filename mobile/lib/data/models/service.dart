@@ -24,16 +24,20 @@ class Service {
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
+    final activoRaw = json['activo'];
+
     return Service(
-      id: json['id'] as int,
-      businessId: json['business_id'] as int,
-      nombre: json['nombre'] as String,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      businessId: (json['business_id'] as num?)?.toInt() ?? 0,
+      nombre: (json['nombre'] ?? 'Servicio') as String,
       descripcion: json['descripcion'] as String?,
-      duracionMinutos: json['duracion_minutos'] as int,
-      precio: (json['precio'] as num).toDouble(),
-      bufferPreMinutos: json['buffer_pre_minutos'] as int? ?? 0,
-      bufferPostMinutos: json['buffer_post_minutos'] as int? ?? 0,
-      activo: json['activo'] as bool,
+      duracionMinutos: (json['duracion_minutos'] as num?)?.toInt() ?? 0,
+      precio: (json['precio'] as num?)?.toDouble() ?? 0,
+      bufferPreMinutos: (json['buffer_pre_minutos'] as num?)?.toInt() ?? 0,
+      bufferPostMinutos: (json['buffer_post_minutos'] as num?)?.toInt() ?? 0,
+      activo: activoRaw is bool
+          ? activoRaw
+          : ((activoRaw as num?)?.toInt() ?? 1) == 1,
       meta: json['meta'] as Map<String, dynamic>?,
     );
   }

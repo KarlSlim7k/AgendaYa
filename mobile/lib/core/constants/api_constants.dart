@@ -14,6 +14,7 @@ class ApiConstants {
   static const String businesses = '/businesses';
   static String businessDetail(int id) => '/businesses/$id';
   static String businessServices(int id) => '/businesses/$id/services';
+  static String businessEmployees(int id) => '/businesses/$id/employees';
   
   // Appointment endpoints
   static const String appointments = '/appointments';
