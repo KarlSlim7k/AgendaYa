@@ -4,6 +4,7 @@ namespace App\Livewire\Business;
 
 use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Business;
+use App\Models\BusinessUserRole;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -36,30 +37,31 @@ class BusinessProfile extends Component
 
     public function mount()
     {
-        $businessId = auth()->user()->current_business_id;
+        $user = auth()->user();
+        $businessId = $user->current_business_id;
 
+        // If no current_business_id, try to get first business from roles
         if (!$businessId) {
-            session()->flash('error', 'No tienes un negocio activo asignado. Contacta al administrador.');
-            $this->redirect(route('business.dashboard'));
-            return;
+            $firstRole = BusinessUserRole::where('user_id', $user->id)->first();
+            if ($firstRole) {
+                $businessId = $firstRole->business_id;
+            }
         }
 
-        // Try to load the business directly by ID instead of using the relation
-        $this->business = Business::with('locations')->find($businessId);
+        if ($businessId) {
+            // Load business directly by ID
+            $this->business = Business::with('locations')->find($businessId);
 
-        if (!$this->business) {
-            session()->flash('error', 'El negocio no fue encontrado o fue desactivado. Contacta al administrador.');
-            $this->redirect(route('business.dashboard'));
-            return;
+            if ($this->business) {
+                $this->nombre = $this->business->nombre;
+                $this->razon_social = $this->business->razon_social;
+                $this->rfc = $this->business->rfc;
+                $this->telefono = $this->business->telefono;
+                $this->email = $this->business->email;
+                $this->categoria = $this->business->categoria;
+                $this->descripcion = $this->business->descripcion;
+            }
         }
-
-        $this->nombre = $this->business->nombre;
-        $this->razon_social = $this->business->razon_social;
-        $this->rfc = $this->business->rfc;
-        $this->telefono = $this->business->telefono;
-        $this->email = $this->business->email;
-        $this->categoria = $this->business->categoria;
-        $this->descripcion = $this->business->descripcion;
     }
 
     public function save()

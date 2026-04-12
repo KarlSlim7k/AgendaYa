@@ -14,8 +14,9 @@
     @endif
 
     @if (!$business)
-        <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-6 py-10 text-center text-sm text-slate-500">
-            Cargando información del negocio...
+        <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 px-6 py-10 text-center">
+            <p class="text-sm text-amber-300 font-semibold">No se pudo cargar la información del negocio</p>
+            <p class="mt-2 text-xs text-amber-200/70">No tienes un negocio activo asignado. Contacta al administrador de la plataforma.</p>
         </div>
     @else
 
