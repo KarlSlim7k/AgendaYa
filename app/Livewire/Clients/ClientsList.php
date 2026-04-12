@@ -6,6 +6,7 @@ use App\Livewire\Concerns\UsesBusinessLayout;
 use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Livewire\WithPagination;
 
