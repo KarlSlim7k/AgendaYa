@@ -198,111 +198,154 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Future<void> _handleCancelAppointment(int appointmentId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancelar Cita'),
-        content: const Text('¿Estás seguro que deseas cancelar esta cita?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Sí, cancelar'),
-          ),
-        ],
-      ),
-    );
+  Future<bool> _handleCancelAppointment(
+    int appointmentId, {
+    bool skipConfirmation = false,
+  }) async {
+    var confirmed = skipConfirmation;
 
-    if (confirmed == true && mounted) {
-      final success = await context.read<AppointmentProvider>().cancelAppointment(
-            appointmentId,
-            motivo: 'Cancelado por el usuario',
-          );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              success ? 'Cita cancelada' : 'Error al cancelar la cita',
+    if (!skipConfirmation) {
+      confirmed = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Cancelar Cita'),
+              content: const Text('¿Estás seguro que deseas cancelar esta cita?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: const Text('Sí, cancelar'),
+                ),
+              ],
             ),
-            backgroundColor: success ? Colors.green : Colors.red,
-          ),
-        );
-      }
+          ) ??
+          false;
     }
+
+    if (!confirmed || !mounted) {
+      return false;
+    }
+
+    final success = await context.read<AppointmentProvider>().cancelAppointment(
+          appointmentId,
+          motivo: 'Cancelado por el usuario',
+        );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success ? 'Cita cancelada' : 'Error al cancelar la cita',
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+    }
+
+    return success;
   }
 
-  Widget _buildAppointmentCard(Appointment appointment) {
+  Future<void> _refreshAppointments() async {
+    await context.read<AppointmentProvider>().loadMyAppointments();
+  }
+
+  void _openAppointmentDetail(int appointmentId) {
+    Navigator.of(context).pushNamed(
+      AppRoutes.appointmentDetailDeepLink(appointmentId),
+      arguments: appointmentId,
+    );
+  }
+
+  Widget _buildAppointmentCard(
+    Appointment appointment, {
+    bool allowSwipeCancel = false,
+  }) {
     final dateFormat = DateFormat('dd MMM yyyy - HH:mm', 'es');
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    appointment.serviceName ?? 'Servicio',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _openAppointmentDetail(appointment.id),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      appointment.serviceName ?? 'Servicio',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                Chip(
-                  label: Text(
-                    appointment.estado.toUpperCase(),
-                    style: const TextStyle(fontSize: 12),
+                  Chip(
+                    label: Text(
+                      appointment.estado.toUpperCase(),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    backgroundColor: _getStatusColor(appointment.estado),
                   ),
-                  backgroundColor: _getStatusColor(appointment.estado),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              appointment.businessName ?? 'Negocio',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.calendar_today, size: 16),
-                const SizedBox(width: 4),
-                Text(dateFormat.format(appointment.fechaHoraInicio)),
-              ],
-            ),
-            if (appointment.employeeName != null) ...[
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                appointment.businessName ?? 'Negocio',
+                style: const TextStyle(fontSize: 16),
+              ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(Icons.person, size: 16),
+                  const Icon(Icons.calendar_today, size: 16),
                   const SizedBox(width: 4),
-                  Text('Atendido por: ${appointment.employeeName}'),
+                  Text(dateFormat.format(appointment.fechaHoraInicio)),
+                ],
+              ),
+              if (appointment.employeeName != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.person, size: 16),
+                    const SizedBox(width: 4),
+                    Expanded(child: Text('Atendido por: ${appointment.employeeName}')),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => _openAppointmentDetail(appointment.id),
+                    icon: const Icon(Icons.visibility_outlined),
+                    label: const Text('Detalle'),
+                  ),
+                  if (appointment.canCancel)
+                    ElevatedButton.icon(
+                      onPressed: () => _handleCancelAppointment(appointment.id),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.close),
+                      label: Text(
+                        allowSwipeCancel ? 'Cancelar' : 'Cancelar Cita',
+                      ),
+                    ),
                 ],
               ),
             ],
-            if (appointment.canCancel) ...[
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () => _handleCancelAppointment(appointment.id),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Cancelar Cita'),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );
@@ -323,6 +366,140 @@ class _ProfileScreenState extends State<ProfileScreen>
       default:
         return Colors.grey;
     }
+  }
+
+  Widget _buildDismissBackground() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      alignment: Alignment.centerRight,
+      decoration: BoxDecoration(
+        color: Colors.red.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Icon(Icons.delete_outline, color: Colors.white),
+          SizedBox(width: 8),
+          Text(
+            'Cancelar cita',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppointmentsMobileList(
+    List<Appointment> appointments, {
+    required bool allowSwipeCancel,
+  }) {
+    return ListView.builder(
+      itemCount: appointments.length,
+      itemBuilder: (context, index) {
+        final appointment = appointments[index];
+
+        if (!allowSwipeCancel || !appointment.canCancel) {
+          return _buildAppointmentCard(
+            appointment,
+            allowSwipeCancel: allowSwipeCancel,
+          );
+        }
+
+        return Dismissible(
+          key: ValueKey('appointment-${appointment.id}'),
+          direction: DismissDirection.endToStart,
+          background: _buildDismissBackground(),
+          confirmDismiss: (_) async {
+            final success = await _handleCancelAppointment(
+              appointment.id,
+              skipConfirmation: false,
+            );
+            return success;
+          },
+          child: _buildAppointmentCard(
+            appointment,
+            allowSwipeCancel: allowSwipeCancel,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAppointmentsDataTable(
+    List<Appointment> appointments, {
+    required bool allowCancel,
+  }) {
+    final dateFormat = DateFormat('dd/MM/yyyy HH:mm', 'es');
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('Servicio')),
+              DataColumn(label: Text('Negocio')),
+              DataColumn(label: Text('Fecha')),
+              DataColumn(label: Text('Estado')),
+              DataColumn(label: Text('Acciones')),
+            ],
+            rows: appointments
+                .map(
+                  (appointment) => DataRow(
+                    cells: [
+                      DataCell(Text(appointment.serviceName ?? 'Servicio')),
+                      DataCell(Text(appointment.businessName ?? 'Negocio')),
+                      DataCell(Text(dateFormat.format(appointment.fechaHoraInicio))),
+                      DataCell(
+                        Chip(
+                          label: Text(appointment.estado.toUpperCase()),
+                          backgroundColor: _getStatusColor(appointment.estado),
+                        ),
+                      ),
+                      DataCell(
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            TextButton(
+                              onPressed: () => _openAppointmentDetail(appointment.id),
+                              child: const Text('Detalle'),
+                            ),
+                            if (allowCancel && appointment.canCancel)
+                              TextButton(
+                                onPressed: () => _handleCancelAppointment(appointment.id),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: const Text('Cancelar'),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyTabState(String message) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        const SizedBox(height: 120),
+        Center(child: Text(message)),
+      ],
+    );
   }
 
   Widget _buildUserHeader(User? user) {
@@ -426,33 +603,61 @@ class _ProfileScreenState extends State<ProfileScreen>
                   return const Center(child: CircularProgressIndicator());
                 }
 
+                final isDesktop = MediaQuery.sizeOf(context).width >= 1024;
+
+                Widget buildUpcomingTab() {
+                  if (provider.upcomingAppointments.isEmpty) {
+                    return RefreshIndicator(
+                      onRefresh: _refreshAppointments,
+                      child: _buildEmptyTabState('No tienes citas próximas'),
+                    );
+                  }
+
+                  final list = isDesktop
+                      ? _buildAppointmentsDataTable(
+                          provider.upcomingAppointments,
+                          allowCancel: true,
+                        )
+                      : _buildAppointmentsMobileList(
+                          provider.upcomingAppointments,
+                          allowSwipeCancel: true,
+                        );
+
+                  return RefreshIndicator(
+                    onRefresh: _refreshAppointments,
+                    child: list,
+                  );
+                }
+
+                Widget buildPastTab() {
+                  if (provider.pastAppointments.isEmpty) {
+                    return RefreshIndicator(
+                      onRefresh: _refreshAppointments,
+                      child: _buildEmptyTabState('No tienes citas pasadas'),
+                    );
+                  }
+
+                  final list = isDesktop
+                      ? _buildAppointmentsDataTable(
+                          provider.pastAppointments,
+                          allowCancel: false,
+                        )
+                      : _buildAppointmentsMobileList(
+                          provider.pastAppointments,
+                          allowSwipeCancel: false,
+                        );
+
+                  return RefreshIndicator(
+                    onRefresh: _refreshAppointments,
+                    child: list,
+                  );
+                }
+
                 return TabBarView(
                   controller: _tabController,
                   children: [
-                    provider.upcomingAppointments.isEmpty
-                        ? const Center(
-                            child: Text('No tienes citas próximas'),
-                          )
-                        : ListView.builder(
-                            itemCount: provider.upcomingAppointments.length,
-                            itemBuilder: (context, index) {
-                              return _buildAppointmentCard(
-                                provider.upcomingAppointments[index],
-                              );
-                            },
-                          ),
-                    provider.pastAppointments.isEmpty
-                        ? const Center(
-                            child: Text('No tienes citas pasadas'),
-                          )
-                        : ListView.builder(
-                            itemCount: provider.pastAppointments.length,
-                            itemBuilder: (context, index) {
-                              return _buildAppointmentCard(
-                                provider.pastAppointments[index],
-                              );
-                            },
-                          ),
+                    buildUpcomingTab(),
+                    buildPastTab(),
                   ],
                 );
               },

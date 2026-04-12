@@ -11,6 +11,7 @@ class AppointmentProvider with ChangeNotifier {
   
   List<Appointment> _appointments = [];
   List<AvailableSlot> _availableSlots = [];
+  Appointment? _lastCreatedAppointment;
   bool _isLoading = false;
   bool _isLoadingSlots = false;
   bool _slotsFromCache = false;
@@ -20,6 +21,7 @@ class AppointmentProvider with ChangeNotifier {
 
   List<Appointment> get appointments => _appointments;
   List<AvailableSlot> get availableSlots => _availableSlots;
+  Appointment? get lastCreatedAppointment => _lastCreatedAppointment;
   bool get isLoading => _isLoading;
   bool get isLoadingSlots => _isLoadingSlots;
   bool get slotsFromCache => _slotsFromCache;
@@ -41,8 +43,11 @@ class AppointmentProvider with ChangeNotifier {
     String? estado,
     bool? futuras,
     bool? pasadas,
+    bool showLoading = true,
   }) async {
-    _isLoading = true;
+    if (showLoading) {
+      _isLoading = true;
+    }
     _errorMessage = null;
     notifyListeners();
 
@@ -52,10 +57,19 @@ class AppointmentProvider with ChangeNotifier {
         futuras: futuras,
         pasadas: pasadas,
       );
+
+      if (_lastCreatedAppointment != null) {
+        final current = findAppointmentById(_lastCreatedAppointment!.id);
+        if (current != null) {
+          _lastCreatedAppointment = current;
+        }
+      }
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
-      _isLoading = false;
+      if (showLoading) {
+        _isLoading = false;
+      }
       notifyListeners();
     }
   }
@@ -84,6 +98,7 @@ class AppointmentProvider with ChangeNotifier {
       );
 
       _appointments.insert(0, appointment);
+      _lastCreatedAppointment = appointment;
 
       await _slotCacheService.invalidateForBooking(
         businessId: businessId,
@@ -122,6 +137,10 @@ class AppointmentProvider with ChangeNotifier {
       final index = _appointments.indexWhere((apt) => apt.id == appointmentId);
       if (index != -1) {
         _appointments[index] = updatedAppointment;
+      }
+
+      if (_lastCreatedAppointment?.id == appointmentId) {
+        _lastCreatedAppointment = updatedAppointment;
       }
 
       _successMessage = 'Cita cancelada exitosamente';
@@ -231,5 +250,18 @@ class AppointmentProvider with ChangeNotifier {
     _errorMessage = null;
     _successMessage = null;
     notifyListeners();
+  }
+
+  Appointment? findAppointmentById(int appointmentId) {
+    try {
+      return _appointments.firstWhere((appointment) => appointment.id == appointmentId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Appointment?> refreshAppointmentById(int appointmentId) async {
+    await loadMyAppointments(showLoading: false);
+    return findAppointmentById(appointmentId);
   }
 }

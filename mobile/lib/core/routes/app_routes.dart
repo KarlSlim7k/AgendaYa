@@ -8,6 +8,8 @@ class AppRoutes {
   static const String booking = '/booking';
   static const String profile = '/profile';
   static const String myAppointments = '/my-appointments';
+  static const String appointmentDetail = '/appointment-detail';
+  static const String appointmentDeepLinkPrefix = '/appointment';
 
   static String businessDeepLink(int businessId) =>
       '$businessDeepLinkPrefix/$businessId';
@@ -17,5 +19,13 @@ class AppRoutes {
     required int serviceId,
   }) {
     return '$booking?businessId=$businessId&serviceId=$serviceId';
+  }
+
+  static String appointmentDetailDeepLink(int appointmentId) {
+    return '$appointmentDetail?appointmentId=$appointmentId';
+  }
+
+  static String appointmentShortDeepLink(int appointmentId) {
+    return '$appointmentDeepLinkPrefix/$appointmentId';
   }
 }

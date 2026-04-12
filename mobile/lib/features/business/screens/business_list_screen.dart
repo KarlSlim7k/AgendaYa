@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/data/models/appointment.dart';
 import 'package:agenda_ya/data/models/business.dart';
+import 'package:agenda_ya/features/booking/providers/appointment_provider.dart';
 import 'package:agenda_ya/features/business/providers/business_provider.dart';
 import 'package:agenda_ya/shared/widgets/app_state_view.dart';
 
@@ -34,6 +37,7 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
       _locationController.text = provider.locationQuery;
 
       provider.searchBusinesses(refresh: true);
+      context.read<AppointmentProvider>().loadMyAppointments(showLoading: false);
     });
 
     _scrollController.addListener(_onScroll);
@@ -285,6 +289,84 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
     );
   }
 
+  Widget _buildUpcomingAppointmentWidget() {
+    return Consumer<AppointmentProvider>(
+      builder: (context, appointmentProvider, child) {
+        final upcoming = appointmentProvider.upcomingAppointments;
+        if (appointmentProvider.isLoading && upcoming.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: LinearProgressIndicator(),
+          );
+        }
+
+        if (upcoming.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final Appointment next = upcoming.first;
+        final dateLabel = DateFormat('EEE dd MMM, HH:mm', 'es').format(
+          next.fechaHoraInicio.toLocal(),
+        );
+
+        return Card(
+          margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Próxima cita',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  next.serviceName ?? 'Servicio',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 4),
+                Text(next.businessName ?? 'Negocio'),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.schedule, size: 16),
+                    const SizedBox(width: 6),
+                    Text(dateLabel),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(
+                          AppRoutes.appointmentDetailDeepLink(next.id),
+                          arguments: next.id,
+                        );
+                      },
+                      icon: const Icon(Icons.visibility_outlined),
+                      label: const Text('Detalle'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(AppRoutes.profile);
+                      },
+                      child: const Text('Ver todas'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   int _getCrossAxisCount(double width) {
     if (width >= 1280) {
       return 3;
@@ -409,11 +491,14 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
                     )
                   : const SizedBox.shrink();
 
+              final upcomingAppointmentWidget = _buildUpcomingAppointmentWidget();
+
               if (isDesktop) {
                 return Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
+                      upcomingAppointmentWidget,
                       offlineBanner,
                       Expanded(
                         child: Row(
@@ -439,6 +524,7 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
 
               return Column(
                 children: [
+                  upcomingAppointmentWidget,
                   _buildFilters(
                     context: context,
                     provider: provider,

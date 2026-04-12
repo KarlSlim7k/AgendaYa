@@ -15,7 +15,27 @@ Future<void> main() async {
 
   Intl.defaultLocale = 'es_MX';
   await initializeDateFormatting('es_MX', null);
-  await LocalNotificationService.instance.initialize();
+
+  await LocalNotificationService.instance.initialize(
+    onNotificationTap: (payload) {
+      final navigatorState = appNavigatorKey.currentState;
+      if (navigatorState == null) {
+        LocalNotificationService.instance.setPendingNavigationPayload(payload);
+        return;
+      }
+
+      navigatorState.pushNamed(payload);
+    },
+  );
 
   runApp(const AgendaYaApp());
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final payload = LocalNotificationService.instance.consumePendingNavigationPayload();
+    if (payload == null || payload.isEmpty) {
+      return;
+    }
+
+    appNavigatorKey.currentState?.pushNamed(payload);
+  });
 }
