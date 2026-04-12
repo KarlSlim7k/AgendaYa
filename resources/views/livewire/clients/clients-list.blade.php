@@ -64,11 +64,11 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-sm font-bold text-blue-300 ring-1 ring-blue-500/20">
-                                        {{ strtoupper(substr(($client->nombre ?? 'U') . ($client->apellidos ?? ''), 0, 2)) }}
+                                        {{ strtoupper(substr(($client->nombre ?? 'U') . ($hasApellidos ? ($client->apellidos ?? '') : ''), 0, 2)) }}
                                     </div>
                                     <div>
                                         <p class="text-sm font-semibold text-white">
-                                            {{ trim(($client->nombre ?? '') . ' ' . ($client->apellidos ?? '')) }}
+                                            {{ trim(($client->nombre ?? '') . ($hasApellidos ? ' ' . ($client->apellidos ?? '') : '')) }}
                                         </p>
                                         <p class="text-xs text-slate-500">Cliente desde {{ \Carbon\Carbon::parse($client->created_at)->format('M Y') }}</p>
                                     </div>
@@ -134,11 +134,11 @@
                 <div class="mb-5 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-base font-bold text-blue-300 ring-1 ring-blue-500/20">
-                            {{ strtoupper(substr(($selectedClient->nombre ?? 'U') . ($selectedClient->apellidos ?? ''), 0, 2)) }}
+                            {{ strtoupper(substr(($selectedClient->nombre ?? 'U') . ($hasApellidos ? ($selectedClient->apellidos ?? '') : ''), 0, 2)) }}
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-white">
-                                {{ trim(($selectedClient->nombre ?? '') . ' ' . ($selectedClient->apellidos ?? '')) }}
+                                {{ trim(($selectedClient->nombre ?? '') . ($hasApellidos ? ' ' . ($selectedClient->apellidos ?? '') : '')) }}
                             </h3>
                             <p class="text-sm text-slate-400">{{ $selectedClient->email }}</p>
                         </div>

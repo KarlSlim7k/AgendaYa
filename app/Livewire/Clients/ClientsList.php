@@ -74,20 +74,27 @@ class ClientsList extends Component
     {
         $businessId = auth()->user()->current_business_id;
 
+        // Check if 'apellidos' column exists (compatibility with production)
+        $hasApellidos = Schema::hasColumn('users', 'apellidos');
+
         // Get unique clients who have appointments with this business
-        $query = User::select('users.id', 'users.nombre', 'users.apellidos', 'users.email', 
+        $query = User::select('users.id', 'users.nombre', 'users.email', 
                               'users.telefono', 'users.created_at')
+            ->when($hasApellidos, fn($q) => $q->addSelect('users.apellidos'))
             ->join('appointments', 'users.id', '=', 'appointments.user_id')
             ->where('appointments.business_id', $businessId)
-            ->groupBy('users.id', 'users.nombre', 'users.apellidos', 'users.email', 
-                      'users.telefono', 'users.created_at');
+            ->groupBy('users.id', 'users.nombre', 'users.email', 
+                      'users.telefono', 'users.created_at')
+            ->when($hasApellidos, fn($q) => $q->addGroupBy('users.apellidos'));
 
         if ($this->search) {
-            $query->where(function($q) {
+            $query->where(function($q) use ($hasApellidos) {
                 $q->where('users.nombre', 'like', '%' . $this->search . '%')
-                  ->orWhere('users.apellidos', 'like', '%' . $this->search . '%')
                   ->orWhere('users.email', 'like', '%' . $this->search . '%')
                   ->orWhere('users.telefono', 'like', '%' . $this->search . '%');
+                if ($hasApellidos) {
+                    $q->orWhere('users.apellidos', 'like', '%' . $this->search . '%');
+                }
             });
         }
 
@@ -108,6 +115,7 @@ class ClientsList extends Component
 
         return $this->renderInBusinessLayout('livewire.clients.clients-list', [
             'clients' => $clients,
+            'hasApellidos' => $hasApellidos,
         ], 'Clientes', 'Principal');
     }
 }

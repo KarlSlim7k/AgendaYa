@@ -7,7 +7,9 @@
       "Bash(npx *)",
       "Bash(node *)",
       "Bash(mv *)",
-      "Bash(php *)"
+      "Bash(php *)",
+      "Bash(tr *)",
+      "Bash(grep *)"
     ]
   },
   "$version": 3
