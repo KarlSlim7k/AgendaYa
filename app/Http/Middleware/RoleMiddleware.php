@@ -81,6 +81,11 @@ class RoleMiddleware
                                 ->update(['current_business_id' => $effectiveBusinessId]);
                             $user->current_business_id = $effectiveBusinessId;
                             $user->unsetRelation('currentBusiness');
+                            
+                            // Reload the relation so it's available in the request
+                            if (method_exists($user, 'load')) {
+                                $user->load('currentBusiness');
+                            }
                         }
                     }
                 }

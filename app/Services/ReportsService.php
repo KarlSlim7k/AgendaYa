@@ -255,13 +255,17 @@ class ReportsService
      * Reporte de citas con filtros
      */
     public function getAppointmentsReport(
-        Business $business,
+        ?Business $business,
         ?Carbon $fechaInicio = null,
         ?Carbon $fechaFin = null,
         ?int $serviceId = null,
         ?int $employeeId = null,
         ?string $estado = null
     ) {
+        if (!$business) {
+            return collect([]);
+        }
+
         $query = Appointment::where('appointments.business_id', $business->id)
             ->with(['user:id,nombre,email', 'service:id,nombre,precio', 'employee:id,nombre']);
 

@@ -44,7 +44,13 @@ class BusinessProfile extends Component
             return;
         }
 
-        $this->business = Business::with('locations')->findOrFail($businessId);
+        $this->business = Business::with('locations')->find($businessId);
+
+        if (!$this->business) {
+            session()->flash('error', 'El negocio no fue encontrado o fue desactivado. Contacta al administrador.');
+            $this->redirect(route('business.dashboard'));
+            return;
+        }
 
         $this->nombre = $this->business->nombre;
         $this->razon_social = $this->business->razon_social;

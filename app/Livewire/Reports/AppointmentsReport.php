@@ -73,7 +73,14 @@ class AppointmentsReport extends Component
 
     private function resolveBusiness()
     {
-        $business = auth()->user()->currentBusiness;
+        $user = auth()->user();
+        
+        // If current_business_id is set but relation is not loaded, load it
+        if (!$user->currentBusiness && $user->current_business_id) {
+            $user->load('currentBusiness');
+        }
+        
+        $business = $user->currentBusiness;
 
         if (!$business) {
             session()->flash('error', 'No tienes un negocio activo asignado. Contacta al administrador.');

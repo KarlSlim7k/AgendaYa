@@ -156,3 +156,9 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+
+# Herramientas para agentes
+.agents
+CLAUDE.md
+skills-lock.json
