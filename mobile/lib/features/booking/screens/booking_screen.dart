@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import 'package:agenda_ya/core/routes/app_routes.dart';
-import 'package:agenda_ya/core/services/local_notification_service.dart';
 import 'package:agenda_ya/data/models/available_slot.dart';
 import 'package:agenda_ya/features/booking/providers/appointment_provider.dart';
 
@@ -151,13 +150,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
     if (success && mounted) {
       final createdAppointment = provider.lastCreatedAppointment;
-      if (createdAppointment != null) {
-        await LocalNotificationService.instance.showAppointmentConfirmationNotification(
-          appointmentId: createdAppointment.id,
-          serviceName: createdAppointment.serviceName ?? 'Tu cita',
-          startAt: createdAppointment.fechaHoraInicio,
-        );
-      }
 
       showDialog(
         context: context,

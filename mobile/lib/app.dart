@@ -10,6 +10,7 @@ import 'package:agenda_ya/core/widgets/responsive_frame.dart';
 import 'package:agenda_ya/features/auth/providers/auth_provider.dart';
 import 'package:agenda_ya/features/booking/providers/appointment_provider.dart';
 import 'package:agenda_ya/features/business/providers/business_provider.dart';
+import 'package:agenda_ya/features/notifications/providers/notification_provider.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -23,6 +24,7 @@ class AgendaYaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BusinessProvider()),
         ChangeNotifierProvider(create: (_) => AppointmentProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         navigatorKey: appNavigatorKey,

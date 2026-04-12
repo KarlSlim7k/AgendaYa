@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,8 @@ import 'package:agenda_ya/data/models/appointment.dart';
 import 'package:agenda_ya/data/models/user.dart';
 import 'package:agenda_ya/features/auth/providers/auth_provider.dart';
 import 'package:agenda_ya/features/booking/providers/appointment_provider.dart';
+import 'package:agenda_ya/features/notifications/models/notification_delivery_log.dart';
+import 'package:agenda_ya/features/notifications/providers/notification_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -27,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().initializeSecurityState();
       context.read<AppointmentProvider>().loadMyAppointments();
+      context.read<NotificationProvider>().initialize();
     });
   }
 
@@ -251,6 +255,47 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Future<void> _refreshAppointments() async {
     await context.read<AppointmentProvider>().loadMyAppointments();
+    await context.read<NotificationProvider>().refreshLogs();
+  }
+
+  Future<void> _toggleWhatsAppReminders(bool enabled) async {
+    await context
+        .read<NotificationProvider>()
+        .setWhatsAppRemindersEnabled(enabled);
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          enabled
+              ? 'Recordatorios por WhatsApp activados (beta).'
+              : 'Recordatorios por WhatsApp desactivados.',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleBrowserNotifications(bool enabled) async {
+    await context
+        .read<NotificationProvider>()
+        .setBrowserNotificationsEnabled(enabled);
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          enabled
+              ? 'Notificaciones del navegador activadas.'
+              : 'Notificaciones del navegador desactivadas.',
+        ),
+      ),
+    );
   }
 
   void _openAppointmentDetail(int appointmentId) {
@@ -366,6 +411,176 @@ class _ProfileScreenState extends State<ProfileScreen>
       default:
         return Colors.grey;
     }
+  }
+
+  Color _notificationStatusColor(String status) {
+    switch (status) {
+      case 'enviado':
+        return Colors.green;
+      case 'programado':
+      case 'pendiente':
+        return Colors.blue;
+      case 'fallido':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildNotificationSettingsCard() {
+    return Consumer<NotificationProvider>(
+      builder: (context, notificationProvider, child) {
+        return Card(
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Column(
+            children: [
+              SwitchListTile.adaptive(
+                title: const Text('Recordatorios WhatsApp'),
+                subtitle: const Text(
+                  'Cuando esté habilitado, se intenta enviar WhatsApp y si falla aplica fallback a email.',
+                ),
+                value: notificationProvider.whatsAppRemindersEnabled,
+                onChanged: _toggleWhatsAppReminders,
+              ),
+              if (kIsWeb)
+                SwitchListTile.adaptive(
+                  title: const Text('Notificaciones del navegador'),
+                  subtitle: const Text(
+                    'Mostrar confirmaciones y recordatorios en el navegador web.',
+                  ),
+                  value: notificationProvider.browserNotificationsEnabled,
+                  onChanged: _toggleBrowserNotifications,
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showNotificationLogsSheet(List<NotificationDeliveryLog> logs) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Historial de notificaciones',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 380,
+                  child: ListView.separated(
+                    itemCount: logs.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final log = logs[index];
+                      final color = _notificationStatusColor(log.status);
+                      final time = DateFormat('dd/MM HH:mm', 'es')
+                          .format(log.createdAt.toLocal());
+
+                      return ListTile(
+                        title: Text('${log.channel} • ${log.event}'),
+                        subtitle: Text(log.message ?? '-'),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              log.status,
+                              style: TextStyle(
+                                color: color,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Text(time, style: const TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNotificationLogsPreview() {
+    return Consumer<NotificationProvider>(
+      builder: (context, notificationProvider, child) {
+        final logs = notificationProvider.logs;
+        if (logs.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final preview = logs.take(3).toList();
+
+        return Card(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Trazabilidad de notificaciones',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => _showNotificationLogsSheet(logs),
+                      child: const Text('Ver todo'),
+                    ),
+                  ],
+                ),
+                ...preview.map((log) {
+                  final color = _notificationStatusColor(log.status);
+                  final time = DateFormat('dd/MM HH:mm', 'es')
+                      .format(log.createdAt.toLocal());
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.circle, size: 10, color: color),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${log.channel} • ${log.event} • ${log.status}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          time,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildDismissBackground() {
@@ -589,6 +804,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               );
             },
           ),
+          _buildNotificationSettingsCard(),
+          _buildNotificationLogsPreview(),
           TabBar(
             controller: _tabController,
             tabs: const [

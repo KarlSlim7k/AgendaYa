@@ -19,6 +19,8 @@ class ApiConstants {
   // Appointment endpoints
   static const String appointments = '/appointments';
   static String appointmentCancel(int id) => '/appointments/$id/cancel';
+  static String appointmentNotificationDispatch(int id) =>
+      '/appointments/$id/notifications/dispatch';
   
   // Availability endpoint
   static const String availabilitySlots = '/availability/slots';

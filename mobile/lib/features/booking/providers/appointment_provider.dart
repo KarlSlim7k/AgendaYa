@@ -4,10 +4,13 @@ import 'package:agenda_ya/data/models/available_slot.dart';
 import 'package:agenda_ya/data/models/appointment.dart';
 import 'package:agenda_ya/data/providers/appointment_service.dart';
 import 'package:agenda_ya/features/booking/services/slot_cache_service.dart';
+import 'package:agenda_ya/features/notifications/services/notification_coordinator_service.dart';
 
 class AppointmentProvider with ChangeNotifier {
   final AppointmentService _appointmentService = AppointmentService();
   final SlotCacheService _slotCacheService = SlotCacheService();
+  final NotificationCoordinatorService _notificationCoordinatorService =
+      NotificationCoordinatorService();
   
   List<Appointment> _appointments = [];
   List<AvailableSlot> _availableSlots = [];
@@ -57,6 +60,8 @@ class AppointmentProvider with ChangeNotifier {
         futuras: futuras,
         pasadas: pasadas,
       );
+
+      await _notificationCoordinatorService.onAppointmentsSynced(_appointments);
 
       if (_lastCreatedAppointment != null) {
         final current = findAppointmentById(_lastCreatedAppointment!.id);
@@ -110,6 +115,8 @@ class AppointmentProvider with ChangeNotifier {
         employeeId: employeeId,
       );
 
+      await _notificationCoordinatorService.onAppointmentConfirmed(appointment);
+
       _successMessage = 'Cita creada exitosamente';
       _isLoading = false;
       notifyListeners();
@@ -142,6 +149,10 @@ class AppointmentProvider with ChangeNotifier {
       if (_lastCreatedAppointment?.id == appointmentId) {
         _lastCreatedAppointment = updatedAppointment;
       }
+
+      await _notificationCoordinatorService.onAppointmentCancelled(
+        updatedAppointment,
+      );
 
       _successMessage = 'Cita cancelada exitosamente';
       _isLoading = false;

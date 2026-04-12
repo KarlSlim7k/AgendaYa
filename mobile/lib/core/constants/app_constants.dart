@@ -7,6 +7,12 @@ class AppConstants {
   static const String userDataKey = 'user_data';
   static const String rememberSessionKey = 'remember_session';
   static const String biometricEnabledKey = 'biometric_enabled';
+    static const String whatsappRemindersEnabledKey =
+      'whatsapp_reminders_enabled';
+    static const String browserNotificationsEnabledKey =
+      'browser_notifications_enabled';
+    static const String reminderPlansKey = 'appointment_reminder_plans_v1';
+    static const String notificationLogsKey = 'notification_delivery_logs_v1';
   
   // Date Formats
   static const String dateFormat = 'dd/MM/yyyy';

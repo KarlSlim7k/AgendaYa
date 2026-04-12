@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:agenda_ya/core/constants/app_constants.dart';
 import 'package:agenda_ya/core/routes/app_routes.dart';
+import 'package:agenda_ya/core/services/browser_notification_service.dart';
 
 class LocalNotificationService {
   LocalNotificationService._();
@@ -107,18 +110,30 @@ class LocalNotificationService {
     await _plugin.cancel(_sessionReminderNotificationId);
   }
 
-  Future<void> showAppointmentConfirmationNotification({
+  Future<bool> showAppointmentConfirmationNotification({
     required int appointmentId,
     required String serviceName,
     required DateTime startAt,
   }) async {
     if (kIsWeb) {
-      return;
+      final enabled = await _areBrowserNotificationsEnabled();
+      if (!enabled) {
+        return false;
+      }
+
+      final appointmentDate =
+          DateFormat('dd MMM, HH:mm', 'es').format(startAt.toLocal());
+      return browserNotificationService.showNotification(
+        title: 'Reserva confirmada',
+        body: '$serviceName • $appointmentDate',
+        tag: 'appointment-confirmed-$appointmentId',
+      );
     }
 
     await initialize();
 
-    final appointmentDate = DateFormat('dd MMM, HH:mm', 'es').format(startAt.toLocal());
+    final appointmentDate =
+        DateFormat('dd MMM, HH:mm', 'es').format(startAt.toLocal());
     final payload = AppRoutes.appointmentDetailDeepLink(appointmentId);
 
     await _plugin.show(
@@ -138,6 +153,75 @@ class LocalNotificationService {
       ),
       payload: payload,
     );
+
+    return true;
+  }
+
+  Future<bool> showAppointmentReminderNotification({
+    required int appointmentId,
+    required String serviceName,
+    required DateTime startAt,
+    required int hoursBefore,
+  }) async {
+    final reminderText =
+        hoursBefore == 24 ? 'Tu cita es mañana.' : 'Tu cita es en 1 hora.';
+    final appointmentDate =
+        DateFormat('dd MMM, HH:mm', 'es').format(startAt.toLocal());
+
+    if (kIsWeb) {
+      final enabled = await _areBrowserNotificationsEnabled();
+      if (!enabled) {
+        return false;
+      }
+
+      return browserNotificationService.showNotification(
+        title: 'Recordatorio de cita',
+        body: '$reminderText $serviceName • $appointmentDate',
+        tag: 'appointment-reminder-$appointmentId-$hoursBefore',
+      );
+    }
+
+    await initialize();
+
+    await _plugin.show(
+      _reminderNotificationId(appointmentId, hoursBefore),
+      'Recordatorio de cita',
+      '$reminderText $serviceName • $appointmentDate',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'appointment-reminders',
+          'Recordatorios de cita',
+          channelDescription: 'Recordatorios locales de citas agendadas',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+        macOS: DarwinNotificationDetails(),
+      ),
+      payload: AppRoutes.appointmentDetailDeepLink(appointmentId),
+    );
+
+    return true;
+  }
+
+  Future<void> cancelAppointmentReminderNotifications(int appointmentId) async {
+    if (kIsWeb) {
+      return;
+    }
+
+    await initialize();
+    await _plugin.cancel(_reminderNotificationId(appointmentId, 24));
+    await _plugin.cancel(_reminderNotificationId(appointmentId, 1));
+  }
+
+  int _reminderNotificationId(int appointmentId, int hoursBefore) {
+    final slot = hoursBefore == 24 ? 1 : 2;
+    return 300000 + (appointmentId * 10) + slot;
+  }
+
+  Future<bool> _areBrowserNotificationsEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(AppConstants.browserNotificationsEnabledKey) ?? true;
   }
 
   void setPendingNavigationPayload(String payload) {

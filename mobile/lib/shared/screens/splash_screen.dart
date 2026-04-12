@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:agenda_ya/core/routes/app_routes.dart';
 import 'package:agenda_ya/features/auth/providers/auth_provider.dart';
+import 'package:agenda_ya/features/notifications/services/notification_coordinator_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,6 +13,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final NotificationCoordinatorService _notificationCoordinatorService =
+      NotificationCoordinatorService();
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +35,8 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (authProvider.isAuthenticated) {
+      await _notificationCoordinatorService.processPendingLocalReminders();
+
       final unlocked = await authProvider.requireBiometricUnlockIfNeeded();
       if (!mounted) {
         return;
