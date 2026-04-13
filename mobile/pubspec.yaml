@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   
   # UI
   cupertino_icons: ^1.0.8
@@ -35,7 +37,7 @@ dependencies:
   url_launcher: ^6.3.0
   
   # Date & Time
-  intl: ^0.19.0
+  intl: ^0.20.2
   
   # Utils
   logger: ^2.4.0

@@ -4,7 +4,9 @@ import 'package:agenda_ya/data/models/user.dart';
 import 'api_client.dart';
 
 class AuthService {
-  final ApiClient _apiClient = ApiClient();
+  final ApiClient _apiClient;
+
+  AuthService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
 
   Future<Map<String, dynamic>> register({
     required String name,

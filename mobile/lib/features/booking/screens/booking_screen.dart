@@ -36,7 +36,8 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSlots();
+    // Defer to after first frame to avoid notifyListeners during build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadSlots());
   }
 
   @override

@@ -6,7 +6,9 @@ import 'package:agenda_ya/data/models/service.dart';
 import 'api_client.dart';
 
 class BusinessService {
-  final ApiClient _apiClient = ApiClient();
+  final ApiClient _apiClient;
+
+  BusinessService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
 
   Future<Map<String, dynamic>> searchBusinesses({
     String? category,

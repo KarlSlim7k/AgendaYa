@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:agenda_ya/data/models/user.dart';
@@ -69,7 +71,7 @@ class _FakeNotificationProvider extends NotificationProvider {
   bool get browserNotificationsEnabled => _browserEnabled;
 
   @override
-  List<NotificationDeliveryLog> get logs => const [
+  List<NotificationDeliveryLog> get logs => [
         NotificationDeliveryLog(
           id: 'n1',
           appointmentId: 11,
@@ -101,8 +103,20 @@ class _FakeNotificationProvider extends NotificationProvider {
 }
 
 void main() {
+  setUpAll(() async {
+    Intl.defaultLocale = 'es_MX';
+    await initializeDateFormatting('es_MX', null);
+  });
+
   testWidgets('ProfileScreen shows notification settings and traceability block',
       (tester) async {
+    // Provide enough viewport height to avoid Column overflow in tests
+    tester.view.physicalSize = const Size(800, 3200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+    });
+
     await tester.pumpWidget(
       MultiProvider(
         providers: [

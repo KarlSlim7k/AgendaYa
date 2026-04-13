@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:agenda_ya/main.dart' as app;
 import 'package:flutter/material.dart';
 
@@ -17,6 +19,11 @@ import 'package:flutter/material.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    Intl.defaultLocale = 'es_MX';
+    await initializeDateFormatting('es_MX', null);
+  });
 
   group('Auth Flow E2E Tests', () {
     testWidgets('Debe completar flujo de registro exitosamente', (tester) async {

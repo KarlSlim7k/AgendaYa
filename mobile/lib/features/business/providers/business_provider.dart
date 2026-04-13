@@ -1,10 +1,21 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:agenda_ya/data/models/business.dart';
 import 'package:agenda_ya/data/models/employee.dart';
 import 'package:agenda_ya/data/models/service.dart';
 import 'package:agenda_ya/data/providers/business_service.dart';
 import 'package:agenda_ya/features/business/services/business_cache_service.dart';
 
-class BusinessProvider with ChangeNotifier {
+class BusinessProvider extends ChangeNotifier {
+  final BusinessService _businessService;
+  final BusinessCacheService _businessCacheService;
+
+  BusinessProvider({
+    BusinessService? businessService,
+    BusinessCacheService? businessCacheService,
+  })  : _businessService = businessService ?? BusinessService(),
+        _businessCacheService = businessCacheService ?? BusinessCacheService();
+
   static const String allCategoriesValue = 'all';
 
   static const Map<String, String> categoryOptions = {
@@ -16,9 +27,6 @@ class BusinessProvider with ChangeNotifier {
     'Taller': 'taller',
     'Otro': 'otro',
   };
-
-  final BusinessService _businessService = BusinessService();
-  final BusinessCacheService _businessCacheService = BusinessCacheService();
 
   List<Business> _businesses = [];
   Business? _selectedBusiness;

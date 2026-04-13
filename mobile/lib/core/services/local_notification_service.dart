@@ -63,7 +63,7 @@ class LocalNotificationService {
 
     await _plugin
         .resolvePlatformSpecificImplementation<
-          DarwinFlutterLocalNotificationsPlugin
+          IOSFlutterLocalNotificationsPlugin
         >()
         ?.requestPermissions(
           alert: true,

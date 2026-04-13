@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:agenda_ya/data/models/user.dart';
 import 'package:agenda_ya/data/models/business.dart';
@@ -27,11 +28,13 @@ Business createTestBusiness({
   String nombre = 'Test Business',
   String categoria = 'peluqueria',
   String? descripcion = 'Descripción de prueba',
-  String? telefono = '+52 55 8765 4321',
-  String? email = 'business@example.com',
+  String telefono = '+52 55 8765 4321',
+  String email = 'business@example.com',
+  String estado = 'active',
   int? totalServices = 5,
   int? totalEmployees = 3,
   List<BusinessLocation>? locations,
+  DateTime? createdAt,
 }) {
   return Business(
     id: id,
@@ -40,9 +43,11 @@ Business createTestBusiness({
     descripcion: descripcion,
     telefono: telefono,
     email: email,
+    estado: estado,
+    locations: locations ?? [],
     totalServices: totalServices,
     totalEmployees: totalEmployees,
-    locations: locations,
+    createdAt: createdAt,
   );
 }
 
@@ -54,6 +59,7 @@ BusinessLocation createTestLocation({
   String ciudad = 'Ciudad de México',
   String estado = 'CDMX',
   String codigoPostal = '01000',
+  bool activo = true,
 }) {
   return BusinessLocation(
     id: id,
@@ -62,6 +68,7 @@ BusinessLocation createTestLocation({
     ciudad: ciudad,
     estado: estado,
     codigoPostal: codigoPostal,
+    activo: activo,
   );
 }
 
@@ -73,9 +80,11 @@ Service createTestService({
   int duracionMinutos = 30,
   double precio = 150.0,
   bool activo = true,
+  required int businessId,
 }) {
   return Service(
     id: id,
+    businessId: businessId,
     nombre: nombre,
     descripcion: descripcion,
     duracionMinutos: duracionMinutos,
@@ -97,6 +106,7 @@ Appointment createTestAppointment({
   String? businessName = 'Test Business',
   String? serviceName = 'Test Service',
   String? employeeName = 'Test Employee',
+  DateTime? createdAt,
 }) {
   final inicio = fechaHoraInicio ?? DateTime.now().add(const Duration(days: 1));
   final fin = fechaHoraFin ?? inicio.add(const Duration(minutes: 30));
@@ -113,6 +123,7 @@ Appointment createTestAppointment({
     businessName: businessName,
     serviceName: serviceName,
     employeeName: employeeName,
+    createdAt: createdAt ?? DateTime.now(),
   );
 }
 

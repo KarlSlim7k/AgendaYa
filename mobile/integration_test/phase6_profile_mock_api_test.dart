@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:agenda_ya/data/models/appointment.dart';
@@ -111,7 +113,7 @@ class _FakeNotificationProvider extends NotificationProvider {
   bool get whatsAppRemindersEnabled => _whatsappEnabled;
 
   @override
-  List<NotificationDeliveryLog> get logs => const [
+  List<NotificationDeliveryLog> get logs => [
         NotificationDeliveryLog(
           id: 'l1',
           appointmentId: 1,
@@ -138,6 +140,11 @@ class _FakeNotificationProvider extends NotificationProvider {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    Intl.defaultLocale = 'es_MX';
+    await initializeDateFormatting('es_MX', null);
+  });
 
   testWidgets('profile flow renders upcoming/past tabs with notification controls',
       (tester) async {

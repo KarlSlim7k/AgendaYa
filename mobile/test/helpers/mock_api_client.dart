@@ -1,7 +1,3 @@
-import 'package:agenda_ya/data/models/user.dart';
-import 'package:agenda_ya/data/models/business.dart';
-import 'package:agenda_ya/data/models/service.dart';
-import 'package:agenda_ya/data/models/appointment.dart';
 import 'test_helpers.dart';
 
 /// Mock API Client para tests unitarios
@@ -111,6 +107,7 @@ class MockApiClient {
         id: index + 1,
         nombre: 'Service ${index + 1}',
         precio: 100.0 + (index * 50),
+        businessId: businessId,
       ),
     );
     
